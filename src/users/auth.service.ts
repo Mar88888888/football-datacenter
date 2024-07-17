@@ -59,9 +59,10 @@ export class AuthService {
   async verifyEmail(token: string) {
     const user = await this.usersService.findByVerificationToken(token);
     if (!user) {
-      throw new Error('Invalid verification token');
+      throw new BadRequestException('Invalid verification token');
     }
     user.isEmailVerified = true;
     await this.usersService.update(user.id, user);
+    return { message: 'Email verified successfully' };
   }
 }

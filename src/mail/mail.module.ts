@@ -6,8 +6,6 @@ import * as path from 'path';
 require('dotenv').config();
 
 const templateDir = path.resolve(__dirname, '../..', 'src', 'mail', 'templates');
-console.log('Template directory:', templateDir);
-console.log('Envar:', process.env.SMTP_USER, process.env.SMTP_PASS);
 
 @Module({
   imports: [
@@ -22,7 +20,7 @@ console.log('Envar:', process.env.SMTP_USER, process.env.SMTP_PASS);
         },
       },
       defaults: {
-        from: '"No Reply" <no-reply@example.com>',
+        from: '"Football-datacenter" <no-reply@example.com>',
       },
       template: {
         dir: templateDir,

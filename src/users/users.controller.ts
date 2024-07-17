@@ -38,6 +38,13 @@ export class UsersController {
     return user;
   }
 
+  @Get('/verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    let res  = await this.authService.verifyEmail(token);
+    console.log('Verification result:', res);
+    return res;
+  }
+
   @Post('/signout')
   signOut(@Session() session: any) {
     session.userId = null;
@@ -67,8 +74,8 @@ export class UsersController {
   }
 
   @Get()
-  findAllUsers(@Query('email') email: string) {
-    return this.usersService.find(email);
+  async findAllUsers(@Query('email') email: string) {
+    return await this.usersService.find(email);
   }
 
   @Delete('/:id')
@@ -81,9 +88,4 @@ export class UsersController {
     return this.usersService.update(parseInt(id), body);
   }
 
-  @Get('verify-email')
-  async verifyEmail(@Query('token') token: string) {
-    await this.authService.verifyEmail(token);
-    return { message: 'Email verified successfully' };
-  }
 }

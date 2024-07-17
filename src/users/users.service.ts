@@ -48,7 +48,8 @@ export class UsersService {
   }
 
   async findByVerificationToken(token: string): Promise<User> {
-    return this.repo.findOne({ where: { verificationToken: token } });
+    let [user] = await this.repo.find({where: {verificationToken: token} });
+    return user;
   }
 
 }

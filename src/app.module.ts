@@ -4,6 +4,12 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
+import { MatchesModule } from './matches/matches.module';
+import { HttpModule } from '@nestjs/axios';
+import { MatchesController } from './matches/matches.controller';
+import { AuthService } from './users/auth.service';
+import { MatchesService } from './matches/matches.service';
+import { TeamsModule } from './teams/teams.module';
 
 @Module({
   imports: [
@@ -18,7 +24,9 @@ import { User } from './users/user.entity';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User]),
-    UsersModule, 
+    UsersModule,
+    MatchesModule, 
+    HttpModule, TeamsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
