@@ -6,10 +6,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
 import { MatchesModule } from './matches/matches.module';
 import { HttpModule } from '@nestjs/axios';
-import { MatchesController } from './matches/matches.controller';
-import { AuthService } from './users/auth.service';
-import { MatchesService } from './matches/matches.service';
-import { TeamsModule } from './teams/teams.module';
+import { TeamsModule } from './team/teams.module';
+import { PlayerModule } from './player/player.module';
+import { CompetitionModule } from './competition/competition.module';
+import { CoachModule } from './coach/coach.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
+import { Team } from './team/team.entity';
+import { Competition } from './competition/competition.entity';
+import { Coach } from './coach/coach.entity';
+import { Player } from './player/player.entity';
+import { GlobalRequestCounterService } from './global-request-counter.service';
 
 @Module({
   imports: [
@@ -23,12 +29,12 @@ import { TeamsModule } from './teams/teams.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Team, Competition, Coach, Player]),
     UsersModule,
     MatchesModule, 
-    HttpModule, TeamsModule,
+    HttpModule, TeamsModule, PlayerModule, CompetitionModule, CoachModule, SchedulerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GlobalRequestCounterService],
 })
 export class AppModule {}
