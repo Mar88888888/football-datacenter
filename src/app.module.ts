@@ -14,8 +14,8 @@ import { SchedulerModule } from './scheduler/scheduler.module';
 import { Team } from './team/team.entity';
 import { Competition } from './competition/competition.entity';
 import { Coach } from './coach/coach.entity';
-import { Player } from './player/player.entity';
 import { GlobalRequestCounterService } from './global-request-counter.service';
+import { TablesModule } from './tables/tables.module';
 
 @Module({
   imports: [
@@ -29,10 +29,10 @@ import { GlobalRequestCounterService } from './global-request-counter.service';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User, Team, Competition, Coach, Player]),
+    TypeOrmModule.forFeature([User, Team, Competition, Coach]),
     UsersModule,
     MatchesModule, 
-    HttpModule, TeamsModule, PlayerModule, CompetitionModule, CoachModule, SchedulerModule,
+    HttpModule, TeamsModule, PlayerModule, CompetitionModule, CoachModule, SchedulerModule, TablesModule,
   ],
   controllers: [AppController],
   providers: [AppService, GlobalRequestCounterService],

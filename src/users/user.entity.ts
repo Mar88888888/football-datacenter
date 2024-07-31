@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { IsEmail, IsString } from 'class-validator';
+import { Competition } from '../competition/competition.entity';
+import { Team } from '../team/team.entity';
 
 @Entity()
 export class User {
@@ -24,5 +26,13 @@ export class User {
 
   @Column({ nullable: true })
   verificationToken: string;
+
+  @ManyToMany(() => Competition, competition => competition.user)
+  @JoinTable()
+  favCompetitions: Competition[];
+
+  @ManyToMany(() => Team, team => team.users)
+  @JoinTable()
+  favTeams: Team[];
 }
 

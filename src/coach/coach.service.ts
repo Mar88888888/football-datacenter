@@ -1,25 +1,45 @@
-import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Coach } from './coach.entity';
-import { TeamService } from '../team/teams.service';
+import { Team } from '../team/team.entity';
 
 @Injectable()
 export class CoachService {
   constructor(
-    private readonly httpService: HttpService,
     @InjectRepository(Coach)
     private readonly coachRepository: Repository<Coach>,
-    private readonly teamService: TeamService,
   ) {}
 
-  async fetchAndStoreCoaches(): Promise<void> {
-    const teams = await this.teamService.getAllTeams();
-    for (const team of teams) {
-      if (team.coach && team.coach.id) {
-        await this.coachRepository.save(team.coach);
-      }
+  async saveCoach(coach: Coach, team: Team): Promise<void> {
+        coach.team = team;
+        await this.coachRepository.save(coach);
+  }
+
+  async getAll(){
+    let coaches = await this.coachRepository.find({ relations: ['team'] });
+    if(!coaches || coaches.length == 0){
+      throw new NotFoundException('Coaches not found')
     }
+    return coaches;
+  }
+
+  async findOne(coachId: number){
+    let coach = await this.coachRepository.findOne({where: { id: coachId }});
+    if(!coach){
+      throw new NotFoundException(`Coach with id ${coachId} not found`)
+    }
+    return coach;
+  }
+  
+  async getFromTeam (teamId: number){
+    let coach = await this.coachRepository
+      .createQueryBuilder('coach')
+      .innerJoinAndSelect('coach.team', 'team', 'team.id = :teamId', { teamId })
+      .getOne();
+    if(!coach){
+      throw new NotFoundException(`Coach from team with id ${teamId} not found`)
+    }
+    return coach;
   }
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>It's Matchday!</title>
+  <style>
+    #headfooter {
+      width: 100%;
+      height: 40px;
+      background-color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="headfooter"></div>
+  <p>Hello {{name}},</p>
+  <p>It's matchday!</p>
+
+  {{#if competitions.length}}
+  <p><strong>Competitions:</strong></p>
+  <ul>
+    {{#each competitions}}
+    <li>{{this.competition.name}} - {{this.matchDate}}</li>
+    {{#if this.competition.emblem}}
+    <img src="{{this.competition.emblem}}">
+    {{/if}}
+    {{/each}}
+  </ul>
+  {{/if}}
+
+  {{#if teams.length}}
+  <p><strong>Teams:</strong></p>
+  <ul>
+    {{#each teams}}
+    <li>{{this.team.name}} - {{this.matchDate}}</li>
+    {{#if this.team.crest}}
+    <img src="{{this.team.crest}}">
+    {{/if}}
+    {{/each}}
+  </ul>
+  {{/if}}
+
+  <p>Enjoy the game!</p>
+
+  <p>
+    Best regards,<br>
+    Football-datacenter
+  </p>
+  <div id="headfooter"></div>
+
+</body>
+
+</html>

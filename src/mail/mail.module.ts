@@ -11,8 +11,8 @@ const templateDir = path.resolve(__dirname, '../..', 'src', 'mail', 'templates')
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.gmail.com',
-        port: 587,
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT),
         secure: false,
         auth: {
           user: process.env.SMTP_USER,
@@ -20,7 +20,7 @@ const templateDir = path.resolve(__dirname, '../..', 'src', 'mail', 'templates')
         },
       },
       defaults: {
-        from: '"Football-datacenter" <no-reply@example.com>',
+        from: process.env.SMTP_USER,
       },
       template: {
         dir: templateDir,

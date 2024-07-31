@@ -18,6 +18,7 @@ export class CurrentUserInterceptor implements NestInterceptor {
     if (userId) {
       const user = await this.usersService.findOne(userId);
       request.currentUser = user;
+      request.session.emailVerified = user.isEmailVerified;
     }
 
     return handler.handle();

@@ -5,9 +5,17 @@ export class GlobalRequestCounterService {
   private readonly logger = new Logger(GlobalRequestCounterService.name);
   private requestCounter = 0;
   private countdownInProgress = false;
+  private lastIncrementTime: number | null = null;
 
   async incrementCounter(): Promise<void> {
+    const currentTime = Date.now();
+    if (this.lastIncrementTime && (currentTime - this.lastIncrementTime) > 60000) {
+      this.requestCounter = 0;
+    }
+
     this.requestCounter++;
+    this.lastIncrementTime = currentTime;
+
     if (this.requestCounter >= 9 && !this.countdownInProgress) {
       this.logger.log("Rate limit reached, waiting for 60 seconds...");
       this.countdownInProgress = true;

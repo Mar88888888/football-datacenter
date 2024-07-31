@@ -1,46 +1,48 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
+import { Entity, Column, OneToOne, JoinTable, ManyToMany, JoinColumn, PrimaryColumn } from 'typeorm';
 import { Coach } from '../coach/coach.entity';
-import { Player } from '../player/player.entity';
 import { Competition } from '../competition/competition.entity';
+import { User } from '../users/user.entity';
 
 @Entity()
 export class Team {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   shortName: string;
 
-  @Column()
+  @Column({ nullable: true })
   tla: string;
 
-  @Column()
+  @Column({ nullable: true })
   crest: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
-  @Column()
+  @Column({ nullable: true })
   website: string;
 
-  @Column()
+  @Column({ nullable: true })
   founded: number;
 
-  @Column()
+  @Column({ nullable: true })
   clubColors: string;
 
-  @Column()
+  @Column({ nullable: true })
   venue: string;
 
-  @OneToOne(() => Coach, { cascade: true })
+  @OneToOne(() => Coach, coach => coach.team, { cascade: true })
+  @JoinColumn()
   coach: Coach;
-
-  @OneToMany(() => Player, player => player.currentTeamId, { cascade: true })
-  squad: Player[];
-
-  @OneToMany(() => Competition, competition => competition.team)
+  
+  @ManyToMany(() => Competition, competition => competition.team,  {cascade: true})
+  @JoinTable()
   competitions: Competition[];
+
+  @ManyToMany(() => User, user => user.favTeams)
+  users: User[];
 }

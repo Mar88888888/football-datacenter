@@ -13,13 +13,36 @@ export class MailService {
     const url = `http://localhost:3000/auth/verify-email?token=${token}`;
 
     await this.mailerService.sendMail({
-      to: user.email,
+      to,
       subject: 'Email Verification',
-      template: './verification', 
+      template: templateName, 
       context: { 
         name: user.name,
         verificationLink: url
       },
     });
   }
+
+  async sendMatchdayNotification(to: string, user: User, matchesToday: any[]) {
+    const templateName = './matchdayNotification';
+
+    console.log('Sending email using template:', templateName, ' to ', to);
+
+    const competitions = matchesToday.filter(match => match.type === 'competition');
+    const teams = matchesToday.filter(match => match.type === 'team');
+
+    await this.mailerService.sendMail({
+      to,
+      subject: 'MatchDay!',
+      template: templateName,
+      context: {
+        name: user.name,
+        competitions,
+        teams,
+      },
+    });
+
+    console.log('Email sent');
+  }
+
 }

@@ -7,9 +7,11 @@ import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { CurrentUserInterceptor } from './interceptors/curent-user.interceptor';
 import { MailModule } from '../mail/mail.module';
+import { TeamsModule } from '../team/teams.module';
+import { CompetitionModule } from '../competition/competition.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), MailModule],
+  imports: [TypeOrmModule.forFeature([User]), MailModule, TeamsModule, CompetitionModule],
   controllers: [UsersController],
   providers: [
     UsersService,

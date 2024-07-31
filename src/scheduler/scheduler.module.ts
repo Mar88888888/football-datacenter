@@ -6,9 +6,12 @@ import { TeamsModule } from '../team/teams.module';
 import { CompetitionModule } from '../competition/competition.module';
 import { PlayerModule } from '../player/player.module';
 import { CoachModule } from '../coach/coach.module';
+import { UsersModule } from '../users/users.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), HttpModule, CompetitionModule, TeamsModule, PlayerModule, CoachModule],
+  imports: [ScheduleModule.forRoot(), HttpModule, CompetitionModule, TeamsModule, PlayerModule, 
+    CoachModule, UsersModule, MailModule],
   providers: [
     SchedulerService,
   ],
