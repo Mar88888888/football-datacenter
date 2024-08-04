@@ -4,6 +4,7 @@ import { CompetitionService } from '../competition/competition.service';
 import { TeamService } from '../team/teams.service';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
+import { MatchesService } from '../matches/matches.service';
 
 @Injectable()
 export class SchedulerService {
@@ -13,6 +14,7 @@ export class SchedulerService {
     private readonly usersService: UsersService,
     private readonly competitionsService: CompetitionService,
     private readonly mailService: MailService,
+    private readonly matchesService: MatchesService,
   ) {}
 
   @Cron('17 11 * * *')
@@ -21,7 +23,7 @@ export class SchedulerService {
     await this.teamService.fetchAndStoreTeams();
   }
 
-  @Cron('00 01 * * *')
+  @Cron('39 11 * * *')
   async handleMatchdayCron() {
     const today = new Date();
     const tillDay = this.getDateAfterDays(today, 7);
@@ -44,7 +46,7 @@ export class SchedulerService {
       }
 
       for (const team of favTeams) {
-        const matches = await this.teamService.getMatches(team.id, today, tillDay);
+        const matches = await this.matchesService.getTeamMatches(team.id, today, tillDay);
         for (const match of matches) {
           const matchDate = new Date(match.utcDate);
           if (this.isMatchToday(today, matchDate)) {

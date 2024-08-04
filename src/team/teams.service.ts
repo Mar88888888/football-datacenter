@@ -111,26 +111,7 @@ export class TeamService {
     return team;
   }
 
-  async getMatches(teamId: number, fromDate?: Date, toDate?: Date): Promise<any[]> {
-    // Parsing matches of the team
-    let url = `https://api.football-data.org/v4/teams/${teamId}/matches${fromDate && toDate 
-        ? '?dateFrom=' + fromDate.toISOString().split('T')[0] +
-         '&dateTo=' + toDate.toISOString().split('T')[0]: ''}`;
-    console.log(url);
-    try{
-      const response = await lastValueFrom(
-        this.httpService.get(url, {
-          headers: { 'X-Auth-Token': process.env.API_KEY },
-        }),
-      );
-      await this.globalRequestCounterService.incrementCounter();
-      return response.data.matches;
-    }catch(e){
-      console.log(e.message);
-      return [];
-    }
 
-  }
 
   async searchByName(name: string): Promise<Team[]> {
     return await this.teamRepository
