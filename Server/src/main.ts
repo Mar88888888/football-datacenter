@@ -22,6 +22,9 @@ async function bootstrap() {
     res.removeHeader('date');
     next();
   });
+
+  app.setGlobalPrefix('fdc-api');
+
   await app.listen(3000);
 }
 bootstrap();

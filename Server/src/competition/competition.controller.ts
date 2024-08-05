@@ -8,8 +8,9 @@ export class CompetitionController {
   ){}
 
   @Get('')
-  getAllCompetitions(){
-    return this.competitionService.getAllCompetitions();
+  async getAllCompetitions(){
+    console.log('Sending all competitions');
+    return await this.competitionService.getAllCompetitions();
   }
 
   @Get('/search/:name')
