@@ -11,6 +11,7 @@ const HomePage = () => {
           <li><Link to="/competitions">Competitions</Link></li>
           <li><Link to="/teams">Teams</Link></li>
           <li><Link to="/players">Players</Link></li>
+          <li><Link to="/login">Log In</Link></li>
         </ul>
       </nav>
     </div>
