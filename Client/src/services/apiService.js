@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/fdc-api';
+
+const url = process.env.REACT_APP_API_URL;
 
 export const fetchCompetitions = async () => {
   try {
-    const url = `${API_URL}/competition`;
     console.log(url);
-    const response = await axios.get(url);
-    
+    const response = await axios.get(`${url}/competition`);
     return response.data;
   } catch (error) {
     console.error('Error fetching competitions:', error);
@@ -17,7 +16,7 @@ export const fetchCompetitions = async () => {
 
 export const fetchTeams = async (competitionId) => {
   try {
-    const response = await axios.get(`${API_URL}/competition/${competitionId}/teams`);
+    const response = await axios.get(`${url}/competition/${competitionId}/teams`);
     return response.data;
   } catch (error) {
     console.error('Error fetching teams:', error);
@@ -27,7 +26,7 @@ export const fetchTeams = async (competitionId) => {
 
 export const fetchPlayers = async (teamId) => {
   try {
-    const response = await axios.get(`${API_URL}/players/fromteam/${teamId}`);
+    const response = await axios.get(`${url}/players/fromteam/${teamId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching players:', error);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchTeams, fetchCompetitions } from '../services/api';
+import { fetchTeams, fetchCompetitions } from '../services/apiService';
 
 const TeamsPage = () => {
   const [competitions, setCompetitions] = useState([]);

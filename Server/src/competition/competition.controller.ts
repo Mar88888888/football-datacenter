@@ -9,7 +9,6 @@ export class CompetitionController {
 
   @Get('')
   async getAllCompetitions(){
-    console.log('Sending all competitions');
     return await this.competitionService.getAllCompetitions();
   }
 
