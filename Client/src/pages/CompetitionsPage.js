@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCompetitions } from '../services/apiService';
+import './CompetitionsPage.css';
 
 const CompetitionsPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -21,15 +22,15 @@ const CompetitionsPage = () => {
     loadCompetitions();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="loading-message">Loading...</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div>
-      <h1>Competitions</h1>
-      <ul>
+    <div className="competitions-container">
+      <h1 className="competitions-title">Competitions</h1>
+      <ul className="competitions-list">
         {competitions.map((competition) => (
-          <li key={competition.id}>
+          <li key={competition.id} className="competitions-item">
             {competition.name}
           </li>
         ))}
@@ -39,3 +40,4 @@ const CompetitionsPage = () => {
 };
 
 export default CompetitionsPage;
+

@@ -3,11 +3,11 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const { setAuthToken } = useContext(AuthContext);
+    const { setUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        setAuthToken(null);
+        setUser(null);
         navigate('/login');
     };
 

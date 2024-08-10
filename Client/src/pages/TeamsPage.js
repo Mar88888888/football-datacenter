@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTeams, fetchCompetitions } from '../services/apiService';
+import './TeamsPage.css'
 
 const TeamsPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -39,22 +40,22 @@ const TeamsPage = () => {
     loadTeams();
   }, [selectedCompetition]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="loading-message">Loading...</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div>
-      <h1>Teams</h1>
-      <select onChange={(e) => setSelectedCompetition(e.target.value)} value={selectedCompetition}>
+    <div className="teams-container">
+      <h1 className="teams-title">Teams</h1>
+      <select className="teams-select" onChange={(e) => setSelectedCompetition(e.target.value)} value={selectedCompetition}>
         {competitions.map((competition) => (
           <option key={competition.id} value={competition.id}>
             {competition.name}
           </option>
         ))}
       </select>
-      <ul>
+      <ul className="teams-list">
         {teams.map((team) => (
-          <li key={team.id}>
+          <li key={team.id} className="teams-item">
             {team.name}
           </li>
         ))}

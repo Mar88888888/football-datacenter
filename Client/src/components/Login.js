@@ -1,4 +1,3 @@
-// src/components/Login.js
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -9,7 +8,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { setAuthToken } = useContext(AuthContext);
+    const { setUser } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,17 +17,16 @@ const Login = () => {
                 email,
                 password
             });
-            const { token } = response.data;
-            setAuthToken(token);
-            console.log(token);
-            navigate('/');
+            const userData = response.data;
+            setUser(userData);
+            navigate('/dashboard');
         } catch (err) {
             setError('Invalid email or password');
         }
     };
 
     return (
-        <div>
+        <div className="login-container">
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <div>
@@ -49,7 +47,7 @@ const Login = () => {
                         required
                     />
                 </div>
-                {error && <p>{error}</p>}
+                {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Login</button>
             </form>
         </div>

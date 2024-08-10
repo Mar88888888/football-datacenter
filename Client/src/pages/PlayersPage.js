@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPlayers, fetchTeams, fetchCompetitions } from '../services/apiService';
+import './PlayersPage.css'
 
 const PlayersPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -57,29 +58,29 @@ const PlayersPage = () => {
     loadPlayers();
   }, [selectedTeam]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="loading-message">Loading...</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div>
-      <h1>Players</h1>
-      <select onChange={(e) => setSelectedCompetition(e.target.value)} value={selectedCompetition}>
+    <div className="players-container">
+      <h1 className="players-title">Players</h1>
+      <select className="players-select" onChange={(e) => setSelectedCompetition(e.target.value)} value={selectedCompetition}>
         {competitions.map((competition) => (
           <option key={competition.id} value={competition.id}>
             {competition.name}
           </option>
         ))}
       </select>
-      <select onChange={(e) => setSelectedTeam(e.target.value)} value={selectedTeam}>
+      <select className="players-select" onChange={(e) => setSelectedTeam(e.target.value)} value={selectedTeam}>
         {teams.map((team) => (
           <option key={team.id} value={team.id}>
             {team.name}
           </option>
         ))}
       </select>
-      <ul>
+      <ul className="players-list">
         {players.map((player) => (
-          <li key={player.id}>
+          <li key={player.id} className="players-item">
             {player.name}
           </li>
         ))}
