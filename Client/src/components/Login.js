@@ -21,7 +21,7 @@ const Login = () => {
             const { token } = response.data;
             setAuthToken(token);
             console.log(token);
-            navigate('/dashboard');
+            navigate('/');
         } catch (err) {
             setError('Invalid email or password');
         }
