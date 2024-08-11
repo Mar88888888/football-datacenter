@@ -36,8 +36,12 @@ export class UsersController {
     private teamService: TeamService,
     private compService: CompetitionService,
   ) {}
-
-
+  
+  @Get()
+  async findAllUsers(@Query('email') email: string) {
+    return await this.usersService.find(email);
+  }
+  
   @Get('/auth/whoami')
   @UseGuards(AuthGuard)
   whoAmI(@CurrentUser() user: User) {
@@ -70,26 +74,22 @@ export class UsersController {
     const user = await this.authService.signin(body.email, body.password);
     session.userId = user.id;
     session.emailVerified = user.isEmailVerified;
-    console.log(session);
     return user;
   }
 
   
-  @Get()
-  async findAllUsers(@Query('email') email: string) {
-    return await this.usersService.find(email);
-  }
 
-  // @UseGuards(AuthGuard, EmailGuard)
+  @UseGuards(AuthGuard, EmailGuard)
   @Get('/favteam')
-  async getFavTeams(@CurrentUser() user: User, @Req() req){
-    console.log('Session:', req.session);
+  async getFavTeams(@CurrentUser() user: User)
+  {
     return this.usersService.getFavTeams(user.id);
   }
   
-  // @UseGuards(AuthGuard, EmailGuard)
+  @UseGuards(AuthGuard, EmailGuard)
   @Get('/favcomp')
-  async getFavComp(@CurrentUser() user: User){
+  async getFavComp(@CurrentUser() user: User)
+  {
     return this.usersService.getFavComps(user.id);
   }
   

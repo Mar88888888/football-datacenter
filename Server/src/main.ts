@@ -1,11 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import cookieSession from 'cookie-session';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import * as dotenv from 'dotenv';
-
+import session from 'express-session';
 dotenv.config(); 
 
 async function bootstrap() {
@@ -18,14 +17,16 @@ async function bootstrap() {
   app.enableCors(corsOptions);
 
   app.use(
-    cookieSession({
-      name: 'session',
-      keys: [process.env.COOKIE_KEY || 'justrandomkeyblablablaehdgsbgie'],
-      maxAge: 24 * 60 * 60 * 1000,
-      secure: true,
-      httpOnly: true,
-      sameSite: "none",
-    }),
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: process.env.NODE_ENV === 'production', 
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000,
+        },
+      }),
   );
 
   app.use(cookieParser());
@@ -39,8 +40,6 @@ async function bootstrap() {
   (app as any).set('etag', false);
 
   app.use((req: any, res: any, next: () => void) => {
-    res.removeHeader('x-powered-by');
-    res.removeHeader('date');
     next();
   });
 

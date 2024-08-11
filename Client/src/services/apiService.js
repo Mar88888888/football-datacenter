@@ -5,7 +5,6 @@ const url = process.env.REACT_APP_API_URL;
 
 export const fetchCompetitions = async () => {
   try {
-    console.log(url);
     const response = await axios.get(`${url}/competition`);
     return response.data;
   } catch (error) {

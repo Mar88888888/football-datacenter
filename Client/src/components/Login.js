@@ -16,7 +16,7 @@ const Login = () => {
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/auth/signin`, {
                 email,
                 password
-            });
+            }, { withCredentials: true });
             const userData = response.data;
 
             setUser(userData);
