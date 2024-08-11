@@ -1,15 +1,9 @@
 import React, { useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
 
 const ProtectedComponent = () => {
-    const { authToken } = useContext(AuthContext);
-
     const fetchData = async () => {
-        const response = await fetch(process.env.API_URL, {
+        const response = await fetch(process.env.REACT_APP_API_URL, {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-            },
         });
 
         if (response.ok) {

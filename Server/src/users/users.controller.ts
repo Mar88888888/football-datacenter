@@ -10,6 +10,7 @@ import {
   NotFoundException,
   Session,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -69,6 +70,7 @@ export class UsersController {
     const user = await this.authService.signin(body.email, body.password);
     session.userId = user.id;
     session.emailVerified = user.isEmailVerified;
+    console.log(session);
     return user;
   }
 
@@ -78,13 +80,14 @@ export class UsersController {
     return await this.usersService.find(email);
   }
 
-  @UseGuards(AuthGuard, EmailGuard)
+  // @UseGuards(AuthGuard, EmailGuard)
   @Get('/favteam')
-  async getFavTeams(@CurrentUser() user: User){
+  async getFavTeams(@CurrentUser() user: User, @Req() req){
+    console.log('Session:', req.session);
     return this.usersService.getFavTeams(user.id);
   }
   
-  @UseGuards(AuthGuard, EmailGuard)
+  // @UseGuards(AuthGuard, EmailGuard)
   @Get('/favcomp')
   async getFavComp(@CurrentUser() user: User){
     return this.usersService.getFavComps(user.id);

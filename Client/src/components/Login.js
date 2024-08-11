@@ -18,6 +18,7 @@ const Login = () => {
                 password
             });
             const userData = response.data;
+
             setUser(userData);
             navigate('/dashboard');
         } catch (err) {

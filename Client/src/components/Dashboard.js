@@ -1,22 +1,44 @@
-import React, { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Dashboard = () => {
-    const { setUser } = useContext(AuthContext);
-    const navigate = useNavigate();
+  const [favTeams, setFavTeams] = useState([]);
+  const [favComps, setFavComps] = useState([]);
 
-    const handleLogout = () => {
-        setUser(null);
-        navigate('/login');
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const [teamsResponse, compsResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/user/favteam`, { withCredentials: true }),
+          axios.get(`${process.env.REACT_APP_API_URL}/user/favcomp`, { withCredentials: true }),
+        ]);
+        setFavTeams(teamsResponse.data);
+        setFavComps(compsResponse.data);
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
     };
 
-    return (
-        <div>
-            <h2>Dashboard</h2>
-            <button onClick={handleLogout}>Logout</button>
-        </div>
-    );
+    fetchFavorites();
+  }, []);
+
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <h2>Favorite Teams</h2>
+      <ul>
+        {favTeams.map(team => (
+          <li key={team.id}>{team.name}</li>
+        ))}
+      </ul>
+      <h2>Favorite Competitions</h2>
+      <ul>
+        {favComps.map(comp => (
+          <li key={comp.id}>{comp.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
 export default Dashboard;

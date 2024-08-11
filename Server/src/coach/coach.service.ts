@@ -37,7 +37,7 @@ export class CoachService {
       .createQueryBuilder('coach')
       .innerJoinAndSelect('coach.team', 'team', 'team.id = :teamId', { teamId })
       .getOne();
-    if(!coach){
+    if(!coach || !coach.id){
       throw new NotFoundException(`Coach from team with id ${teamId} not found`)
     }
     return coach;
