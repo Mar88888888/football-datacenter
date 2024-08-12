@@ -1,21 +1,33 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './HomePage.css'
+import React, { useState } from 'react';
+import axios from 'axios';
+import '../styles/global.css';
 
 const HomePage = () => {
+  const [news, setNews] = useState('');
+
+  const fetchNews = async () => {
+    try {
+      const params = {
+        prompt: "Write the latest football news",
+        max_tokens: 100
+      };
+      const headers = {
+        'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      };
+      const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-002/completions', params, { headers });
+      setNews(response.data.choices[0].text);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      setNews('Failed to fetch news.');
+    }
+  };
+
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <h1>Football Datacenter</h1>
-        <p>Welcome to the Football Datacenter! Your ultimate source for exploring football competitions, teams, and players from around the globe.</p>
-      </header>
-      <nav className="home-nav">
-        <ul className="home-menu">
-          <li><Link to="/competitions">Competitions</Link></li>
-          <li><Link to="/teams">Teams</Link></li>
-          <li><Link to="/players">Players</Link></li>
-        </ul>
-      </nav>
+    <div className="container">
+      <h1 className="title">Welcome to the Sports Dashboard</h1>
+      {/* <button onClick={fetchNews}>Get Latest News</button> */}
+      <p className="loading-message">{news || 'Select a category from the menu above to explore your favorite teams, competitions, and players.'}</p>
     </div>
   );
 };

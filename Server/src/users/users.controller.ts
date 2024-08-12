@@ -77,8 +77,6 @@ export class UsersController {
     return user;
   }
 
-  
-
   @UseGuards(AuthGuard, EmailGuard)
   @Get('/favteam')
   async getFavTeams(@CurrentUser() user: User)

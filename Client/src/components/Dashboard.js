@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../styles/global.css'; // Import the global stylesheet
 
 const Dashboard = () => {
   const [favTeams, setFavTeams] = useState([]);
@@ -23,21 +24,28 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <h2>Favorite Teams</h2>
-      <ul>
-        {favTeams.map(team => (
-          <li key={team.id}>{team.name}</li>
-        ))}
-      </ul>
-      <h2>Favorite Competitions</h2>
-      <ul>
-        {favComps.map(comp => (
-          <li key={comp.id}>{comp.name}</li>
-        ))}
-      </ul>
+    <div className="container">
+      <h1 className="title">Dashboard</h1>
+      
+      <div className="section">
+        <h2 className="section-title">Favorite Teams</h2>
+        <ul className="list">
+          {favTeams.map((team) => (
+            <li key={team.id} className="list-item">{team.name}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="section">
+        <h2 className="section-title">Favorite Competitions</h2>
+        <ul className="list">
+          {favComps.map((comp) => (
+            <li key={comp.id} className="list-item">{comp.name}</li>
+          ))}
+        </ul>
+      </div>
     </div>
+
   );
 };
 

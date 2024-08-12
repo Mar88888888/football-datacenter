@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { fetchCompetitions } from '../services/apiService';
-import './CompetitionsPage.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import '../styles/global.css'; // Import the global stylesheet
 
 const CompetitionsPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -8,31 +8,34 @@ const CompetitionsPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadCompetitions = async () => {
+    const fetchCompetitions = async () => {
       try {
-        const data = await fetchCompetitions();
-        setCompetitions(data);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/competition`, { withCredentials: true });
+        setCompetitions(response.data);
       } catch (error) {
-        setError(error.message);
+        setError('Error fetching competitions');
       } finally {
         setLoading(false);
       }
     };
 
-    loadCompetitions();
+    fetchCompetitions();
   }, []);
 
-  if (loading) return <p className="loading-message">Loading...</p>;
-  if (error) return <p className="error-message">{error}</p>;
+  if (loading) {
+    return <p className="loading-message">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="error-message">{error}</p>;
+  }
 
   return (
-    <div className="competitions-container">
-      <h1 className="competitions-title">Competitions</h1>
-      <ul className="competitions-list">
-        {competitions.map((competition) => (
-          <li key={competition.id} className="competitions-item">
-            {competition.name}
-          </li>
+    <div className="container">
+      <h1 className="title">Competitions</h1>
+      <ul className="list">
+        {competitions.map((comp) => (
+          <li key={comp.id} className="list-item">{comp.name}</li>
         ))}
       </ul>
     </div>
@@ -40,4 +43,3 @@ const CompetitionsPage = () => {
 };
 
 export default CompetitionsPage;
-

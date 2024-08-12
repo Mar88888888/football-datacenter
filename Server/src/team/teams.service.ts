@@ -64,7 +64,7 @@ export class TeamService {
           const coachData = teamData.coach;
           if (coachData && coachData.id) {
             let coach = team.coach;
-            if (!coach) {
+            if (!coach || !coach.id) {
               coach = new Coach();
               team.coach = coach;
             }
