@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/TeamPage.css';
 import '../styles/global.css'; 
-import { fetchPlayers } from '../services/apiService';
 
-const TeamPage = () => {
+const CompetitionPage = () => {
   const { id } = useParams();
-  const [team, setTeam] = useState(null);
+  const [competition, setCompetition] = useState(null);
   const [matches, setMatches] = useState([]);
-  const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/teams/${id}`)
@@ -29,24 +26,8 @@ const TeamPage = () => {
     }
   }, [id]);
 
-  useEffect(() => {
-    if (!team) return;
 
-    const loadPlayers = async () => {
-      try {
-        const data = await fetchPlayers(team.id);
-        setPlayers(data);
-      } catch (error) {
-        setError('Failed to fetch players');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadPlayers();
-  }, [team]);
-
-  if (!team) return <div className="loading-message">Loading...</div>;
+  if (!competition) return <div className="loading-message">Loading...</div>;
 
   const formatTime = (utcDate) => {
     if(!utcDate){

@@ -25,7 +25,7 @@ export class MatchesService {
       );
       return response.data;
     } catch (error) {
-      throw new HttpException(error.response.data, error.response.status);
+      console.log(error);
     }
   }
 
@@ -38,13 +38,31 @@ export class MatchesService {
       );
       return response.data;
     } catch (error) {
-      throw new HttpException(error.response.data, error.response.status);
+      console.log(error);
     }
   }
 
   async getTeamMatches(teamId: number, fromDate?: Date, toDate?: Date, status?: string, limit?: string): Promise<any[]> {
-    // Parsing matches of the team
     let url = `https://api.football-data.org/v4/teams/${teamId}/matches${fromDate && toDate || status || limit ? '?' : ''}${fromDate && toDate 
+        ? 'dateFrom=' + fromDate.toISOString().split('T')[0] +
+         '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}${limit ? '&limit='+parseInt(limit) : ''}`;
+    try{
+      const response = await lastValueFrom(
+        this.httpService.get(url, {
+          headers: { 'X-Auth-Token': process.env.API_KEY },
+        }),
+      );
+      await this.globalRequestCounterService.incrementCounter();
+      return response.data.matches;
+    }catch(e){
+      console.log(e.message);
+      return [];
+    }
+
+  }
+  
+  async getCompMatches(compId: number, fromDate?: Date, toDate?: Date, status?: string, limit?: string): Promise<any[]> {
+    let url = `https://api.football-data.org/v4/competitions/${compId}/matches${fromDate && toDate || status || limit ? '?' : ''}${fromDate && toDate 
         ? 'dateFrom=' + fromDate.toISOString().split('T')[0] +
          '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}${limit ? '&limit='+parseInt(limit) : ''}`;
     try{

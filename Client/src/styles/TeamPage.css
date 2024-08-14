@@ -1,8 +1,10 @@
+
 .team-passport-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px auto;
+  margin: 0px auto;
+  padding: 30px;
 }
 
 .team-passport {
@@ -21,7 +23,6 @@
 .coach-info h3,
 .coach-info p {
   margin-bottom: 5px;
-  /* Ensure consistent spacing between lines */
 }
 
 .team-info {
@@ -137,4 +138,57 @@
 
 img{
   user-select: none;
+}
+
+
+.players-squad{
+  float: left;
+  margin-left: 3px;
+  max-height: 1200px;
+  width: 300px;
+  overflow-y: scroll;
+}
+
+.player-list {
+  list-style: none;
+  list-style-type: none;
+  padding: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+  list-style: none;
+}
+
+.player-item {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.8rem;
+  color: #001F3F;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+}
+
+.player-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+.team-page-container{
+  background-color: #f7f7f7;
+}
+.team-passport-container{
+  background-color: #1F1F1F;
+}
+
+.container-content{
+  transform: translate(-150px);
 }

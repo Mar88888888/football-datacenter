@@ -17,13 +17,13 @@ export class SchedulerService {
     private readonly matchesService: MatchesService,
   ) {}
 
-  @Cron('17 11 * * *')
+  @Cron('10 01 * * *')
   async handleCron() {
     await this.competitionService.fetchAndStoreCompetitions();
     await this.teamService.fetchAndStoreTeams();
   }
 
-  @Cron('39 11 * * *')
+  @Cron('10 01 * * *')
   async handleMatchdayCron() {
     const today = new Date();
     const tillDay = this.getDateAfterDays(today, 7);

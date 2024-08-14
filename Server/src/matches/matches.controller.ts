@@ -25,4 +25,14 @@ export class MatchesController {
     }
     return await this.matchesService.getTeamMatches(parseInt(teamid), from, to, status, limit);
   }
+
+  @Get('/forcomp/:compid')
+  async getCompMatches(@Param('compid') compid: string, @Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string, @Query('status') status?: string, @Query('limit') limit?: string,) {
+    let from: Date, to: Date;
+    if(dateFrom && dateTo){
+      from = new Date(dateFrom);
+      to = new Date(dateTo);
+    }
+    return await this.matchesService.getTeamMatches(parseInt(compid), from, to, status, limit);
+  }
 }
