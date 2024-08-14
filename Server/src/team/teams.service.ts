@@ -103,15 +103,18 @@ export class TeamService {
     return team;
   }
 
-  async findOne(teamId: number){
-    let team = await this.teamRepository.findOne({where: { id: teamId }});
-    if(!team){
-      throw new NotFoundException(`Team with id ${teamId} not found`)
+  async findOne(teamId: number) {
+    const team = await this.teamRepository.findOne({
+      where: { id: teamId },
+      relations: ['competitions', 'coach'],  
+    });
+
+    if (!team) {
+      throw new NotFoundException(`Team with id ${teamId} not found`);
     }
+
     return team;
   }
-
-
 
   async searchByName(name: string): Promise<Team[]> {
     return await this.teamRepository

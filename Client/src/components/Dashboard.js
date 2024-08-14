@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/global.css'; // Import the global stylesheet
+import '../styles/global.css';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [favTeams, setFavTeams] = useState([]);
@@ -31,7 +32,9 @@ const Dashboard = () => {
         <h2 className="section-title">Favorite Teams</h2>
         <ul className="list">
           {favTeams.map((team) => (
-            <li key={team.id} className="list-item">{team.name}</li>
+            <li key={team.id} className="list-item">              
+              <Link to={`/teams/${team.id}`}>{team.name}</Link>
+            </li>
           ))}
         </ul>
       </div>
@@ -40,7 +43,9 @@ const Dashboard = () => {
         <h2 className="section-title">Favorite Competitions</h2>
         <ul className="list">
           {favComps.map((comp) => (
-            <li key={comp.id} className="list-item">{comp.name}</li>
+            <li key={comp.id} className="list-item">
+              {comp.name}
+            </li>
           ))}
         </ul>
       </div>

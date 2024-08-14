@@ -16,13 +16,13 @@ export class MatchesController {
     return await this.matchesService.getLiveMatches();
   }
 
-  @Get('/:teamid')
-  async getTeamMatches(@Param('teamid') teamid: string, @Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string,) {
+  @Get('/forteam/:teamid')
+  async getTeamMatches(@Param('teamid') teamid: string, @Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string, @Query('status') status?: string, @Query('limit') limit?: string,) {
     let from: Date, to: Date;
     if(dateFrom && dateTo){
       from = new Date(dateFrom);
       to = new Date(dateTo);
     }
-    return await this.matchesService.getTeamMatches(parseInt(teamid), from, to);
+    return await this.matchesService.getTeamMatches(parseInt(teamid), from, to, status, limit);
   }
 }

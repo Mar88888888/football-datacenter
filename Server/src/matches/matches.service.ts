@@ -2,6 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { GlobalRequestCounterService } from '../global-request-counter.service';
+import { stat } from 'fs';
 
 
 @Injectable()
@@ -41,11 +42,11 @@ export class MatchesService {
     }
   }
 
-  async getTeamMatches(teamId: number, fromDate?: Date, toDate?: Date): Promise<any[]> {
+  async getTeamMatches(teamId: number, fromDate?: Date, toDate?: Date, status?: string, limit?: string): Promise<any[]> {
     // Parsing matches of the team
-    let url = `https://api.football-data.org/v4/teams/${teamId}/matches${fromDate && toDate 
-        ? '?dateFrom=' + fromDate.toISOString().split('T')[0] +
-         '&dateTo=' + toDate.toISOString().split('T')[0]: ''}`;
+    let url = `https://api.football-data.org/v4/teams/${teamId}/matches${fromDate && toDate || status || limit ? '?' : ''}${fromDate && toDate 
+        ? 'dateFrom=' + fromDate.toISOString().split('T')[0] +
+         '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}${limit ? '&limit='+parseInt(limit) : ''}`;
     try{
       const response = await lastValueFrom(
         this.httpService.get(url, {

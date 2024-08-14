@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTeams, fetchCompetitions } from '../services/apiService';
 import '../styles/global.css'
+import { Link } from 'react-router-dom';
 
 const TeamsPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -58,7 +59,7 @@ const TeamsPage = () => {
       <ul className="list">
         {teams.map((team) => (
           <li key={team.id} className="list-item">
-            {team.name}
+            <Link to={`/teams/${team.id}`}>{team.name}</Link>
           </li>
         ))}
       </ul>

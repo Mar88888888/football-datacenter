@@ -1,0 +1,140 @@
+.team-passport-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px auto;
+}
+
+.team-passport {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 15px;
+  max-width: 600px;
+  background-color: #f7f7f7;
+}
+
+.team-details h2,
+.team-details p,
+.coach-info h3,
+.coach-info p {
+  margin-bottom: 5px;
+  /* Ensure consistent spacing between lines */
+}
+
+.team-info {
+  display: flex;
+  gap: 10px;
+}
+
+.team-photo img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.team-details h2 {
+  margin: 0 0 10px 0;
+}
+
+.team-details p {
+  margin: 0;
+}
+
+.coach-info {
+  align-self: center;
+  width: 10%;
+}
+
+.website-button {
+  align-self: center;
+  text-align: right;
+}
+
+.website-button a {
+  background-color: #001f3f;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.website-button a:hover {
+  background-color: #0050a0;
+}
+
+.competitions {
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.competitions h3 {
+  margin-bottom: 10px;
+}
+
+.competitions ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.competitions li {
+  margin: 5px 0;
+  padding: 5px 10px;
+  background-color: #e3e3e3;
+  border-radius: 5px;
+}
+
+.matches-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-match {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  text-align: center;
+}
+
+.team-crest {
+  width: 60px;
+  height: 60px;
+}
+
+.team-name {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.match-time-date {
+  text-align: center;
+  margin: 0 30px;
+  width: 30%;
+}
+
+.match-time,
+.match-date {
+  display: block;
+  font-size: 16px;
+}
+
+img{
+  user-select: none;
+}
