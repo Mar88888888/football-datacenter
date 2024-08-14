@@ -1,0 +1,121 @@
+.competition-page-container {
+  background-color: #f7f7f7;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.competition-passport-container {
+  background-color: #1F1F1F;
+  border-radius: 10px;
+  padding: 15px;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.competition-passport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  border: 2px solid #000;
+}
+
+.competition-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.competition-photo img {
+  width: 100px;
+  height: 100px;
+}
+
+.competition-details h2 {
+  margin: 10px 0;
+  font-size: 24px;
+  color: #001f3f;
+}
+
+.matches-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+  width: 100%;
+  max-width: 600px;
+}
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-match {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  text-align: center;
+}
+
+.team-crest {
+  width: 60px;
+  height: 60px;
+}
+
+.team-name {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.match-time-date {
+  text-align: center;
+  margin: 0 30px;
+  width: 30%;
+}
+
+.match-time,
+.match-date {
+  display: block;
+  font-size: 16px;
+}
+
+img {
+  user-select: none;
+}
+
+.competition-page-container h3.title {
+  margin-top: 30px;
+  font-size: 20px;
+  color: #001f3f;
+}
+
+@media (max-width: 768px) {
+  .competition-passport {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .matches-list {
+    width: 100%;
+  }
+
+  .match-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .match-time-date {
+    margin: 10px 0;
+  }
+}

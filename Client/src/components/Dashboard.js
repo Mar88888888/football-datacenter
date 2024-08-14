@@ -44,7 +44,7 @@ const Dashboard = () => {
         <ul className="list">
           {favComps.map((comp) => (
             <li key={comp.id} className="list-item">
-              {comp.name}
+              <Link to={`/competitions/${comp.id}`}>{comp.name}</Link>
             </li>
           ))}
         </ul>

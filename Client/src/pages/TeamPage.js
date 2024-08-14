@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import '../styles/TeamPage.css';
 import '../styles/global.css'; 
 import { fetchPlayers } from '../services/apiService';
+import { Link } from 'react-router-dom';
 
 const TeamPage = () => {
   const { id } = useParams();
@@ -101,7 +102,9 @@ const TeamPage = () => {
         <h3  className="title">Competitions</h3>
         <ul className="list">
           {team.competitions.map(comp => (
-            <li className="list-item" key={comp.id}>{comp.name}</li>
+            <li className="list-item" key={comp.id}>
+              <Link to={`/competitions/${comp.id}`}>{comp.name}</Link>
+            </li>
           ))}
         </ul>
         <h3 className="title">Scheduled Matches</h3>
@@ -109,16 +112,20 @@ const TeamPage = () => {
           {matches.map(match => (
             <li className="match-item list-item" key={match.id}>
               <div className="team-match">
-                <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
-                <div className="team-name">{match.homeTeam.shortName}</div>
+                <Link to={`/teams/${match.homeTeam.id}`}>
+                  <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
+                  <div className="team-name">{match.homeTeam.shortName}</div>
+                </Link>
               </div>
               <div className="match-time-date">
                 <span className="match-time">{formatTime(match.utcDate)}</span>
                 <span className="match-date">{formatDateOnly(match.utcDate)}</span>
               </div>
               <div className="team-match">
-                <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
-                <div className="team-name">{match.awayTeam.shortName}</div>
+                <Link to={`/teams/${match.awayTeam.id}`}>
+                  <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
+                  <div className="team-name">{match.awayTeam.shortName}</div>
+                </Link>
               </div>
             </li>
           ))}

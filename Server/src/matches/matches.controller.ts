@@ -6,9 +6,15 @@ export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @Get()
-  async getMatches(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
-    console.log(dateFrom, dateTo);
-    return await this.matchesService.getMatches(new Date(dateFrom), new Date(dateTo));
+  async getMatches(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string, @Query('limit') limit?: string) {
+    let matches = (dateFrom && dateTo) ? await this.matchesService.getMatches(new Date(dateFrom), new Date(dateTo)) 
+    : await this.matchesService.getMatches();
+    let limitSet = parseInt(limit);
+    if(!isNaN(limitSet)){
+      let matchesLimited = matches.slice(0, limitSet);
+      return matchesLimited;
+    }
+    return matches;
   }
 
   @Get('/live')
@@ -33,6 +39,6 @@ export class MatchesController {
       from = new Date(dateFrom);
       to = new Date(dateTo);
     }
-    return await this.matchesService.getTeamMatches(parseInt(compid), from, to, status, limit);
+    return await this.matchesService.getCompMatches(parseInt(compid), from, to, status, limit);
   }
 }

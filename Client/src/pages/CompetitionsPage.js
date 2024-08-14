@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/global.css'; // Import the global stylesheet
+import '../styles/global.css';
+import { Link } from 'react-router-dom';
 
 const CompetitionsPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -35,7 +36,9 @@ const CompetitionsPage = () => {
       <h1 className="title">Competitions</h1>
       <ul className="list">
         {competitions.map((comp) => (
-          <li key={comp.id} className="list-item">{comp.name}</li>
+          <li key={comp.id} className="list-item">
+            <Link to={`/competitions/${comp.id}`}>{comp.name}</Link>
+          </li>
         ))}
       </ul>
     </div>

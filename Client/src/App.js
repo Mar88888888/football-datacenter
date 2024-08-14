@@ -9,6 +9,7 @@ import CompetitionsPage from './pages/CompetitionsPage';
 import TeamsPage from './pages/TeamsPage';
 import TeamPage from './pages/TeamPage';
 import PlayersPage from './pages/PlayersPage';
+import CompetitionPage from './pages/CompetitionPage';
 
 const Navbar = () => {
     const { user } = useContext(AuthContext);
@@ -47,6 +48,7 @@ const App = () => {
                     } />
                     <Route path="/" element={<HomePage />} />
                     <Route path="/competitions" element={<CompetitionsPage />} />
+                    <Route path="/competitions/:id" element={ <CompetitionPage />} />
                     <Route path="/teams" element={<TeamsPage />} />
                     <Route path="/teams/:id" element={ <TeamPage />} />
                     <Route path="/players" element={<PlayersPage />} />

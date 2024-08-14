@@ -1,33 +1,58 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/global.css';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
-  const [news, setNews] = useState('');
+  const [matches, setMatches] = useState([]);
 
-  const fetchNews = async () => {
-    try {
-      const params = {
-        prompt: "Write the latest football news",
-        max_tokens: 100
-      };
-      const headers = {
-        'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      };
-      const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-002/completions', params, { headers });
-      setNews(response.data.choices[0].text);
-    } catch (error) {
-      console.error('Error fetching news:', error);
-      setNews('Failed to fetch news.');
+
+  useEffect(() => {
+      fetch(`${process.env.REACT_APP_API_URL}/matches?limit=100`)
+        .then(res => res.json())
+        .then(data => setMatches(data))
+        .catch(err => console.error('Error fetching matches:', err));
+  }, []);
+
+  const formatTime = (utcDate) => {
+    if(!utcDate){
+      return 'Not Set';
     }
+    const date = new Date(utcDate);
+    return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  const formatDateOnly = (utcDate) => {
+    const date = new Date(utcDate);
+    return date.toLocaleDateString();
   };
 
   return (
     <div className="container">
       <h1 className="title">Welcome to the Sports Dashboard</h1>
-      {/* <button onClick={fetchNews}>Get Latest News</button> */}
-      <p className="loading-message">{news || 'Select a category from the menu above to explore your favorite teams, competitions, and players.'}</p>
+      <h3 className="title">Scheduled Matches</h3>
+      <ul className="matches-list">
+        {matches.map(match => (
+          <li className="match-item list-item" key={match.id}>
+            <div className="team-match">
+              <Link to={`/teams/${match.homeTeam.id}`}>
+                <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
+                <div className="team-name">{match.homeTeam.shortName}</div>
+              </Link>
+            </div>
+            <div className="match-time-date">
+              <span className="match-time">{formatTime(match.utcDate)}</span>
+              <span className="match-date">{formatDateOnly(match.utcDate)}</span>
+            </div>
+            <div className="team-match">
+              <Link to={`/teams/${match.awayTeam.id}`}>
+                <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
+                <div className="team-name">{match.awayTeam.shortName}</div>
+              </Link>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

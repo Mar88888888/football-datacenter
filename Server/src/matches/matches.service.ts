@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { GlobalRequestCounterService } from '../global-request-counter.service';
 import { stat } from 'fs';
+import { constrainedMemory } from 'process';
 
 
 @Injectable()
@@ -23,7 +24,9 @@ export class MatchesService {
           headers: { 'X-Auth-Token': this.apiKey },
         }),
       );
-      return response.data;
+      await this.globalRequestCounterService.incrementCounter();
+
+      return response.data.matches;
     } catch (error) {
       console.log(error);
     }
@@ -36,6 +39,8 @@ export class MatchesService {
           headers: { 'X-Auth-Token': this.apiKey },
         }),
       );
+      await this.globalRequestCounterService.incrementCounter();
+
       return response.data;
     } catch (error) {
       console.log(error);
@@ -62,9 +67,9 @@ export class MatchesService {
   }
   
   async getCompMatches(compId: number, fromDate?: Date, toDate?: Date, status?: string, limit?: string): Promise<any[]> {
-    let url = `https://api.football-data.org/v4/competitions/${compId}/matches${fromDate && toDate || status || limit ? '?' : ''}${fromDate && toDate 
+    let url = `https://api.football-data.org/v4/competitions/${compId}/matches${fromDate && toDate || status ? '?' : ''}${fromDate && toDate 
         ? 'dateFrom=' + fromDate.toISOString().split('T')[0] +
-         '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}${limit ? '&limit='+parseInt(limit) : ''}`;
+         '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}`;
     try{
       const response = await lastValueFrom(
         this.httpService.get(url, {
@@ -72,11 +77,15 @@ export class MatchesService {
         }),
       );
       await this.globalRequestCounterService.incrementCounter();
-      return response.data.matches;
+      let limitSet = parseInt(limit);
+      if(!isNaN(limitSet)){
+        let matches = response.data.matches.slice(0, limitSet);
+        return matches
+      }
+      return response.data.matches.slice(0, 10);
     }catch(e){
       console.log(e.message);
       return [];
     }
-
   }
 }
