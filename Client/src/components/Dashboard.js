@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext  } from 'react';
 import axios from 'axios';
 import '../styles/global.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import '../styles/Dashboard.css'
 
 const Dashboard = () => {
   const [favTeams, setFavTeams] = useState([]);
   const [favComps, setFavComps] = useState([]);
+  const { setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -24,8 +28,23 @@ const Dashboard = () => {
     fetchFavorites();
   }, []);
 
+ const handleLogout = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/user/auth/signout`, {}, { withCredentials: true });
+      setUser(null);
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <div className="container">
+      <div className="logout-container">
+        <button onClick={handleLogout} className="logout-button">
+          Logout
+        </button>
+      </div>
       <h1 className="title">Dashboard</h1>
       
       <div className="section">

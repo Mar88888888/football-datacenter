@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { useParams, useNavigate  } from 'react-router-dom';
 import '../styles/TeamPage.css';
 import '../styles/global.css'; 
 import { fetchPlayers } from '../services/apiService';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 const TeamPage = () => {
   const { id } = useParams();
@@ -12,7 +14,8 @@ const TeamPage = () => {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/teams/${id}`)
@@ -23,7 +26,7 @@ const TeamPage = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?status=SCHEDULED&limit=10`)
+      fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?status=SCHEDULED&limit=10`, { withCredentials: true })
         .then(res => res.json())
         .then(data => setMatches(data))
         .catch(err => console.error('Error fetching matches:', err));
@@ -47,7 +50,32 @@ const TeamPage = () => {
     loadPlayers();
   }, [team]);
 
+    const handleAddToFavourite = async () => {
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+      try {
+        const response = await axios.post(
+            `${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`,
+            {},
+            { withCredentials: true } 
+        );
+        
+        if (response.status === 201) {
+          alert(`${team.name} has been added to your favourites!`);
+        } else {
+          console.log(response.status);
+          alert('Failed to add to favourites.');
+        }
+      } catch (error) {
+          console.error('Error adding to favourites:', error);
+          alert('An error occurred. Please try again later.');
+      }
+    };
+
   if (!team) return <div className="loading-message">Loading...</div>;
+
 
   const formatTime = (utcDate) => {
     if(!utcDate){
@@ -82,7 +110,14 @@ const TeamPage = () => {
             <h3>Coach</h3>
             <p>{team.coach.name}</p>
           </div>
+
           <div className="website-button">
+            <button 
+                className="add-to-favourite-btn"
+                onClick={handleAddToFavourite}
+            >
+                Add to favourite
+            </button>
             <a href={team.website} target="_blank" rel="noopener noreferrer">Official Website</a>
           </div>
         </div>

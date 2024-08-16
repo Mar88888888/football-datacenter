@@ -10,11 +10,11 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const corsOptions: CorsOptions = {
-    origin: 'http://localhost:3001', 
-    credentials: true,
-  };
-  app.enableCors(corsOptions);
+  app.enableCors({
+      origin: 'http://localhost:3001',
+      credentials: true,
+  });
+
 
   app.use(
     session({
