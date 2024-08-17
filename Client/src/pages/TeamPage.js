@@ -16,6 +16,7 @@ const TeamPage = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/teams/${id}`)
@@ -34,6 +35,24 @@ const TeamPage = () => {
   }, [id]);
 
   useEffect(() => {
+    if (!user) {
+      setIsFavourite(false);
+      return;
+    }
+
+    axios.get(`${process.env.REACT_APP_API_URL}/user/favteam`,
+            { withCredentials: true } )
+        .then(response => {
+            const isFav = response.data.some(favTeam => favTeam.id === +id);
+            setIsFavourite(isFav);
+        })
+        .catch(error => {
+            console.error("There was an error fetching the favourite competitions!", error);
+        });
+  }, [id, user]);
+
+
+  useEffect(() => {
     if (!team) return;
 
     const loadPlayers = async () => {
@@ -50,29 +69,43 @@ const TeamPage = () => {
     loadPlayers();
   }, [team]);
 
-    const handleAddToFavourite = async () => {
-      if (!user) {
-        navigate('/login');
-        return;
+  const handleAddToFavourite = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`,
+          {},
+          { withCredentials: true } 
+      );
+      setIsFavourite(true);
+
+      if (response.status === 201) {
+        alert(`${team.name} has been added to your favourites!`);
+      } else {
+        console.log(response.status);
+        alert('Failed to add to favourites.');
       }
-      try {
-        const response = await axios.post(
-            `${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`,
-            {},
-            { withCredentials: true } 
-        );
-        
-        if (response.status === 201) {
-          alert(`${team.name} has been added to your favourites!`);
-        } else {
-          console.log(response.status);
-          alert('Failed to add to favourites.');
-        }
-      } catch (error) {
-          console.error('Error adding to favourites:', error);
-          alert('An error occurred. Please try again later.');
-      }
-    };
+    } catch (error) {
+        console.error('Error adding to favourites:', error);
+        alert('An error occurred. Please try again later.');
+    }
+  };
+
+  const handleRemoveFromFavourite = () => {
+    axios.delete(`${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`,
+          { withCredentials: true })
+        .then(response => {
+            setIsFavourite(false);
+            alert(`${team.name} has been removed from your favourites!`);
+        })
+        .catch(error => {
+            console.error("There was an error removing the competition from favourites!", error);
+        });
+  };
+
 
   if (!team) return <div className="loading-message">Loading...</div>;
 
@@ -112,12 +145,21 @@ const TeamPage = () => {
           </div>
 
           <div className="website-button">
-            <button 
-                className="add-to-favourite-btn"
-                onClick={handleAddToFavourite}
-            >
-                Add to favourite
-            </button>
+            {isFavourite ? (
+                <button 
+                    className="add-to-favourite-btn"
+                    onClick={handleRemoveFromFavourite}
+                >
+                    Remove from favourites
+                </button>
+            ) : (
+                <button 
+                    className="add-to-favourite-btn"
+                    onClick={handleAddToFavourite}
+                >
+                    Add to favourite
+                </button>
+            )}
             <a href={team.website} target="_blank" rel="noopener noreferrer">Official Website</a>
           </div>
         </div>

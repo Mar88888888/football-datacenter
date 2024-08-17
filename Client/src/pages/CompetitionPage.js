@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/CompetitionPage.css'; 
 import '../styles/global.css'; 
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 const CompetitionPage = () => {
   const { id } = useParams();
@@ -10,6 +12,9 @@ const CompetitionPage = () => {
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/competition/${id}`)
@@ -18,6 +23,23 @@ const CompetitionPage = () => {
       .catch((err) => console.error(err));
   }, [id]);
 
+  useEffect(() => {
+    if (!user) {
+        setIsFavourite(false);
+        return;
+    }
+
+    axios.get(`${process.env.REACT_APP_API_URL}/user/favcomp`,
+            { withCredentials: true } )
+        .then(response => {
+            const isFav = response.data.some(favComp => favComp.id === +id);
+            setIsFavourite(isFav);
+        })
+        .catch(error => {
+            console.error("There was an error fetching the favourite competitions!", error);
+        });
+  }, [id, user]);
+  
   useEffect(() => {
     if (id) {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forcomp/${id}?status=SCHEDULED&limit=10`)
@@ -28,6 +50,43 @@ const CompetitionPage = () => {
   }, [id]);
 
   if (!competition) return <div className="loading-message">Loading...</div>;
+
+  const handleAddToFavourite = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/user/favcomp/${competition.id}`,
+          {},
+          { withCredentials: true } 
+      );
+      setIsFavourite(true);
+
+      if (response.status === 201) {
+        alert(`${competition.name} has been added to your favourites!`);
+      } else {
+        console.log(response.status);
+        alert('Failed to add to favourites.');
+      }
+    } catch (error) {
+        console.error('Error adding to favourites:', error);
+        alert('An error occurred. Please try again later.');
+    }
+  };
+
+  const handleRemoveFromFavourite = () => {
+    axios.delete(`${process.env.REACT_APP_API_URL}/user/favcomp/${competition.id}`,
+          { withCredentials: true })
+        .then(response => {
+            setIsFavourite(false);
+            alert(`${competition.name} has been removed from your favourites!`);
+        })
+        .catch(error => {
+            console.error("There was an error removing the competition from favourites!", error);
+        });
+  };
 
   const formatTime = (utcDate) => {
     if(!utcDate){
@@ -53,6 +112,23 @@ const CompetitionPage = () => {
             <div className="competition-details">
               <h2>{competition.name}</h2>
             </div>
+          </div>
+          <div className="website-button">
+            {isFavourite ? (
+                <button 
+                    className="add-to-favourite-btn"
+                    onClick={handleRemoveFromFavourite}
+                >
+                    Remove from favourites
+                </button>
+            ) : (
+                <button 
+                    className="add-to-favourite-btn"
+                    onClick={handleAddToFavourite}
+                >
+                    Add to favourite
+                </button>
+            )}
           </div>
         </div>
       </div>
