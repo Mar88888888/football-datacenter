@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute';
 import Login from './components/Login';
+import SignUp from './components/Signup';
 import Dashboard from './components/Dashboard';
 import HomePage from './pages/HomePage';
 import CompetitionsPage from './pages/CompetitionsPage';
@@ -10,6 +11,7 @@ import TeamsPage from './pages/TeamsPage';
 import TeamPage from './pages/TeamPage';
 import PlayersPage from './pages/PlayersPage';
 import CompetitionPage from './pages/CompetitionPage';
+import EmailVerificationRequired from './components/EmailVerificationRequired';
 
 const Navbar = () => {
     const { user } = useContext(AuthContext);
@@ -41,6 +43,8 @@ const App = () => {
 
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="/email-verification-required" element={<EmailVerificationRequired />} />
                     <Route path="/dashboard" element={
                         <PrivateRoute>
                             <Dashboard />

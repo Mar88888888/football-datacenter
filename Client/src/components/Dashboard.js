@@ -9,6 +9,8 @@ const Dashboard = () => {
   const [favTeams, setFavTeams] = useState([]);
   const [favComps, setFavComps] = useState([]);
   const { setUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,10 +48,11 @@ const Dashboard = () => {
         </button>
       </div>
       <h1 className="title">Dashboard</h1>
-      
+      {console.log(user)}
       <div className="section">
         <h2 className="section-title">Favorite Teams</h2>
         <ul className="list">
+          {(favTeams.length === 0) ? <li>You have no favourite teams</li>: ''}
           {favTeams.map((team) => (
             <li key={team.id} className="list-item">              
               <Link to={`/teams/${team.id}`}>{team.name}</Link>
@@ -61,6 +64,7 @@ const Dashboard = () => {
       <div className="section">
         <h2 className="section-title">Favorite Competitions</h2>
         <ul className="list">
+          {(favComps.length === 0) ? <li>You have no favourite competitions</li>: ''}
           {favComps.map((comp) => (
             <li key={comp.id} className="list-item">
               <Link to={`/competitions/${comp.id}`}>{comp.name}</Link>

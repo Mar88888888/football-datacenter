@@ -10,7 +10,7 @@ export class MailService {
     const templateName = './verification';
     console.log('Sending email using template:', templateName);
 
-    const url = `http://localhost:3000/auth/verify-email?token=${token}`;
+    const url = `http://localhost:3000/fdc-api/user/auth/verify-email?token=${token}`;
 
     await this.mailerService.sendMail({
       to,

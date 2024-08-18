@@ -43,6 +43,11 @@ const HomePage = () => {
             <div className="match-time-date">
               <span className="match-time">{formatTime(match.utcDate)}</span>
               <span className="match-date">{formatDateOnly(match.utcDate)}</span>
+              {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
+                <span>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
+              ) : (
+                <span>vs</span>
+              )}  
             </div>
             <div className="team-match">
               <Link to={`/teams/${match.awayTeam.id}`}>

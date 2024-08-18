@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/darkTheme.css'
@@ -28,7 +28,7 @@ const Login = () => {
     };
 
     return (
-        <div className="login-container">
+        <div className="auth-container">
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <div>
@@ -52,6 +52,7 @@ const Login = () => {
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Login</button>
             </form>
+            <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
         </div>
     );
 };

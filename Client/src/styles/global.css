@@ -218,8 +218,7 @@ a, a:visited, a:link, a:active{
   background-color: #1F1F1F;
 }
 
-/* Login Container */
-.login-container {
+.auth-container {
   background-color: #1F1F1F;
   border: 1px solid #1E90FF;
   border-radius: 8px;
@@ -230,20 +229,24 @@ a, a:visited, a:link, a:active{
   box-sizing: border-box;
 }
 
-.login-container h2 {
+.auth-container h2 {
   text-align: center;
   color: #FFFFFF;
   margin-bottom: 1rem;
 }
 
-.login-container label {
+.auth-container a {
+  text-decoration: underline;
+}
+
+.auth-container label, .auth-container p, .auth-container a {
   color: #FFFFFF;
   margin-bottom: 0.5rem;
   display: block;
 }
 
-.login-container input,
-.login-container button {
+.auth-container input,
+.auth-container button {
   background-color: #2C2C2C;
   border: 1px solid #1E90FF;
   color: #FFFFFF;
@@ -254,19 +257,19 @@ a, a:visited, a:link, a:active{
   box-sizing: border-box;
 }
 
-.login-container input:focus {
+.auth-container input:focus {
   outline: none;
   border-color: #00A1E4;
 }
 
-.login-container button {
+.auth-container button {
   background-color: #1E90FF;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.login-container button:hover {
+.auth-container button:hover {
   background-color: #00A1E4;
   color: black;
 }
@@ -318,4 +321,17 @@ button {
 
 button:hover {
   background-color: #0050a0;
+}
+
+.match-score-time-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 15px;
+  /* Adjust based on your design */
+}
+
+.match-score {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
