@@ -198,9 +198,9 @@ const TeamPage = () => {
                 <span className="match-time">{formatTime(match.utcDate)}</span>
                 <span className="match-date">{formatDateOnly(match.utcDate)}</span>
                 {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
-                  <span>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
+                  <span className='match-score'>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
                 ) : (
-                  <span>vs</span>
+                  <span className='match-score'>vs</span>
                 )}              
               </div>
               <div className="team-match">

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import '../styles/global.css';
 import { Link } from 'react-router-dom';
 
@@ -30,7 +29,7 @@ const HomePage = () => {
   return (
     <div className="container">
       <h1 className="title">Welcome to the Sports Dashboard</h1>
-      <h3 className="title">Scheduled Matches</h3>
+      <h3 className="title">Today Matches</h3>
       <ul className="matches-list">
         {matches.map(match => (
           <li className="match-item list-item" key={match.id}>
@@ -44,9 +43,9 @@ const HomePage = () => {
               <span className="match-time">{formatTime(match.utcDate)}</span>
               <span className="match-date">{formatDateOnly(match.utcDate)}</span>
               {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
-                <span>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
+                <span className='match-score'>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
               ) : (
-                <span>vs</span>
+                <span className='match-score'>vs</span>
               )}  
             </div>
             <div className="team-match">
