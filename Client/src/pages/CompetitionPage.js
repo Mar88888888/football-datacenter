@@ -9,7 +9,8 @@ import { AuthContext } from '../context/AuthContext';
 const CompetitionPage = () => {
   const { id } = useParams();
   const [competition, setCompetition] = useState(null);
-  const [matches, setMatches] = useState([]);
+  const [scheduledMatches, setScheduledMatches] = useState([]);
+  const [lastMatches, setLastMatches] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
@@ -44,7 +45,16 @@ const CompetitionPage = () => {
     if (id) {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forcomp/${id}?status=SCHEDULED&limit=10`)
         .then(res => res.json())
-        .then(data => setMatches(data))
+        .then(data => setScheduledMatches(data))
+        .catch(err => console.error('Error fetching matches:', err));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      fetch(`${process.env.REACT_APP_API_URL}/matches/forcomp/${id}?status=FINISHED`)
+        .then(res => res.json())
+        .then(data => setLastMatches(data.slice(Math.max(data.length - 11, 0), data.length)))
         .catch(err => console.error('Error fetching matches:', err));
     }
   }, [id]);
@@ -133,9 +143,10 @@ const CompetitionPage = () => {
         </div>
       </div>
       <div className="container">
+
         <h3 className="title">Scheduled Matches</h3>
         <ul className="matches-list">
-          {matches.map(match => (
+          {scheduledMatches.map(match => (
             <li className="match-item list-item" key={match.id}>
               <div className="team-match">
                 <Link to={`/teams/${match.homeTeam.id}`}>
@@ -144,6 +155,7 @@ const CompetitionPage = () => {
                 </Link>
               </div>
               <div className="match-time-date">
+                <span className="match-date">Matchday {match.matchday}</span>
                 <span className="match-time">{formatTime(match.utcDate)}</span>
                 <span className="match-date">{formatDateOnly(match.utcDate)}</span>
                 {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
@@ -153,7 +165,39 @@ const CompetitionPage = () => {
                 )}  
               </div>
               <div className="team-match">
+                <Link to={`/teams/${match.awayTeam.id}`}>
+                  <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
+                  <div className="team-name">{match.awayTeam.shortName}</div>
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {lastMatches.length === 0 ?('') : (
+          <h3 className="title">Last Matches</h3>
+        )}  
+        <ul className="matches-list">
+          {lastMatches.map(match => (
+            <li className="match-item list-item" key={match.id}>
+              <div className="team-match">
                 <Link to={`/teams/${match.homeTeam.id}`}>
+                  <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
+                  <div className="team-name">{match.homeTeam.shortName}</div>
+                </Link>
+              </div>
+              <div className="match-time-date">
+                <span className="match-date">Matchday {match.matchday}</span>
+                <span className="match-time">{formatTime(match.utcDate)}</span>
+                <span className="match-date">{formatDateOnly(match.utcDate)}</span>
+                {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
+                  <span className='match-score'>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
+                ) : (
+                  <span className='match-score'>vs</span>
+                )}  
+              </div>
+              <div className="team-match">
+                <Link to={`/teams/${match.awayTeam.id}`}>
                   <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
                   <div className="team-name">{match.awayTeam.shortName}</div>
                 </Link>

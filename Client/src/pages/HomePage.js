@@ -40,6 +40,7 @@ const HomePage = () => {
               </Link>
             </div>
             <div className="match-time-date">
+              <span className="match-date">Matchday {match.matchday}</span>
               <span className="match-time">{formatTime(match.utcDate)}</span>
               <span className="match-date">{formatDateOnly(match.utcDate)}</span>
               {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
