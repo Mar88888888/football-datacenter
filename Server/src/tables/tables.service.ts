@@ -1,17 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { retry } from 'rxjs';
+import * as fs from 'fs';
+import * as path from 'path';
+import csv from 'csv-parser';
+
 const axios = require("axios");
 const cheerio = require("cheerio");
 
 @Injectable()
 export class TablesService {
-  private LeagueTable = [];
 
-  async getLeagueTable(league: string){
+
+  private LeagueTable = [];
+  private leagues = [];
+
+
+  constructor(){
+    this.loadLeagues();
+  }
+
+  async getLeagueTable(leagueid: number){
+    let league = this.getName(leagueid);
+
     this.LeagueTable = [];
     const url = `https://www.bbc.com/sport/football/${league}/table`;
     const response = await axios(url);
-    console.log(response.status)
     const html = await response.data;
     const $ = cheerio.load(html);
     const allRows = $("table > tbody > tr");
@@ -39,5 +51,24 @@ export class TablesService {
       })
     });
     return this.LeagueTable;
+  }
+
+  private loadLeagues() {
+    const filePath = process.env.NODE_ENV === 'production' 
+      ? path.resolve(__dirname, 'tables', 'leagues.csv') 
+      : path.resolve(__dirname, '../../', 'src', 'tables', 'leagues.csv');
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        this.leagues.push(row);
+      })
+      .on('end', () => {
+        console.log('CSV file successfully processed');
+      });
+  }
+
+  getName(id: number): string | undefined {
+    const league = this.leagues.find((league) => parseInt(league.id) === id);
+    return league?.league_name;
   }
 }

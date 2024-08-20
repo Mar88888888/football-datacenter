@@ -5,10 +5,12 @@ import '../styles/global.css';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import LeagueTable from '../components/LeagueTable';
 
 const CompetitionPage = () => {
   const { id } = useParams();
   const [competition, setCompetition] = useState(null);
+  const [league, setLeague] = useState(null);
   const [scheduledMatches, setScheduledMatches] = useState([]);
   const [lastMatches, setLastMatches] = useState([]);
   const [error, setError] = useState(null);
@@ -23,6 +25,7 @@ const CompetitionPage = () => {
       .then((data) => setCompetition(data))
       .catch((err) => console.error(err));
   }, [id]);
+
 
   useEffect(() => {
     if (!user) {
@@ -40,6 +43,17 @@ const CompetitionPage = () => {
             console.error("There was an error fetching the favourite competitions!", error);
         });
   }, [id, user]);
+  
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API_URL}/competition/${id}`,
+            { withCredentials: true } )
+        .then(response => {
+            setLeague(response.league);
+        })
+        .catch(error => {
+            console.error("There was an error fetching League!", error);
+        });
+  }, [id]);
   
   useEffect(() => {
     if (id) {
@@ -143,7 +157,7 @@ const CompetitionPage = () => {
         </div>
       </div>
       <div className="container">
-
+        <LeagueTable leagueId={id} />
         <h3 className="title">Scheduled Matches</h3>
         <ul className="matches-list">
           {scheduledMatches.map(match => (
