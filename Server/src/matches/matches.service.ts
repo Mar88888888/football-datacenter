@@ -82,7 +82,7 @@ export class MatchesService {
         let matches = response.data.matches.slice(0, limitSet);
         return matches
       }
-      return response.data.matches.slice(0, 10);
+      return response.data.matches?.slice(0, 10);
     }catch(e){
       console.log(e.message);
       return [];

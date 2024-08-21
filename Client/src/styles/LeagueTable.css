@@ -1,24 +1,62 @@
-.league-table table {
+.league-table {
   width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
   border-collapse: collapse;
-  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .league-table th,
 .league-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1rem;
+  color: #333;
+  border-bottom: 1px solid #ccc;
 }
 
 .league-table th {
-  background-color: #f2f2f2;
-  text-align: left;
+  background-color: #001F3F;
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1rem;
 }
 
-.league-table tr:nth-child(even) {
+.league-table tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-.league-table tr:hover {
-  background-color: #ddd;
+.league-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.league-table tbody td {
+  padding: 1rem;
+  font-weight: 500;
+}
+
+.league-table td:nth-child(3),
+/* Played */
+.league-table td:nth-child(10) {
+  /* Points */
+  font-weight: 700;
+  background-color: #FFD700;
+  color: #001F3F;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.league-table td:nth-child(3) {
+  background-color: #fff2a8;
+  /* Gold for Played */
+}
+
+.league-table td:nth-child(10) {
+  background-color: #acffac;
+  /* Green for Points */
+  color: #001F3F;
 }
