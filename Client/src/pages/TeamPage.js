@@ -28,9 +28,9 @@ const TeamPage = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?status=SCHEDULED&limit=10`)
+      fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?limit=10`)
         .then(res => res.json())
-        .then(data => setScheduledMatches(data))
+        .then(data => setScheduledMatches(data.next))
         .catch(err => console.error('Error fetching matches:', err));
     }
   }, [id]);
@@ -39,7 +39,7 @@ const TeamPage = () => {
     if (id) {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?status=FINISHED`)
         .then(res => res.json())
-        .then(data => setLastMatches(data.slice(Math.max(data.length - 11, 0), data.length)))
+        .then(data => setLastMatches(data.last.slice(Math.max(data.last.length - 11, 0), data.last.length)))
         .catch(err => console.error('Error fetching matches:', err));
     }
   }, [id]);
@@ -151,7 +151,7 @@ const TeamPage = () => {
           </div>
           <div className="coach-info">
             <h3>Coach</h3>
-            <p>{team.coach.name}</p>
+            <p>{team.coachName}</p>
           </div>
 
           <div className="website-button">
@@ -178,8 +178,8 @@ const TeamPage = () => {
         <h3>Players Squad</h3>
         <ul className="players-list">
           {players.map((player) => (
-            <li key={player.id} className="player-item">
-              {player.name} - {player.position}
+            <li key={player.player.id} className="player-item">
+              {player.player.name} - {player.player.position}
             </li>
           ))}
         </ul>
@@ -200,23 +200,23 @@ const TeamPage = () => {
             <li className="match-item list-item" key={match.id}>
               <div className="team-match">
                 <Link to={`/teams/${match.homeTeam.id}`}>
-                  <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
+                  <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
                   <div className="team-name">{match.homeTeam.shortName}</div>
                 </Link>
               </div>
               <div className="match-time-date">
-                <span className="match-date">Matchday {match.matchday}</span>
-                <span className="match-time">{formatTime(match.utcDate)}</span>
-                <span className="match-date">{formatDateOnly(match.utcDate)}</span>
-                {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
-                  <span className='match-score'>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
-                ) : (
+                <span className="match-date">Matchday {match.roundInfo?.round}</span>
+                <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
+                <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
+                {match.status.type === "notstarted"? (
                   <span className='match-score'>vs</span>
-                )}              
+                ) : (
+                  <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
+                )}
               </div>
               <div className="team-match">
                 <Link to={`/teams/${match.awayTeam.id}`}>
-                  <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
+                  <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
                   <div className="team-name">{match.awayTeam.shortName}</div>
                 </Link>
               </div>
@@ -232,23 +232,23 @@ const TeamPage = () => {
             <li className="match-item list-item" key={match.id}>
               <div className="team-match">
                 <Link to={`/teams/${match.homeTeam.id}`}>
-                  <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
+                  <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
                   <div className="team-name">{match.homeTeam.shortName}</div>
                 </Link>
               </div>
               <div className="match-time-date">
-                <span className="match-date">Matchday {match.matchday}</span>
-                <span className="match-time">{formatTime(match.utcDate)}</span>
-                <span className="match-date">{formatDateOnly(match.utcDate)}</span>
-                {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
-                  <span className='match-score'>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
-                ) : (
+                <span className="match-date">Matchday {match.roundInfo?.round}</span>
+                <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
+                <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
+                {match.status.type === "notstarted"? (
                   <span className='match-score'>vs</span>
-                )}  
+                ) : (
+                  <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
+                )}
               </div>
               <div className="team-match">
                 <Link to={`/teams/${match.awayTeam.id}`}>
-                  <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
+                  <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
                   <div className="team-name">{match.awayTeam.shortName}</div>
                 </Link>
               </div>

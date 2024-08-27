@@ -2,9 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import * as dotenv from 'dotenv';
-import session from 'express-session';
 dotenv.config(); 
 
 async function bootstrap() {
@@ -14,20 +12,6 @@ async function bootstrap() {
       origin: 'http://localhost:3001',
       credentials: true,
   });
-
-
-  app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          secure: process.env.NODE_ENV === 'production', 
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
-        },
-      }),
-  );
 
   app.use(cookieParser());
 

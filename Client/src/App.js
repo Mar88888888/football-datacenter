@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute';
 import Login from './components/Login';
@@ -26,7 +26,7 @@ const Navbar = () => {
             </div>
             <div className="navbar-user">
                 {user ? (
-                     <Link to="/dashboard"><span>{user.name}</span></Link>
+                    <Link to="/dashboard"><span>{user.name}</span></Link>
                 ) : (
                     <Link to="/login" className="button-primary">Log In</Link>
                 )}
@@ -40,21 +40,23 @@ const App = () => {
         <AuthProvider>
             <Router>
                 <Navbar />
-
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/email-verification-required" element={<EmailVerificationRequired />} />
-                    <Route path="/dashboard" element={
-                        <PrivateRoute>
-                            <Dashboard />
-                        </PrivateRoute>
-                    } />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <PrivateRoute>
+                                <Dashboard />
+                            </PrivateRoute>
+                        }
+                    />
                     <Route path="/" element={<HomePage />} />
                     <Route path="/competitions" element={<CompetitionsPage />} />
-                    <Route path="/competitions/:id" element={ <CompetitionPage />} />
+                    <Route path="/competitions/:id" element={<CompetitionPage />} />
                     <Route path="/teams" element={<TeamsPage />} />
-                    <Route path="/teams/:id" element={ <TeamPage />} />
+                    <Route path="/teams/:id" element={<TeamPage />} />
                     <Route path="/players" element={<PlayersPage />} />
                 </Routes>
             </Router>

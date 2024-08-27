@@ -3,11 +3,9 @@ import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './team.entity';
-import { CompetitionService } from '../competition/competition.service';
-import { GlobalRequestCounterService } from '../global-request-counter.service';
-import { Coach } from '../coach/coach.entity';
 import { Competition } from '../competition/competition.entity';
 import { lastValueFrom } from 'rxjs';
+import axios from 'axios';
 
 @Injectable()
 export class TeamService {
@@ -20,83 +18,93 @@ export class TeamService {
     private readonly teamRepository: Repository<Team>,
     @InjectRepository(Competition)
     private readonly competitionRepository: Repository<Competition>,
-    private readonly competitionService: CompetitionService,
-    private readonly globalRequestCounterService: GlobalRequestCounterService
   ) {}
 
   async fetchAndStoreTeams(): Promise<void> {
     try {
-      const competitions = await this.competitionService.getAllCompetitions();
-      for (const comp of competitions) {
+      const competitions = await this.competitionRepository.find();
 
-        // Parsing teams from competitions
-        const url = `https://api.football-data.org/v4/competitions/${comp.id}/teams`;
-        const response = await this.httpService.get(url, {
-          headers: { 'X-Auth-Token': process.env.API_KEY },
-        }).toPromise();
+      for (const competition of competitions) {
+        const tournamentId = competition.id;
 
-        await this.globalRequestCounterService.incrementCounter();
-        
+        // Get the current season ID for the tournament
+        const seasonUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/seasons`;
+        let currentSeasonId: number;
 
-        // Saving teams, connected with comps and coaches into db
-        const teams = response.data.teams;
-        for (const teamData of teams) {
-          let team = await this.teamRepository.findOne({
-            where: { id: teamData.id },
-            relations: ['competitions', 'coach']
-          });
+        try {
+          const seasonResponse = await lastValueFrom(this.httpService.get(seasonUrl));
+          const seasonsData = seasonResponse.data;
 
-          if (!team) {
-            team = new Team();
-            team.id = teamData.id;
+          if (seasonsData.seasons && seasonsData.seasons.length > 0) {
+            currentSeasonId = seasonsData.seasons[0].id;
+          } else {
+            this.logger.warn(`No seasons available for tournament ID: ${tournamentId}`);
+            continue; // Skip to the next tournament
           }
+        } catch (error) {
+          if (error.response?.status === 404) {
+            this.logger.warn(`Seasons not found for tournament ID: ${tournamentId}`);
+            continue; // Skip to the next tournament
+          } else {
+            this.logger.error(`Error fetching seasons for tournament ID ${tournamentId}: ${error.message}`);
+            continue;
+          }
+        }
 
-          team.name = teamData.name;
-          team.shortName = teamData.shortName;
-          team.tla = teamData.tla;
-          team.crest = teamData.crestUrl;
-          team.address = teamData.address;
-          team.website = teamData.website;
-          team.founded = teamData.founded;
-          team.clubColors = teamData.clubColors;
-          team.venue = teamData.venue;
-
-          const coachData = teamData.coach;
-          if (coachData && coachData.id) {
-            let coach = team.coach;
-            if (!coach || !coach.id) {
-              coach = new Coach();
-              team.coach = coach;
+        // Fetch teams for the current season
+        const teamsUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/season/${currentSeasonId}/teams`;
+        try {
+          const teamsResponse = await lastValueFrom(this.httpService.get(teamsUrl));
+          const teamsData = teamsResponse.data.teams || [];
+          
+          for (const teamData of teamsData) {
+            let team = await this.teamRepository.findOne({
+              where: { id: teamData.id },
+              relations: ['competitions'],
+            });
+            
+            if (!team) {
+              team = new Team();
+              team.id = teamData.id;
             }
-            coach.name = coachData.name;
-            coach.nationality = coachData.nationality;
-            coach.dateOfBirth = coachData.dateOfBirth;
-            coach.team = team;
-          }
+            const teamUrl = `https://www.sofascore.com/api/v1/team/${team.id}`;
+            const teamResponse = await lastValueFrom(this.httpService.get(teamUrl));
+            const teamFetchedData = teamResponse.data.team || team;
 
-          const competition = await this.competitionRepository.findOne({ where: { id: comp.id } });
-          if (competition) {
+            team.name = teamFetchedData.name;
+            team.shortName = teamFetchedData.shortName;
+            team.crest = `https://api.sofascore.app/api/v1/team/${team.id}/image`;
+            team.address = teamFetchedData?.venue?.city.name;
+            let date = new Date(teamFetchedData.foundationDateTimestamp * 1000);
+            team.founded = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            team.clubColors = teamFetchedData.teamColors.primary;
+
+            const coachName = teamFetchedData.manager?.name;
+            team.coachName = coachName;
+
+            // Associate the team with the competition
             if (!team.competitions) {
               team.competitions = [];
             }
             if (!team.competitions.some(c => c.id === competition.id)) {
               team.competitions.push(competition);
             }
-          } else {
-            this.logger.error(`Competition with id ${comp.id} not found`);
-            continue;
-          }
 
-          await this.teamRepository.save(team);
+            // Save the team
+            console.log(`Fetched team with id ${team.id}`)
+            await this.teamRepository.save(team);
+          }
+        } catch (error) {
+          this.logger.error(`Error fetching teams for tournament ID ${tournamentId}: ${error.message}`);
         }
       }
     } catch (err) {
       this.logger.error(err.message);
     }
   }
-
+  
   async getAllTeams(): Promise<Team[]> {
-    let team = await this.teamRepository.find({ relations: ['coach', 'competitions'] });
+    let team = await this.teamRepository.find({ relations: ['competitions'] });
     if(!team || team.length == 0){
       throw new NotFoundException('Team not found')
     }
@@ -106,7 +114,7 @@ export class TeamService {
   async findOne(teamId: number) {
     const team = await this.teamRepository.findOne({
       where: { id: teamId },
-      relations: ['competitions', 'coach'],  
+      relations: ['competitions'],  
     });
 
     if (!team) {
@@ -117,9 +125,21 @@ export class TeamService {
   }
 
   async searchByName(name: string): Promise<Team[]> {
-    return await this.teamRepository
-      .createQueryBuilder('team')
-      .where('team.name ILIKE :name', { name: `%${name}%` })
-      .getMany();
+    try {
+      const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
+      
+      const teams: Team[] = response.data.results
+        .filter((result: any) => result.type === 'team')
+        .map((result: any) => ({
+          id: result.entity.id,
+          name: result.entity.name,
+          crest: `https://www.sofascore.com/api/v1/team/${result.entity.id}/image`
+        }));
+
+      return teams;
+    } catch (error) {
+      console.error('Error fetching competitions:', error);
+      return [];
+    }
   }
 }

@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/darkTheme.css'
 
@@ -12,18 +11,30 @@ const Login = () => {
     const { setUser } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/auth/signin`, {
-                email,
-                password
-            }, { withCredentials: true });
-            const userData = response.data;
+        try{
+            e.preventDefault();
+            let url = `${process.env.REACT_APP_API_URL}/user/auth/signin`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-            setUser(userData);
-            navigate('/dashboard');
-        } catch (err) {
-            setError('Invalid email or password');
+            let data = await response.json();
+            if(response.status === 400){
+                throw new Error('Password or email is incorrect')
+            }
+            if (response.ok) {
+                setUser(data.user); 
+                navigate('/dashboard'); 
+            } else {
+                throw new Error('Login failed, try again later');
+            }
+        }
+        catch(e){
+            setError(e.message);
         }
     };
 

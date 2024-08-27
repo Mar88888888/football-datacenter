@@ -2,12 +2,14 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { MailService } from '../mail/mail.service';
 import { v4 as uuidv4 } from 'uuid';
+import { JwtService } from '@nestjs/jwt';
 
 const scrypt = promisify(_scrypt);
 
@@ -16,6 +18,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private mailService: MailService,
+    private jwtService: JwtService,
   ) {}  
 
   async signup(email: string, password: string, name:string) {
@@ -36,7 +39,10 @@ export class AuthService {
     await this.usersService.saveVerificationToken(user.id, verificationToken);
     await this.mailService.sendVerificationEmail(user.email, verificationToken, user);
 
-    return user;
+    const payload = { sub: user.id, email: user.email };
+    const access_token = this.jwtService.sign(payload);
+
+    return { user, access_token };
   }
 
   async signin(email: string, password: string) {
@@ -52,8 +58,10 @@ export class AuthService {
     if (storedHash !== hash.toString('hex')) {
       throw new BadRequestException('bad password');
     }
+    const payload = { sub: user.id, email: user.email };
+    const access_token = this.jwtService.sign(payload);
 
-    return user;
+    return { access_token, user };
   }
 
   async verifyEmail(token: string) {
@@ -64,5 +72,22 @@ export class AuthService {
     user.isEmailVerified = true;
     await this.usersService.update(user.id, user);
     return { message: 'Email verified successfully' };
+  }
+
+  public generateJwtToken(payload: { sub: number; email: string }): string {
+    return this.jwtService.sign(payload);
+  }
+
+   async getUserFromToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+      const user = await this.usersService.findOne(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

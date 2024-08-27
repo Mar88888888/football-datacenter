@@ -1,6 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { GlobalRequestCounterService } from '../global-request-counter.service';
 
 @Injectable()
 export class PlayerService {
@@ -8,18 +7,13 @@ export class PlayerService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly globalRequestCounterService: GlobalRequestCounterService,
-
   ) {}
 
   async getTeamPlayers(teamId: number){
-    const url = `https://api.football-data.org/v4/teams/${teamId}`;
+    const url = `https://api.sofascore.com/api/v1/team/${teamId}/players`;
     try {
-      const response = await this.httpService.get(url, {
-        headers: { 'X-Auth-Token': process.env.API_KEY },
-      }).toPromise();
-      await this.globalRequestCounterService.incrementCounter();
-      return response.data.squad;
+      const response = await this.httpService.get(url).toPromise();
+      return response.data.players;
     } catch (error) {
       if (error.isAxiosError && error.response?.status === 404) {
         throw new NotFoundException(`Team with id ${teamId} not found`);
@@ -31,13 +25,10 @@ export class PlayerService {
  }
 
   async getPlayerById(id: number){
-    const url = `https://api.football-data.org/v4/persons/${id}`;
+    const url = `https://api.sofascore.com/api/v1/player/${id}`;
     try {
-      const response = await this.httpService.get(url, {
-        headers: { 'X-Auth-Token': process.env.API_KEY },
-      }).toPromise();
-      await this.globalRequestCounterService.incrementCounter();
-      return response.data;
+      const response = await this.httpService.get(url).toPromise();
+      return response.data.player;
     } catch (error) {
       if (error.isAxiosError && error.response?.status === 404) {
         throw new NotFoundException(`PLayer with id ${id} not found`);

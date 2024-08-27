@@ -35,23 +35,23 @@ const HomePage = () => {
           <li className="match-item list-item" key={match.id}>
             <div className="team-match">
               <Link to={`/teams/${match.homeTeam.id}`}>
-                <img src={match.homeTeam.crest} alt="Home Team Logo" className="team-crest" />
+                <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
                 <div className="team-name">{match.homeTeam.shortName}</div>
               </Link>
             </div>
             <div className="match-time-date">
-              <span className="match-date">Matchday {match.matchday}</span>
-              <span className="match-time">{formatTime(match.utcDate)}</span>
-              <span className="match-date">{formatDateOnly(match.utcDate)}</span>
-              {match.status === "FINISHED" || match.status === "IN_PLAY" ? (
-                <span className='match-score'>{match.score.fullTime.home} - {match.score.fullTime.away}</span>
-              ) : (
+              <span className="match-date">Matchday {match.roundInfo?.round}</span>
+              <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
+              <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
+              {match.status.type === "notstarted"? (
                 <span className='match-score'>vs</span>
-              )}  
+              ) : (
+                <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
+              )}
             </div>
             <div className="team-match">
               <Link to={`/teams/${match.awayTeam.id}`}>
-                <img src={match.awayTeam.crest} alt="Away Team Logo" className="team-crest" />
+                <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
                 <div className="team-name">{match.awayTeam.shortName}</div>
               </Link>
             </div>

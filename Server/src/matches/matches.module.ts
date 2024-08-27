@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { MatchesController } from './matches.controller';
-import { HttpModule, HttpService } from '@nestjs/axios';
-import { GlobalRequestCounterService } from '../global-request-counter.service';
+import { HttpModule} from '@nestjs/axios';
 
 @Module({
   imports: [HttpModule],
-  providers: [MatchesService, GlobalRequestCounterService],
+  providers: [MatchesService],
   controllers: [MatchesController],
   exports: [MatchesService]
 })

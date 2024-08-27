@@ -1,74 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
-import csv from 'csv-parser';
-
 const axios = require("axios");
-const cheerio = require("cheerio");
 
 @Injectable()
 export class TablesService {
 
 
-  private LeagueTable = [];
-  private leagues = [];
 
+  async getLeagueTable(tournamentId: number): Promise<any> {
+    let leagueTable = [];
+    
+    try {
+      // Step 1: Get the currentSeasonId by requesting tournament details
+      const tournamentUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/seasons`;
+      const tournamentResponse = await axios.get(tournamentUrl);
+      const currentSeasonId = tournamentResponse.data.seasons[0].id;
 
-  constructor(){
-    this.loadLeagues();
-  }
+      // Step 2: Use the currentSeasonId to get the league standings
+      const standingsUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/season/${currentSeasonId}/standings/total`;
+      const standingsResponse = await axios.get(standingsUrl);
+      const standings = standingsResponse.data.standings;
+      if (standings && standings.length > 0) {
+        const table = standings[0].rows;
 
-  async getLeagueTable(leagueid: number){
-    let league = this.getName(leagueid);
+        table.forEach((row: any) => {
+          leagueTable.push({
+            'Team': row.team.name,
+            'Played': row.matches,
+            'Won': row.wins,
+            'Drawn': row.draws,
+            'Lost': row.losses,
+            'Goals For': row.scoresFor,
+            'Goals Against': row.scoresAgainst,
+            'Goals Difference': row.scoresFor - row.scoresAgainst,
+            'Points': row.points,
+          });
+        });
+      }
 
-    this.LeagueTable = [];
-    const url = `https://www.bbc.com/sport/football/${league}/table`;
-    const response = await axios(url);
-    const html = await response.data;
-    const $ = cheerio.load(html);
-    const allRows = $("table > tbody > tr");
-    allRows.each((index, element) => {
-      const tds = $(element).find('td');
-      const team = $(tds[1]).text();
-      const played = $(tds[2]).text();
-      const won = $(tds[3]).text();
-      const drawn = $(tds[4]).text();
-      const lost = $(tds[5]).text();
-      const gf = $(tds[6]).text();
-      const against = $(tds[7]).text();
-      const gd = $(tds[8]).text();
-      const points = $(tds[9]).text();
-      this.LeagueTable.push({
-        'Team': team,
-        'Played': played,
-        'Won': won,
-        'Drawn': drawn,
-        'Lost': lost,
-        'Goals For': gf,
-        'Goals Against': against,
-        'Goals Difference': gd,
-        'Points': points,
-      })
-    });
-    return this.LeagueTable;
-  }
+      return leagueTable;
+    } catch (error) {
+      console.log('Error fetching league table:', error);
+      return [];
+    }
+}
 
-  private loadLeagues() {
-    const filePath = process.env.NODE_ENV === 'production' 
-      ? path.resolve(__dirname, 'tables', 'leagues.csv') 
-      : path.resolve(__dirname, '../../', 'src', 'tables', 'leagues.csv');
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        this.leagues.push(row);
-      })
-      .on('end', () => {
-        console.log('CSV file successfully processed');
-      });
-  }
-
-  getName(id: number): string | undefined {
-    const league = this.leagues.find((league) => parseInt(league.id) === id);
-    return league?.league_name;
-  }
 }

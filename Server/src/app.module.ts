@@ -9,12 +9,9 @@ import { HttpModule } from '@nestjs/axios';
 import { TeamsModule } from './team/teams.module';
 import { PlayerModule } from './player/player.module';
 import { CompetitionModule } from './competition/competition.module';
-import { CoachModule } from './coach/coach.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { Team } from './team/team.entity';
 import { Competition } from './competition/competition.entity';
-import { Coach } from './coach/coach.entity';
-import { GlobalRequestCounterService } from './global-request-counter.service';
 import { TablesModule } from './tables/tables.module';
 
 @Module({
@@ -29,12 +26,12 @@ import { TablesModule } from './tables/tables.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User, Team, Competition, Coach]),
+    TypeOrmModule.forFeature([User, Team, Competition]),
     UsersModule,
     MatchesModule, 
-    HttpModule, TeamsModule, PlayerModule, CompetitionModule, CoachModule, SchedulerModule, TablesModule,
+    HttpModule, TeamsModule, PlayerModule, CompetitionModule, SchedulerModule, TablesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, GlobalRequestCounterService],
+  providers: [AppService],
 })
 export class AppModule {}

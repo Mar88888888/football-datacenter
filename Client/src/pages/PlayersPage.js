@@ -80,8 +80,8 @@ const PlayersPage = () => {
       </select>
       <ul className="list">
         {players.map((player) => (
-          <li key={player.id} className="list-item">
-            {player.name}
+          <li key={player.player.id} className="list-item">
+            {player.player.name}
           </li>
         ))}
       </ul>

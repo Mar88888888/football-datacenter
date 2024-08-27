@@ -12,29 +12,39 @@ const SignUp = () => {
     const navigate = useNavigate();
     const { setUser } = useContext(AuthContext);
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if passwords match
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/auth/signup`, {
+            let url = `${process.env.REACT_APP_API_URL}/user/auth/signup`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                 name: username,
                 email,
                 password
-            }, { withCredentials: true });
-            const userData = response.data;
+                }),
+            });
+            if(response.status === 400){
+                throw new Error('Email already in use!')
+            }
+            const userData = await response.json();
+            console.log(userData);
+            setUser(userData.user); 
 
-            setUser(userData);
-            alert('Check your email to verify it and use the app without limits!')
+            alert('Check your email to verify it and use the app without limits!');
             navigate('/');
+
         } catch (err) {
-            setError('Sign up failed. Please try again.');
+            setError(err.message);
         }
     };
 

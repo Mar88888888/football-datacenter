@@ -3,9 +3,8 @@ import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Competition } from './competition.entity';
-import { GlobalRequestCounterService } from '../global-request-counter.service';
 import { lastValueFrom } from 'rxjs';
-
+import axios from 'axios';
 
 @Injectable()
 export class CompetitionService {
@@ -15,32 +14,49 @@ export class CompetitionService {
     private readonly httpService: HttpService,
     @InjectRepository(Competition)
     private readonly competitionRepository: Repository<Competition>,
-    private readonly globalRequestCounterService: GlobalRequestCounterService,
 
   ) {}
 
   async fetchAndStoreCompetitions(): Promise<void> {
-    try{
+    try {
+      const categoryIds = Array.from({ length: 1000 }, (_, i) => i + 1);
+      const urlTemplate = 'https://www.sofascore.com/api/v1/category/{category_id}/unique-tournaments';
+      const footballCompetitions = [];
 
-      // Get available comps from API
-      let apiurl = 'https://api.football-data.org/v4/competitions';
-      console.log(`GET: ${apiurl}`);
-      const response = await this.httpService.get(apiurl, {
-        headers: { 'X-Auth-Token': process.env.API_KEY },
-      }).toPromise();
-  
-      await this.globalRequestCounterService.incrementCounter();
-  
-      const competitions = response.data.competitions;
-      for (const competition of competitions) {
-        if(competition.plan === 'TIER_ONE'){
-          //Save into db
-          await this.competitionRepository.save(competition);
+      for (const categoryId of categoryIds) {
+        const url = urlTemplate.replace('{category_id}', categoryId.toString());
+        console.log(`GET: ${url}`);
+
+        try {
+          const response = await lastValueFrom(this.httpService.get(url));
+          const groups = response.data.groups || [];
+          for (const group of groups) {
+            for (const tournament of group.uniqueTournaments || []) {
+              if (tournament.category.sport.name === 'Football') {
+                footballCompetitions.push(tournament);
+              }
+            }
+          }
+        } catch (error) {
+          if (error.response?.status === 404) {
+            this.logger.warn(`Category ID ${categoryId} returned 404, skipping...`);
+            continue;
+          } else {
+            this.logger.error(`Error fetching data for category ID ${categoryId}: ${error.message}`);
+          }
         }
       }
-    }
-    catch (err){
-      this.logger.error(`Err in CompService ${err.message}`);
+
+      // Save competitions to database
+      for (const competition of footballCompetitions) {
+        competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`
+        await this.competitionRepository.save(competition);
+        console.log(`Saved ${footballCompetitions.length} football competitions.`);
+      }
+
+
+    } catch (err) {
+      this.logger.error(`Error in fetchAndStoreCompetitions: ${err.message}`);
     }
   }
 
@@ -53,7 +69,6 @@ export class CompetitionService {
   }
 
   async findTeams(id: number){
-
     // Get competition by id with its teams
     let competition = await this.competitionRepository.findOne({where: {id}, relations: ['team']});
     if(!competition){
@@ -62,30 +77,22 @@ export class CompetitionService {
     return competition.team;
   }
 
-  async getMatches(competitionId: number, fromDate?: Date, toDate?: Date): Promise<any[]> {
-    let url = `https://api.football-data.org/v4/competitions/${competitionId}/matches${fromDate && toDate 
-    ? '?dateFrom=' + fromDate.toISOString().split('T')[0] +
-      '&dateTo=' + toDate.toISOString().split('T')[0]: ''}`;
-    console.log(url);
-    try{
-      // Parse matches in set period
-      const response = await lastValueFrom(
-        this.httpService.get(url, {
-          headers: { 'X-Auth-Token': process.env.API_KEY },
-        }),
-      );
-      await this.globalRequestCounterService.incrementCounter();
-      return response.data.matches;
-    }catch(e){
-      console.log(e.message);
+  async searchByName(name: string): Promise<Competition[]> {
+    try {
+      const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
+      
+      const competitions: Competition[] = response.data.results
+        .filter((result: any) => result.type === 'uniqueTournament')
+        .map((result: any) => ({
+          id: result.entity.id,
+          name: result.entity.name,
+          emblem: `https://www.sofascore.com/api/v1/unique-tournament/${result.entity.id}/image`
+        }));
+
+      return competitions;
+    } catch (error) {
+      console.error('Error fetching competitions:', error);
       return [];
     }
-  }
-
-  async searchByName(name: string): Promise<Competition[]> {
-    return await this.competitionRepository
-      .createQueryBuilder('competition')
-      .where('competition.name ILIKE :name', { name: `%${name}%` })
-      .getMany();
   }
 }

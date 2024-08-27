@@ -44,19 +44,19 @@
 .league-table td:nth-child(10) {
   /* Points */
   font-weight: 700;
-  background-color: #FFD700;
+  background-color: #ffd9009e;
   color: #001F3F;
   border-radius: 5px;
   padding: 1rem;
 }
 
 .league-table td:nth-child(3) {
-  background-color: #fff2a8;
+  background-color: #fff2a891;
   /* Gold for Played */
 }
 
 .league-table td:nth-child(10) {
-  background-color: #acffac;
+  background-color: #acffac81;
   /* Green for Points */
   color: #001F3F;
 }

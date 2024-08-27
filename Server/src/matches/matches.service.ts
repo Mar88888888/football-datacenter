@@ -1,45 +1,38 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import { GlobalRequestCounterService } from '../global-request-counter.service';
-import { stat } from 'fs';
-import { constrainedMemory } from 'process';
-
+import axios from 'axios';
 
 @Injectable()
 export class MatchesService {
-  private readonly apiUrl = 'https://api.football-data.org/v4';
-  private readonly apiKey = process.env.API_KEY; 
   constructor(private readonly httpService: HttpService,
-        private readonly globalRequestCounterService: GlobalRequestCounterService
   ) {}
 
-  async getMatches(fromDate?: Date, toDate?: Date): Promise<any> {
-    let url = `https://api.football-data.org/v4/matches${fromDate && toDate 
-        ? '?dateFrom=' + fromDate.toISOString().split('T')[0] +
-         '&dateTo=' + toDate.toISOString().split('T')[0]: ''}`;
+ async getMatches(date?: Date): Promise<any> {
+    let matches = [];
+    if(!date){
+      date = new Date();
+    }
     try {
-      const response = await lastValueFrom(
-        this.httpService.get(url, {
-          headers: { 'X-Auth-Token': this.apiKey },
-        }),
-      );
-      await this.globalRequestCounterService.incrementCounter();
-
-      return response.data.matches;
+      const formattedDate = date.toISOString().split('T')[0];
+      const url = `https://www.sofascore.com/api/v1/sport/football/scheduled-events/${formattedDate}`;
+      
+      const response = await axios.get(url);
+      matches = response.data.events;
+      matches = matches.filter(match=> new Date(match.startTimestamp * 1000).getDate() == date.getDate());
+      return matches;
     } catch (error) {
       console.log(error);
+      return [];
     }
   }
 
   async getLiveMatches(): Promise<any> {
     try {
       const response = await lastValueFrom(
-        this.httpService.get(`${this.apiUrl}/matches?status=LIVE`, {
-          headers: { 'X-Auth-Token': this.apiKey },
+        this.httpService.get(`https://www.sofascore.com/api/v1/sport/football/events/live`, {
         }),
       );
-      await this.globalRequestCounterService.incrementCounter();
 
       return response.data;
     } catch (error) {
@@ -47,42 +40,39 @@ export class MatchesService {
     }
   }
 
-  async getTeamMatches(teamId: number, fromDate?: Date, toDate?: Date, status?: string, limit?: string): Promise<any[]> {
-    let url = `https://api.football-data.org/v4/teams/${teamId}/matches${fromDate && toDate || status || limit ? '?' : ''}${fromDate && toDate 
-        ? 'dateFrom=' + fromDate.toISOString().split('T')[0] +
-         '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}${limit ? '&limit='+parseInt(limit) : ''}`;
+  async getTeamMatches(teamId: number): Promise<{last: any[], next: any[]}> {
+    let url = `https://www.sofascore.com/api/v1/team/${teamId}/events`;
     try{
       const response = await lastValueFrom(
-        this.httpService.get(url, {
-          headers: { 'X-Auth-Token': process.env.API_KEY },
-        }),
+        this.httpService.get(`${url}/last/0`),
       );
-      await this.globalRequestCounterService.incrementCounter();
-      return response.data.matches;
+      const responseNext = await lastValueFrom(
+        this.httpService.get(`${url}/next/0`),
+      );
+      return { last: response.data.events, next: responseNext.data.events };
     }catch(e){
       console.log(e.message);
-      return [];
+      return {last: [], next: []};
     }
 
   }
   
-  async getCompMatches(compId: number, fromDate?: Date, toDate?: Date, status?: string, limit?: string): Promise<any[]> {
-    let url = `https://api.football-data.org/v4/competitions/${compId}/matches${fromDate && toDate || status ? '?' : ''}${fromDate && toDate 
-        ? 'dateFrom=' + fromDate.toISOString().split('T')[0] +
-         '&dateTo=' + toDate.toISOString().split('T')[0] : ''}${status ? '&status='+status : ''}`;
+  async getCompMatches(compId: number, limit?: string, prev?: boolean): Promise<any[]> {
+    
+    const tournamentUrl = `https://www.sofascore.com/api/v1/unique-tournament/${compId}/seasons`;
+    const tournamentResponse = await axios.get(tournamentUrl);
+    const currentSeasonId = tournamentResponse.data.seasons[0].id;
+    let url = `https://www.sofascore.com/api/v1/unique-tournament/${compId}/season/${currentSeasonId}/events/${prev? 'last': 'next'}/0`;
     try{
       const response = await lastValueFrom(
-        this.httpService.get(url, {
-          headers: { 'X-Auth-Token': process.env.API_KEY },
-        }),
+        this.httpService.get(url),
       );
-      await this.globalRequestCounterService.incrementCounter();
       let limitSet = parseInt(limit);
       if(!isNaN(limitSet)){
-        let matches = response.data.matches.slice(0, limitSet);
+        let matches = response.data.events?.slice(0, limitSet);
         return matches
       }
-      return response.data.matches?.slice(0, 10);
+      return response.data.events?.slice(0, 10);
     }catch(e){
       console.log(e.message);
       return [];
