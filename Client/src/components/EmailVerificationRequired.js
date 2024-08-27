@@ -30,6 +30,7 @@ const EmailVerificationRequired = () => {
             <h2>Email Verification Required</h2>
             <p>You need to verify your email to access this page.</p>
             <p>Please check your email for the verification link.</p>
+            <p>If you have verified your email, try to log in again.</p>
             <Link to="/">Go to Home</Link>
         </div>
     );

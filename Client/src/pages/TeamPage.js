@@ -144,8 +144,13 @@ const TeamPage = () => {
             <div className="team-details">
               <h2>{team.name}</h2>
               <p><strong>Founded:</strong> {team.founded}</p>
-              <p><strong>Club Colors:</strong> {team.clubColors}</p>
-              <p><strong>Venue:</strong> {team.venue}</p>
+              <p><strong>Club Colors:</strong> <span style={{
+                backgroundColor: `${team.clubColors}`, 
+                width: '50px', 
+                height: '0.5em',
+                border: '1px solid black',
+                display: 'inline-block',
+              }}></span></p>
               <p><strong>Address:</strong> {team.address}</p>
             </div>
           </div>
@@ -170,7 +175,6 @@ const TeamPage = () => {
                     Add to favourite
                 </button>
             )}
-            <a href={team.website} target="_blank" rel="noopener noreferrer">Official Website</a>
           </div>
         </div>
       </div>

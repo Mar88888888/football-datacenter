@@ -9,7 +9,6 @@ const Dashboard = () => {
   const [favTeams, setFavTeams] = useState([]);
   const [favComps, setFavComps] = useState([]);
   const { setUser } = useContext(AuthContext);
-  const { user } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -17,8 +16,12 @@ const Dashboard = () => {
     const fetchFavorites = async () => {
       try {
         const [teamsResponse, compsResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/user/favteam`, { withCredentials: true }),
-          axios.get(`${process.env.REACT_APP_API_URL}/user/favcomp`, { withCredentials: true }),
+          axios.get(`${process.env.REACT_APP_API_URL}/user/favteam`, { 
+            withCredentials: true 
+          }),
+          axios.get(`${process.env.REACT_APP_API_URL}/user/favcomp`, { 
+            withCredentials: true,
+          }),
         ]);
         setFavTeams(teamsResponse.data);
         setFavComps(compsResponse.data);
@@ -48,7 +51,6 @@ const Dashboard = () => {
         </button>
       </div>
       <h1 className="title">Dashboard</h1>
-      {console.log(user)}
       <div className="section">
         <h2 className="section-title">Favorite Teams</h2>
         <ul className="list">

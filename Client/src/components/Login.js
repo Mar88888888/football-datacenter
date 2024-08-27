@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/darkTheme.css'
+import '../styles/darkTheme.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -11,30 +12,20 @@ const Login = () => {
     const { setUser } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
-        try{
-            e.preventDefault();
-            let url = `${process.env.REACT_APP_API_URL}/user/auth/signin`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+        e.preventDefault();
+        try {
+            const url = `${process.env.REACT_APP_API_URL}/user/auth/signin`;
+            const response = await axios.post(url, { email, password }, { withCredentials: true });
 
-            let data = await response.json();
-            if(response.status === 400){
-                throw new Error('Password or email is incorrect')
-            }
-            if (response.ok) {
-                setUser(data.user); 
-                navigate('/dashboard'); 
+            if (response.status === 200) {
+                setUser(response.data.user);
+                navigate('/dashboard');
             } else {
-                throw new Error('Login failed, try again later');
+                setError('Password or email is incorrect');
             }
-        }
-        catch(e){
-            setError(e.message);
+        } catch (error) {
+            console.log(error.message);
+            setError(error.response?.data?.message || 'An error occurred');
         }
     };
 

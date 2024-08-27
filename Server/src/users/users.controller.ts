@@ -59,6 +59,13 @@ export class UsersController {
       throw new UnauthorizedException('Token is missing');
     }
 
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 7, 
+    });
+
     try {
       const user = await this.authService.getUserFromToken(token); 
       return res.json(user);
@@ -83,8 +90,8 @@ export class UsersController {
   signOut(@Res() res: Response) {
     res.clearCookie('authToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
     });
     return res.send('Signed out!');
   }
@@ -105,8 +112,8 @@ export class UsersController {
 
     res.cookie('authToken', jwtToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, 
     });
 
@@ -122,8 +129,8 @@ export class UsersController {
       );
       res.cookie('authToken', access_token, {
         httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'strict', 
+        secure: true, 
+        sameSite: 'none', 
         maxAge: 1000 * 60 * 60 * 24 * 7,
       });
 
@@ -133,12 +140,13 @@ export class UsersController {
           isEmailVerified: user.isEmailVerified,
           email: user.email,
           name: user.name
-        } 
+        }, 
       });
     } catch (e) {
+      console.error(e.message);
       if (e instanceof BadRequestException) {
         return res.status(400).json({ message: e.message });
-      } else {
+      } else{
         return res.status(500).json({ message: 'Internal server error' });
       }
     }

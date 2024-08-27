@@ -33,7 +33,6 @@ const CompetitionPage = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/user/favcomp`,
             { withCredentials: true } )
         .then(response => {
-            console.log(response.data);
             const isFav = response.data.some(favComp => favComp.id === +id);
             setIsFavourite(isFav);
         })
