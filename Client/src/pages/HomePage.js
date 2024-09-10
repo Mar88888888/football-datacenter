@@ -28,7 +28,6 @@ const HomePage = () => {
 
   return (
     <div className="container">
-      <h1 className="title">Welcome to the Sports Dashboard</h1>
       <h3 className="title">Today Matches</h3>
       <ul className="matches-list">
         {matches.map(match => (

@@ -151,7 +151,7 @@ const TeamPage = () => {
                 border: '1px solid black',
                 display: 'inline-block',
               }}></span></p>
-              <p><strong>Address:</strong> {team.address}</p>
+              <p><strong>City:</strong> {team.address}</p>
             </div>
           </div>
           <div className="coach-info">

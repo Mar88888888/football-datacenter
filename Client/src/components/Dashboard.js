@@ -50,7 +50,6 @@ const Dashboard = () => {
           Logout
         </button>
       </div>
-      <h1 className="title">Dashboard</h1>
       <div className="section">
         <h2 className="section-title">Favorite Teams</h2>
         <ul className="list">
