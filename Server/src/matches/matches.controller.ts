@@ -17,6 +17,11 @@ export class MatchesController {
     return matches;
   }
 
+  @Get('/my/:userId')
+  async getUserMatches(@Param('userId') userId: string){
+    return await this.matchesService.getUserMatches(parseInt(userId));
+  }
+
   @Get('/live')
   async getLiveMatches() {
     return await this.matchesService.getLiveMatches();
@@ -29,6 +34,7 @@ export class MatchesController {
       from = new Date(date);
     }
     return await this.matchesService.getTeamMatches(parseInt(teamid));
+     
   }
 
   @Get('/forcomp/:compid')

@@ -1,11 +1,14 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import axios from 'axios';
+import { UsersService } from '../users/users.service';
+import { isSameDate } from '../date.utils';
 
 @Injectable()
 export class MatchesService {
   constructor(private readonly httpService: HttpService,
+    private userService: UsersService
   ) {}
 
  async getMatches(date?: Date): Promise<any> {
@@ -26,6 +29,35 @@ export class MatchesService {
       return [];
     }
   }
+
+async getUserMatches(userId: number) {
+  let favTeams = await this.userService.getFavTeams(userId);
+
+  let favMatches = await Promise.all(favTeams.map(async (team) => {
+    let nextMatches = await this.getTeamMatches(team.id).then(res => res.next);
+    if (nextMatches.length > 0) {
+      let matchDate = new Date(nextMatches[0].startTimestamp * 1000);
+      let today = new Date();
+
+      if (isSameDate(matchDate, today)) {
+        return nextMatches[0];
+      }
+    }
+    return null;
+  }));
+
+  favMatches = favMatches.filter(match => match !== null);
+
+  let allMatches = await this.getMatches();
+  let favTeamIds = favTeams.map(team => team.id);
+  
+  let notFavMatches = allMatches.filter(match => 
+    !favTeamIds.includes(match.homeTeam.id) && !favTeamIds.includes(match.awayTeam.id)
+  );
+
+  return [...favMatches, ...notFavMatches];
+}
+
 
   async getLiveMatches(): Promise<any> {
     try {

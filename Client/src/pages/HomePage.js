@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import '../styles/global.css';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const HomePage = () => {
   const [matches, setMatches] = useState([]);
-
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
-      fetch(`${process.env.REACT_APP_API_URL}/matches?limit=100`)
+    let url = `${process.env.REACT_APP_API_URL}/matches${user ? '/my/' + user.id : '?limit=100'}`;
+      fetch(url)
         .then(res => res.json())
         .then(data => setMatches(data))
         .catch(err => console.error('Error fetching matches:', err));
