@@ -7,8 +7,6 @@ import Login from './components/Login';
 import SignUp from './components/Signup';
 import Dashboard from './components/Dashboard';
 import HomePage from './pages/HomePage';
-import CompetitionsPage from './pages/CompetitionsPage';
-import TeamsPage from './pages/TeamsPage';
 import TeamPage from './pages/TeamPage';
 import PlayersPage from './pages/PlayersPage';
 import CompetitionPage from './pages/CompetitionPage';
@@ -29,9 +27,7 @@ const App = () => {
                     <Route path="/email-verification-required" element={<EmailVerificationRequired />} />
                     <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/competitions" element={<CompetitionsPage />} />
                     <Route path="/competitions/:id" element={<CompetitionPage />} />
-                    <Route path="/teams" element={<TeamsPage />} />
                     <Route path="/teams/:id" element={<TeamPage />} />
                     <Route path="/players" element={<PlayersPage />} />
                 </Routes>

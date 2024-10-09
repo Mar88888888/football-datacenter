@@ -6,6 +6,7 @@ import { fetchPlayers } from '../services/apiService';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import MatchList from '../components/MatchList';
 
 const TeamPage = () => {
   const { id } = useParams();
@@ -31,7 +32,7 @@ const TeamPage = () => {
         }
         const data = await response.json();
         setTeam(data);
-        setError(null);  // clear any previous errors
+        setError(null);  
       } catch (err) {
         setError('Failed to fetch team data.');
       } finally {
@@ -122,7 +123,7 @@ const TeamPage = () => {
   const handleRemoveFromFavourite = () => {
     axios.delete(`${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`,
           { withCredentials: true })
-        .then(response => {
+        .then(_ => {
             setIsFavourite(false);
             alert(`${team.name} has been removed from your favourites!`);
         })
@@ -136,20 +137,6 @@ const TeamPage = () => {
   if (error) return <div className="error-message">{error}</div>;
 
   if (!team) return null;
-
-
-  const formatTime = (utcDate) => {
-    if(!utcDate){
-      return 'Not Set';
-    }
-    const date = new Date(utcDate);
-    return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-  };
-
-  const formatDateOnly = (utcDate) => {
-    const date = new Date(utcDate);
-    return date.toLocaleDateString();
-  };
 
   return (
     <div className="team-page-container">
@@ -216,68 +203,14 @@ const TeamPage = () => {
             </li>
           ))}
         </ul>
-        <h3 className="title">Scheduled Matches</h3>
-        <ul className="matches-list">
-          {scheduledMatches.map(match => (
-            <li className="match-item list-item" key={match.id}>
-              <div className="team-match">
-                <Link to={`/teams/${match.homeTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
-                  <div className="team-name">{match.homeTeam.shortName}</div>
-                </Link>
-              </div>
-              <div className="match-time-date">
-                <span className="match-date">Matchday {match.roundInfo?.round}</span>
-                <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
-                <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
-                {match.status.type === "notstarted"? (
-                  <span className='match-score'>vs</span>
-                ) : (
-                  <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
-                )}
-              </div>
-              <div className="team-match">
-                <Link to={`/teams/${match.awayTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
-                  <div className="team-name">{match.awayTeam.shortName}</div>
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+
+        <h3>Scheduled Matches</h3>
+        <MatchList matches={scheduledMatches} />
 
         {lastMatches.length === 0 ?('') : (
           <h3 className="title">Last Matches</h3>
         )}  
-        <ul className="matches-list">
-          {lastMatches.map(match => (
-            <li className="match-item list-item" key={match.id}>
-              <div className="team-match">
-                <Link to={`/teams/${match.homeTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
-                  <div className="team-name">{match.homeTeam.shortName}</div>
-                </Link>
-              </div>
-              <div className="match-time-date">
-                <span className="match-date">Matchday {match.roundInfo?.round}</span>
-                <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
-                <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
-                {match.status.type === "notstarted"? (
-                  <span className='match-score'>vs</span>
-                ) : (
-                  <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
-                )}
-              </div>
-              <div className="team-match">
-                <Link to={`/teams/${match.awayTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
-                  <div className="team-name">{match.awayTeam.shortName}</div>
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-
+        <MatchList matches={lastMatches} />
         </span>
       </div>
       

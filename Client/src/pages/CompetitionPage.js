@@ -2,10 +2,10 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/CompetitionPage.css'; 
 import '../styles/global.css'; 
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import LeagueTable from '../components/LeagueTable';
+import MatchList from '../components/MatchList';
 
 const CompetitionPage = () => {
   const { id } = useParams();
@@ -146,66 +146,12 @@ const CompetitionPage = () => {
       <div className="container">
         <LeagueTable leagueId={id} />
         <h3 className="title">Scheduled Matches</h3>
-        <ul className="matches-list">
-          {scheduledMatches.map(match => (
-            <li className="match-item list-item" key={match.id}>
-              <div className="team-match">
-                <Link to={`/teams/${match.homeTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
-                  <div className="team-name">{match.homeTeam.shortName}</div>
-                </Link>
-              </div>
-              <div className="match-time-date">
-                <span className="match-date">Matchday {match.roundInfo?.round}</span>
-                <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
-                <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
-                {match.status.type === "notstarted"? (
-                  <span className='match-score'>vs</span>
-                ) : (
-                  <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
-                )}
-              </div>
-              <div className="team-match">
-                <Link to={`/teams/${match.awayTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
-                  <div className="team-name">{match.awayTeam.shortName}</div>
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <MatchList matches={scheduledMatches} />
 
         {lastMatches.length === 0 ?('') : (
           <h3 className="title">Last Matches</h3>
         )}  
-        <ul className="matches-list">
-          {lastMatches.map(match => (
-           <li className="match-item list-item" key={match.id}>
-              <div className="team-match">
-                <Link to={`/teams/${match.homeTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.homeTeam.id}/image`} alt="Home Team Logo" className="team-crest" />
-                  <div className="team-name">{match.homeTeam.shortName}</div>
-                </Link>
-              </div>
-              <div className="match-time-date">
-                <span className="match-date">Matchday {match.roundInfo?.round}</span>
-                <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
-                <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>
-                {match.status.type === "notstarted"? (
-                  <span className='match-score'>vs</span>
-                ) : (
-                  <span className='match-score'>{match.homeScore.current} - {match.awayScore.current}</span>
-                )}
-              </div>
-              <div className="team-match">
-                <Link to={`/teams/${match.awayTeam.id}`}>
-                  <img src={`https://www.sofascore.com/api/v1/team/${match.awayTeam.id}/image`} alt="Away Team Logo" className="team-crest" />
-                  <div className="team-name">{match.awayTeam.shortName}</div>
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <MatchList matches={lastMatches} />
       </div>
     </div>
   );
