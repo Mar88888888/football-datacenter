@@ -129,8 +129,8 @@ export class TeamService {
       const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
       
       const teams: Team[] = response.data.results
-        .filter((result: any) => result.type === 'team')
-        .map((result: any) => ({
+        .filter(result => result.type === 'team' && result.entity.sport.id === 1)
+        .map(result => ({
           id: result.entity.id,
           name: result.entity.name,
           crest: `https://www.sofascore.com/api/v1/team/${result.entity.id}/image`

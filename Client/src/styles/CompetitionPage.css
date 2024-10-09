@@ -45,58 +45,6 @@
   color: #001f3f;
 }
 
-.matches-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 20px 0;
-  width: 100%;
-  max-width: 600px;
-}
-
-.match-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #f0f0f0;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.team-match {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 30%;
-  text-align: center;
-}
-
-.team-crest {
-  width: 60px;
-  height: 60px;
-}
-
-.team-name {
-  font-size: 14px;
-  margin-top: 8px;
-}
-
-.match-time-date {
-  text-align: center;
-  margin: 0 30px;
-  width: 30%;
-}
-
-.match-time,
-.match-date {
-  display: block;
-  font-size: 16px;
-}
-
-img {
-  user-select: none;
-}
 
 .competition-page-container h3.title {
   margin-top: 30px;
@@ -109,25 +57,13 @@ img {
     max-width: 100%;
     padding: 10px;
   }
-
-  .matches-list {
-    width: 100%;
-  }
-
-  .match-item {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .match-time-date {
-    margin: 10px 0;
-  }
 }
 
 .add-to-favourite-btn {
   position: absolute;
-  bottom: 20px;
+  bottom: 15px;
   left: 50%;
+  margin-bottom: 20px;
   transform: translateX(-50%);
   padding: 8px 16px;
   font-size: 14px;

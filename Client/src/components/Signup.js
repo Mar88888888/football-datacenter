@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import '../styles/Auth.css'
 
 const SignUp = () => {
     const [username, setUsername] = useState('');
@@ -51,7 +51,7 @@ const SignUp = () => {
     return (
         <div className="auth-container">
             <h2>Sign Up</h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete='off'>
                 <div>
                     <label>Username</label>
                     <input

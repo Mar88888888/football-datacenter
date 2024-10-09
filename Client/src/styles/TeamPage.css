@@ -1,10 +1,10 @@
-
 .team-passport-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 0px auto;
   padding: 30px;
+  background-color: #1F1F1F;
 }
 
 .team-passport {
@@ -20,10 +20,15 @@
 }
 
 .team-details h2,
-.team-details p,
-.coach-info h3,
-.coach-info p {
+.team-details p{
   margin-bottom: 5px;
+}
+.coach-info p {
+  margin-bottom: 50px;
+}
+
+.coach-info h3 {
+  transform: translate(0, 65%);
 }
 
 .team-info {
@@ -34,7 +39,6 @@
 .team-photo img {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
 }
 
 .team-details h2 {
@@ -48,28 +52,6 @@
 .coach-info {
   align-self: center;
   width: 10%;
-}
-
-.website-button {
-  align-self: center;
-  text-align: right;
-  margin-top: 20px;
-}
-
-.website-button a {
-  background-color: #001f3f;
-  color: white;
-  padding: 10px 15px;
-  text-decoration: none;
-  border-radius: 5px;
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  margin-top: 10px;
-}
-
-.website-button a:hover {
-  background-color: #0050a0;
 }
 
 .competitions {
@@ -94,58 +76,6 @@
   border-radius: 5px;
 }
 
-.matches-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.match-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #f0f0f0;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.team-match {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 30%;
-  text-align: center;
-}
-
-.team-crest {
-  width: 60px;
-  height: 60px;
-}
-
-.team-name {
-  font-size: 14px;
-  margin-top: 8px;
-}
-
-.match-time-date {
-  text-align: center;
-  margin: 0 30px;
-  width: 30%;
-}
-
-.match-time,
-.match-date {
-  display: block;
-  font-size: 16px;
-}
-
-img{
-  user-select: none;
-}
-
 
 .players-squad{
   float: left;
@@ -153,6 +83,8 @@ img{
   max-height: 1200px;
   width: 300px;
   overflow-y: scroll;
+  scrollbar-width: none;
+  scrollbar-color: #888 #f1f1f1;
 }
 
 .player-list {
@@ -187,20 +119,37 @@ img{
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
+.players-squad ul,
+.matches-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.players-squad::-webkit-scrollbar {
+  width: 5px;
+  border-radius: 10px;
+}
+
+.players-squad::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.players-squad::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid #f7f7f7;
+}
+
+.players-squad::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 
 .team-page-container{
   background-color: #f7f7f7;
 }
-.team-passport-container{
-  background-color: #1F1F1F;
-}
 
 .container-content{
   transform: translate(-150px);
-}
-
-.add-to-favourite-btn {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
 }

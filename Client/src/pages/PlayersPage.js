@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPlayers, fetchTeams, fetchCompetitions } from '../services/apiService';
-import '../styles/global.css'
+import '../styles/PlayersPage.css'
 
 const PlayersPage = () => {
   const [competitions, setCompetitions] = useState([]);
@@ -46,8 +46,9 @@ const PlayersPage = () => {
 
     const loadPlayers = async () => {
       try {
-        const data = await fetchPlayers(selectedTeam);
-        setPlayers(data);
+        let data = await fetchPlayers(selectedTeam);
+        data = data.map(obj => obj?.player);
+        setPlayers(sortByName(data));
       } catch (error) {
         setError('Failed to fetch players');
       } finally {
@@ -58,6 +59,22 @@ const PlayersPage = () => {
     loadPlayers();
   }, [selectedTeam]);
 
+  function sortByName(arr){
+    return arr.sort((obj1, obj2) => {
+        if(!obj1.name || !obj2.name){
+          console.log('noName')
+          return;
+        }
+        if (obj1.name < obj2.name) {
+          return -1;
+        } else if (obj1.name > obj2.name) {
+          return 1;
+        }
+        return 0;
+      }
+      );
+  }
+
   if (loading) return <p className="loading-message">Loading...</p>;
   if (error) return <p className="error-message">{error}</p>;
 
@@ -65,14 +82,14 @@ const PlayersPage = () => {
     <div className="container">
       <h1 className="title">Players</h1>
       <select className="select-item" onChange={(e) => setSelectedCompetition(e.target.value)} value={selectedCompetition}>
-        {competitions.map((competition) => (
+        {sortByName(competitions).map((competition) => (
           <option key={competition.id} value={competition.id}>
             {competition.name}
           </option>
         ))}
       </select>
       <select className="select-item" onChange={(e) => setSelectedTeam(e.target.value)} value={selectedTeam}>
-        {teams.map((team) => (
+        {sortByName(teams).map((team) => (
           <option key={team.id} value={team.id}>
             {team.name}
           </option>
@@ -80,8 +97,8 @@ const PlayersPage = () => {
       </select>
       <ul className="list">
         {players.map((player) => (
-          <li key={player.player.id} className="list-item">
-            {player.player.name}
+          <li key={player.id} className="list-item">
+            {player.name}
           </li>
         ))}
       </ul>

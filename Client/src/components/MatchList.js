@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import '../styles/MatchList.css'
 
 const MatchList = ({ matches }) => {
   const formatTime = (utcDate) => {

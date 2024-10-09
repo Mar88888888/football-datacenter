@@ -10,7 +10,7 @@ import HomePage from './pages/HomePage';
 import TeamPage from './pages/TeamPage';
 import PlayersPage from './pages/PlayersPage';
 import CompetitionPage from './pages/CompetitionPage';
-import EmailVerificationRequired from './components/EmailVerificationRequired';
+import EmailVerificationRequired from './pages/EmailVerificationRequired';
 import SearchResultsPage from './pages/SearchResultsPage';
 
 import './styles/global.css';

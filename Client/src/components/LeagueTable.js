@@ -20,38 +20,42 @@ const LeagueTable = ({ leagueId }) => {
 
   return (
     <div className="league-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Position</th>
-            <th>Team</th>
-            <th>Played</th>
-            <th>Won</th>
-            <th>Drawn</th>
-            <th>Lost</th>
-            <th>Goals For</th>
-            <th>Goals Against</th>
-            <th>Goal Difference</th>
-            <th>Points</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tableData.map((team, index) => (
-            <tr key={index}>
-              <td>{index+1}</td>
-              <td>{team.Team}</td>
-              <td>{team.Played}</td>
-              <td>{team.Won}</td>
-              <td>{team.Drawn}</td>
-              <td>{team.Lost}</td>
-              <td>{team['Goals For']}</td>
-              <td>{team['Goals Against']}</td>
-              <td>{team['Goals Difference']}</td>
-              <td>{team.Points}</td>
+      {tableData.length == 0 ? (
+        ''
+      ):(
+        <table>
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th>Team</th>
+              <th>Played</th>
+              <th>Won</th>
+              <th>Draw</th>
+              <th>Lost</th>
+              <th>Goals Scored</th>
+              <th>Goals Conceded</th>
+              <th>Goal Difference</th>
+              <th>Points</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tableData.map((team, index) => (
+              <tr key={index}>
+                <td>{index+1}</td>
+                <td>{team.Team}</td>
+                <td>{team.Played}</td>
+                <td>{team.Won}</td>
+                <td>{team.Drawn}</td>
+                <td>{team.Lost}</td>
+                <td>{team['Goals For']}</td>
+                <td>{team['Goals Against']}</td>
+                <td>{team['Goals Difference']}</td>
+                <td>{team.Points}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

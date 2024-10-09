@@ -17,7 +17,6 @@ const SearchResultsPage = () => {
             <ul className="list">
                 {results.map((result) => (
                     <li key={result.id} className="result-list-item">
-                        {console.log(result)}
                         <Link to={result.crest ? `/teams/${result.id}` : `/competitions/${result.id}`}>
                             <img 
                                 src={result.crest ? result.crest : result.emblem} 

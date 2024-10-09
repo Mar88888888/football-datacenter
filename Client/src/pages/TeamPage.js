@@ -148,7 +148,11 @@ const TeamPage = () => {
             </div>
             <div className="team-details">
               <h2>{team.name}</h2>
-              <p><strong>Founded:</strong> {team.founded}</p>
+              {team.founded !== 'NaN/NaN/NaN' ? (
+                <p><strong>Founded:</strong> {team.founded}</p>
+              ) : (
+                ''
+              )}
               <p><strong>Club Colors:</strong> <span style={{
                 backgroundColor: `${team.clubColors}`, 
                 width: '50px', 
@@ -164,7 +168,7 @@ const TeamPage = () => {
             <p>{team.coachName}</p>
           </div>
 
-          <div className="website-button">
+          <div>
             {isFavourite ? (
                 <button 
                     className="add-to-favourite-btn"
@@ -204,7 +208,7 @@ const TeamPage = () => {
           ))}
         </ul>
 
-        <h3>Scheduled Matches</h3>
+        <h3 className="title">Scheduled Matches</h3>
         <MatchList matches={scheduledMatches} />
 
         {lastMatches.length === 0 ?('') : (
