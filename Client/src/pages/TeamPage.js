@@ -19,11 +19,27 @@ const TeamPage = () => {
   const navigate = useNavigate();
   const [isFavourite, setIsFavourite] = useState(false);
 
+
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/teams/${id}`)
-      .then((res) => res.json())
-      .then((data) => setTeam(data))
-      .catch((err) => console.error(err));
+    const fetchTeamData = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/teams/${id}`);
+        if (response.status === 404) {
+          setError('Team not found.');
+          setLoading(false);
+          return;
+        }
+        const data = await response.json();
+        setTeam(data);
+        setError(null);  // clear any previous errors
+      } catch (err) {
+        setError('Failed to fetch team data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamData();
   }, [id]);
 
   useEffect(() => {
@@ -60,7 +76,6 @@ const TeamPage = () => {
             console.error("There was an error fetching the favourite competitions!", error);
         });
   }, [id, user]);
-
 
   useEffect(() => {
     if (!team) return;
@@ -116,8 +131,11 @@ const TeamPage = () => {
         });
   };
 
+  if (loading) return <div className="loading-message">Loading...</div>;
 
-  if (!team) return <div className="loading-message">Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+
+  if (!team) return null;
 
 
   const formatTime = (utcDate) => {

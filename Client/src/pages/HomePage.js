@@ -8,7 +8,7 @@ const HomePage = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    let url = `${process.env.REACT_APP_API_URL}/matches${user ? '/my/' + user.id : '?limit=100'}`;
+    let url = `${process.env.REACT_APP_API_URL}/matches${user ? '/my/' + user.id : ''}`;
       fetch(url)
         .then(res => res.json())
         .then(data => setMatches(data))
@@ -41,6 +41,7 @@ const HomePage = () => {
               </Link>
             </div>
             <div className="match-time-date">
+              <span className="match-competition">{match.tournament.name}</span>
               <span className="match-date">Matchday {match.roundInfo?.round}</span>
               <span className="match-time">{formatTime(new Date(match.startTimestamp * 1000))}</span>
               <span className="match-date">{formatDateOnly(new Date(match.startTimestamp * 1000))}</span>

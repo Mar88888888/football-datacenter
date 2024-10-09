@@ -6,10 +6,14 @@ body {
   color: #333;
 }
 
-a, a:visited, a:link, a:active{
+a,
+a:visited,
+a:link,
+a:active {
   text-decoration: none;
   color: #001F3F;
 }
+
 /* Container */
 .container {
   min-height: 100vh;
@@ -59,7 +63,11 @@ a, a:visited, a:link, a:active{
   /* Center list items horizontally */
 }
 
-.list-item {
+.result-list-item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -71,10 +79,25 @@ a, a:visited, a:link, a:active{
   font-weight: 600;
   text-align: center;
   width: 100%;
-  /* Make list items fill the container */
+  min-height: 70px;
 }
 
-.list-item:hover {
+.result-list-item img {
+  position: absolute;
+  left: 20px;
+  top: 25px;
+  width: 50px;
+  height: 50px;
+}
+
+.result-list-item span {
+  flex-grow: 0;
+  /* Don't let the text stretch */
+  text-align: center;
+  /* Center the text horizontally */
+}
+
+.result-list-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
@@ -119,15 +142,15 @@ a, a:visited, a:link, a:active{
 .navbar-links {
   display: flex;
   justify-content: center;
+  transform: translate(-10%);
   flex-grow: 1;
 }
 
 .navbar-links a {
-  transform: translate(-50px);
   position: relative;
   color: #FFFFFF;
   text-transform: uppercase;
-  padding: 0.5rem 1.5rem;
+  padding: 0.5rem 1rem;
   text-decoration: none;
   border: 1px solid transparent;
   border-radius: 5px;
@@ -243,7 +266,9 @@ a, a:visited, a:link, a:active{
   text-decoration: underline;
 }
 
-.auth-container label, .auth-container p, .auth-container a {
+.auth-container label,
+.auth-container p,
+.auth-container a {
   color: #FFFFFF;
   margin-bottom: 0.5rem;
   display: block;
@@ -309,7 +334,7 @@ a, a:visited, a:link, a:active{
 }
 
 .players-squad {
-  scrollbar-width:none;
+  scrollbar-width: none;
   scrollbar-color: #888 #f1f1f1;
 }
 
@@ -341,24 +366,17 @@ button:hover {
   font-size: 1.5rem;
 }
 
-.match-competition {
-  margin-bottom: 5px;
-  font-size: 0.7rem;
-}
-
 
 
 .navbar-search form {
   align-items: center;
-  display: flex;
-  z-index: 50;
 }
 
 .navbar-search {
   flex: 0;
   display: flex;
   align-items: center;
-  flex-direction: row;
+  justify-content: flex-start;
   margin-left: 1rem;
 }
 

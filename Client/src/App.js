@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute';
+import Navbar from './components/Navbar'; 
 import Login from './components/Login';
 import SignUp from './components/Signup';
 import Dashboard from './components/Dashboard';
@@ -12,28 +13,9 @@ import TeamPage from './pages/TeamPage';
 import PlayersPage from './pages/PlayersPage';
 import CompetitionPage from './pages/CompetitionPage';
 import EmailVerificationRequired from './components/EmailVerificationRequired';
+import SearchResultsPage from './pages/SearchResultsPage';
 
-const Navbar = () => {
-    const { user } = useContext(AuthContext);
-
-    return (
-        <nav className="navbar">
-            <div className="navbar-links">
-                <Link to="/">Home</Link>
-                <Link to="/competitions">Competitions</Link>
-                <Link to="/teams">Teams</Link>
-                <Link to="/players">Players</Link>
-            </div>
-            <div className="navbar-user">
-                {user ? (
-                    <Link to="/dashboard"><span>{user.name}</span></Link>
-                ) : (
-                    <Link to="/login" className="button-primary">Log In</Link>
-                )}
-            </div>
-        </nav>
-    );
-};
+import './styles/global.css';
 
 const App = () => {
     return (
@@ -43,15 +25,9 @@ const App = () => {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<SignUp />} />
+                    <Route path="/search-results" element={<SearchResultsPage />} />
                     <Route path="/email-verification-required" element={<EmailVerificationRequired />} />
-                    <Route
-                        path="/dashboard"
-                        element={
-                            <PrivateRoute>
-                                <Dashboard />
-                            </PrivateRoute>
-                        }
-                    />
+                    <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                     <Route path="/" element={<HomePage />} />
                     <Route path="/competitions" element={<CompetitionsPage />} />
                     <Route path="/competitions/:id" element={<CompetitionPage />} />

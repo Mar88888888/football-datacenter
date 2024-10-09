@@ -20,6 +20,9 @@ export class Team {
   address: string;
 
   @Column({ nullable: true })
+  gender: 'male' | 'female';
+
+  @Column({ nullable: true })
   founded: string;
 
   @Column({ nullable: true })
