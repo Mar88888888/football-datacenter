@@ -47,7 +47,6 @@ export class CompetitionService {
         }
       }
 
-      // Save competitions to database
       for (const competition of footballCompetitions) {
         competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`
         await this.competitionRepository.save(competition);
@@ -60,22 +59,31 @@ export class CompetitionService {
     }
   }
 
-  async getAllCompetitions(): Promise<Competition[]> {
-    return this.competitionRepository.find();
+  async findById(compId: number){
+    try {
+      let competitionUrl = `https://www.sofascore.com/api/v1/unique-tournament/${compId}`;
+      const teamResponse = await lastValueFrom(this.httpService.get(competitionUrl));
+      const fetchedComp = teamResponse.data.uniqueTournament;
+      
+      if (!fetchedComp || fetchedComp.category.sport.id !== 1) {
+        throw new NotFoundException(`Competition with id ${compId} not found`);
+      }
+
+      let competition = new Competition();
+      competition.id = compId;
+      competition.name = fetchedComp.name;
+      competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`;      
+      return competition;
+
+    } catch (error) {
+      if (error.response && error.response.status === 404 || error instanceof NotFoundException) {
+        throw new NotFoundException(`Competition with id ${compId} not found`);
+      }
+      throw new Error('Failed to fetch competition data');
+    }  
+
   }
 
-  async findById(id: number){
-    return await this.competitionRepository.findOne({where: {id}});
-  }
-
-  async findTeams(id: number){
-    // Get competition by id with its teams
-    let competition = await this.competitionRepository.findOne({where: {id}, relations: ['team']});
-    if(!competition){
-      throw new NotFoundException(`Competition with id ${id} not found`)
-    }
-    return competition.team;
-  }
 
   async searchByName(name: string): Promise<Competition[]> {
     try {

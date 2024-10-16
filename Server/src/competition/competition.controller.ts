@@ -7,10 +7,6 @@ export class CompetitionController {
     private readonly competitionService: CompetitionService,
   ){}
 
-  @Get('')
-  async getAllCompetitions(){
-    return await this.competitionService.getAllCompetitions();
-  }
 
   @Get('/search/:name')
   searchCompsByName(@Param('name') name: string) {
@@ -22,9 +18,5 @@ export class CompetitionController {
     return this.competitionService.findById(parseInt(id));
   }
   
-  @Get('/:id/teams')
-  getCompetitionTeams(@Param('id') id: string){
-    return this.competitionService.findTeams(parseInt(id));
-  }
 
 }

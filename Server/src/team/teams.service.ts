@@ -27,7 +27,6 @@ export class TeamService {
       for (const competition of competitions) {
         const tournamentId = competition.id;
 
-        // Get the current season ID for the tournament
         const seasonUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/seasons`;
         let currentSeasonId: number;
 
@@ -39,19 +38,18 @@ export class TeamService {
             currentSeasonId = seasonsData.seasons[0].id;
           } else {
             this.logger.warn(`No seasons available for tournament ID: ${tournamentId}`);
-            continue; // Skip to the next tournament
+            continue; 
           }
         } catch (error) {
           if (error.response?.status === 404) {
             this.logger.warn(`Seasons not found for tournament ID: ${tournamentId}`);
-            continue; // Skip to the next tournament
+            continue; 
           } else {
             this.logger.error(`Error fetching seasons for tournament ID ${tournamentId}: ${error.message}`);
             continue;
           }
         }
 
-        // Fetch teams for the current season
         const teamsUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/season/${currentSeasonId}/teams`;
         try {
           const teamsResponse = await lastValueFrom(this.httpService.get(teamsUrl));
@@ -82,7 +80,6 @@ export class TeamService {
             const coachName = teamFetchedData.manager?.name;
             team.coachName = coachName;
 
-            // Associate the team with the competition
             if (!team.competitions) {
               team.competitions = [];
             }
@@ -90,7 +87,6 @@ export class TeamService {
               team.competitions.push(competition);
             }
 
-            // Save the team
             console.log(`Fetched team with id ${team.id}`)
             await this.teamRepository.save(team);
           }
@@ -102,28 +98,40 @@ export class TeamService {
       this.logger.error(err.message);
     }
   }
-  
-  async getAllTeams(): Promise<Team[]> {
-    let team = await this.teamRepository.find({ relations: ['competitions'] });
-    if(!team || team.length == 0){
-      throw new NotFoundException('Team not found')
-    }
-    return team;
+
+  async findById(teamId: number) {
+    const teamUrl = `https://www.sofascore.com/api/v1/team/${teamId}`;
+    try {
+      const teamResponse = await lastValueFrom(this.httpService.get(teamUrl));
+      const teamFetchedData = teamResponse.data.team;
+      
+      if (!teamFetchedData) {
+        throw new NotFoundException(`Team with id ${teamId} not found`);
+      }
+
+      let team = new Team();
+      team.id = teamId;
+      team.name = teamFetchedData.name;
+      team.shortName = teamFetchedData.shortName;
+      team.crest = `https://api.sofascore.app/api/v1/team/${team.id}/image`;
+      team.address = teamFetchedData?.venue?.city.name;
+      team.gender = teamFetchedData.gender;
+      
+      let date = new Date(teamFetchedData.foundationDateTimestamp * 1000);
+      team.founded = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      team.clubColors = teamFetchedData.teamColors.primary;
+      team.coachName = teamFetchedData.manager?.name;
+
+      return team;
+
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        throw new NotFoundException(`Team with id ${teamId} not found`);
+      }
+      throw new Error('Failed to fetch team data');
+    }  
   }
-
-  async findOne(teamId: number) {
-    const team = await this.teamRepository.findOne({
-      where: { id: teamId },
-      relations: ['competitions'],  
-    });
-
-    if (!team) {
-      throw new NotFoundException(`Team with id ${teamId} not found`);
-    }
-
-    return team;
-  }
-
+    
   async searchByName(name: string): Promise<Team[]> {
     try {
       const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
@@ -138,7 +146,7 @@ export class TeamService {
 
       return teams;
     } catch (error) {
-      console.error('Error fetching competitions:', error);
+      console.error('Error searching team:', error);
       return [];
     }
   }

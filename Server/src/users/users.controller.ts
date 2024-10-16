@@ -28,24 +28,27 @@ import { SignInUserDto } from './dtos/signin-user.dto';
 import { TeamService } from '../team/teams.service';
 import { CompetitionService } from '../competition/competition.service';
 import { EmailGuard } from '../guards/email.guard';
-import { response, Response } from 'express';
+import { Response } from 'express';
+import { FavouriteService } from './favourite/favourite.service';
 
 
 @Controller('user')
-@Serialize(UserDto)
 export class UsersController {
   constructor(
     private usersService: UsersService,
+    private favService: FavouriteService,
     private authService: AuthService,
     private teamService: TeamService,
     private compService: CompetitionService,
   ) {}
   
   @Get()
+  @Serialize(UserDto)
   async findAllUsers(@Query('email') email: string) {
     return await this.usersService.find(email);
   }
-
+  
+  @Serialize(UserDto)
   @Get('/auth/bytoken')
   async getUser(@Req() req: Request, @Res() res: Response) {
     const authHeader = req.headers['authorization'];
@@ -74,18 +77,21 @@ export class UsersController {
     }
   }  
 
-  @Get('/auth/whoami')
+  @Serialize(UserDto)
   @UseGuards(AuthGuard)
+  @Get('/auth/whoami')
   whoAmI(@CurrentUser() user: User) {
     return user;
   }
   
+  @Serialize(UserDto)
   @Get('/auth/verify-email')
   async verifyEmail(@Query('token') token: string, @Session() session: any) {
     let res  = await this.authService.verifyEmail(token);
     return res;
   }
   
+  @Serialize(UserDto)
   @Post('/auth/signout')
   signOut(@Res() res: Response) {
     res.clearCookie('authToken', {
@@ -96,6 +102,7 @@ export class UsersController {
     return res.send('Signed out!');
   }
   
+  @Serialize(UserDto)
   @Post('/auth/signup')
   async createUser(
     @Body() body: CreateUserDto,
@@ -120,6 +127,7 @@ export class UsersController {
     return res.status(200).json(result);
   }
 
+  @Serialize(UserDto)
   @Post('/auth/signin')
   async signin(@Body() signinDto: SignInUserDto, @Res() res: Response) {
     try {
@@ -157,50 +165,55 @@ export class UsersController {
   @Get('/favteam')
   async getFavTeams(@CurrentUser() user: User)
   {
-    return this.usersService.getFavTeams(user.id);
+    return await this.favService.getFavTeams(user.id);
   }
   
   @UseGuards(AuthGuard, EmailGuard)
   @Get('/favcomp')
   async getFavComp(@CurrentUser() user: User)
   {
-    return this.usersService.getFavComps(user.id);
+    return await this.favService.getFavComps(user.id);
   }
   
   @UseGuards(AuthGuard, EmailGuard)
   @Post('/favteam/:teamid')
   async addFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string){
-    let team = await this.teamService.findOne(parseInt(teamId));
-    if(!team){
-      throw new NotFoundException(`Team with id ${teamId} not found`)
+    try{
+      return await this.favService.addFavTeam(user.id, parseInt(teamId));
+    }catch(err){
+      if(err instanceof NotFoundException){
+        throw new NotFoundException('Not found team with id ' + teamId);
+      }
     }
-    return this.usersService.addFavTeam(user.id, team);
   }
   
   
   @UseGuards(AuthGuard, EmailGuard)
   @Post('/favcomp/:compid')
   async addFavCompetition(@CurrentUser() user: User, @Param('compid') compId: string){
-    let competition = await this.compService.findById(parseInt(compId));
-    if(!competition){
-      throw new NotFoundException(`Competition with id ${compId} not found`)
+    try{
+      return await this.favService.addFavComp(user.id, parseInt(compId));
+    }catch(err){
+      if(err instanceof NotFoundException){
+        throw new NotFoundException('Not found comp with id ' + compId);
+      }
     }
-    return this.usersService.addFavCompetition(user.id, competition);
   }
   
   @UseGuards(AuthGuard, EmailGuard)
   @Delete('/favcomp/:compid')
   async removeFavCompetition(@CurrentUser() user: User, @Param('compid') compId: string){
-    return this.usersService.removeFavCompetition(user.id, parseInt(compId));
+    return await this.favService.removeFavComp(user.id, parseInt(compId));
   }
   
   @UseGuards(AuthGuard, EmailGuard)
   @Delete('/favteam/:teamid')
   async removeFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string){
-    return await this.usersService.removeFavTeam(user.id, parseInt(teamId));
+    return await this.favService.removeFavTeam(user.id, parseInt(teamId));
   }
   
   @Get('/:id')
+  @Serialize(UserDto)
   async findUser(@Param('id') id: string) {
     const user = await this.usersService.findOne(parseInt(id));
     if (!user) {
@@ -215,6 +228,7 @@ export class UsersController {
   // }
   
   @Patch('/:id')
+  @Serialize(UserDto)
   updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.usersService.update(parseInt(id), body);
   }

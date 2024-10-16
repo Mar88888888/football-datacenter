@@ -2,8 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Team } from '../team/team.entity';
-import { Competition } from '../competition/competition.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,11 +13,12 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     if (!id) {
       return null;
     }
-    return this.repo.findOneBy({ id });
+    let user = await this.repo.find({  where: {id}, relations: ['favCompetitions', 'favTeams'] });
+    return user[0];
   }
 
   find(email: string) {
@@ -58,94 +57,6 @@ export class UsersService {
     return user;
   }
 
-  async addFavTeam(userId: number, team: Team) {
-    const userWithFavTeams = await this.repo.findOne({
-      where: { id: userId },
-      relations: ['favTeams'],
-    });
 
-    if (!userWithFavTeams.favTeams) {
-      userWithFavTeams.favTeams = [];
-    }
-
-    userWithFavTeams.favTeams.push(team);
-
-    return await this.repo.save(userWithFavTeams);
-  }
-
-  async getFavTeams(userId: number) {
-    const userWithFavTeams = await this.repo.findOne({
-      where: { id: userId },
-      relations: ['favTeams'],
-    });
-
-    if (!userWithFavTeams.favTeams) {
-      userWithFavTeams.favTeams = [];
-    }
-
-    return userWithFavTeams.favTeams;
-  }
-
-  async getFavComps(userId: number) {
-    const userWithFavComps = await this.repo.findOne({
-      where: { id: userId },
-      relations: ['favCompetitions'],
-    });
-
-
-    if (!userWithFavComps.favCompetitions) {
-      userWithFavComps.favCompetitions = [];
-    }
-
-    return userWithFavComps.favCompetitions;
-  }
   
-  async addFavCompetition(userId: number, competition: Competition) {
-    const userWithFavComps = await this.repo.findOne({
-      where: { id: userId },
-      relations: ['favCompetitions'],
-    });
-
-    if (!userWithFavComps.favCompetitions) {
-      userWithFavComps.favCompetitions = [];
-    }
-
-    userWithFavComps.favCompetitions.push(competition);
-
-    return await this.repo.save(userWithFavComps);
-  }
-
-  async removeFavCompetition(userId: number, competitionId: number) {
-    const userWithFavComps = await this.repo.findOne({
-      where: { id: userId },
-      relations: ['favCompetitions'],
-    });
-
-    if (!userWithFavComps.favCompetitions) {
-      userWithFavComps.favCompetitions = [];
-    }
-
-    userWithFavComps.favCompetitions = userWithFavComps.favCompetitions.filter(competition => {
-      return competition.id != competitionId;
-    });
-    
-    return await this.repo.save(userWithFavComps);
-  }
-
-  async removeFavTeam(userId: number, teamId: number) {
-    const userWithFavTeams = await this.repo.findOne({
-      where: { id: userId },
-      relations: ['favTeams'],
-    });
-
-    if (!userWithFavTeams.favTeams) {
-      userWithFavTeams.favTeams = [];
-    }
-
-    userWithFavTeams.favTeams = userWithFavTeams.favTeams.filter(team => {
-      return team.id !== teamId;
-    });
-
-    return await this.repo.save(userWithFavTeams);
-  }
 }

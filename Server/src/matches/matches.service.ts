@@ -4,11 +4,13 @@ import { lastValueFrom } from 'rxjs';
 import axios from 'axios';
 import { UsersService } from '../users/users.service';
 import { isSameDate } from '../date.utils';
+import { FavouriteService } from '../users/favourite/favourite.service';
 
 @Injectable()
 export class MatchesService {
   constructor(private readonly httpService: HttpService,
-    private userService: UsersService
+    private userService: UsersService,
+    private favService: FavouriteService,
   ) {}
 
  async getMatches(date?: Date): Promise<any> {
@@ -31,7 +33,7 @@ export class MatchesService {
   }
 
 async getUserMatches(userId: number) {
-  let favTeams = await this.userService.getFavTeams(userId);
+  let favTeams = await this.favService.getFavTeams(userId);
 
   let favMatches = await Promise.all(favTeams.map(async (team) => {
     let nextMatches = await this.getTeamMatches(team.id).then(res => res.next);
