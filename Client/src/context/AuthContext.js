@@ -1,7 +1,14 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(); 
+
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -10,18 +17,16 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
-                const token = document.cookie.split('; ').find(row => row.startsWith('authToken='));
+                const token = getCookie('authToken');
                 if (token) {
-                    const authToken = token.split('=')[1];
                     const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/auth/bytoken`, {
                         headers: {
-                            'Authorization': `Bearer ${authToken}`,
+                            'Authorization': `Bearer ${token}`,
                         },
                         withCredentials: true,
                     });
-
                     setUser(response.data);
-                    setAuthToken(authToken);
+                    setAuthToken(token);
                 } else {
                     setUser(null);
                 }
@@ -34,8 +39,14 @@ export const AuthProvider = ({ children }) => {
         fetchUserDetails();
     }, []);
 
+    const contextValue = useMemo(() => ({
+        user, setUser, authToken, setAuthToken,
+    }), [user, authToken]);
+
+
+
     return (
-        <AuthContext.Provider value={{ user, setUser, authToken, setAuthToken }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

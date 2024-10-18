@@ -18,6 +18,7 @@ const Login = () => {
             const response = await axios.post(url, { email, password }, { withCredentials: true });
 
             if (response.status === 200) {
+                console.log(response);
                 setUser(response.data.user);
                 navigate('/dashboard');
             } else {

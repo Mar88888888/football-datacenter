@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute';
+import UnAuthRoute from './utils/UnAuthRoute';
 import Navbar from './components/Navbar'; 
 import Login from './components/Login';
 import SignUp from './components/Signup';
@@ -21,8 +22,8 @@ const App = () => {
             <Router>
                 <Navbar />
                 <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="/login" element={<UnAuthRoute><Login /></UnAuthRoute>} />
+                    <Route path="/signup" element={<UnAuthRoute><SignUp /></UnAuthRoute>} />
                     <Route path="/search-results" element={<SearchResultsPage />} />
                     <Route path="/email-verification-required" element={<EmailVerificationRequired />} />
                     <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
