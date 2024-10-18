@@ -1,5 +1,5 @@
-import { Competition } from '../competition/competition.entity';
-import { Team } from '../team/team.entity';
+import { Competition } from '../competition/competition';
+import { Team } from '../team/team';
 
 export class Match {
   constructor(

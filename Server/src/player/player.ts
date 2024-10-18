@@ -1,4 +1,4 @@
-import { Team } from '../team/team.entity';
+import { Team } from '../team/team';
 
 export class Player {
   constructor(

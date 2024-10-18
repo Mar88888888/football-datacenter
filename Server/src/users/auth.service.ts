@@ -40,15 +40,15 @@ export class AuthService {
     await this.mailService.sendVerificationEmail(user.email, verificationToken, user);
 
     const payload = { sub: user.id, email: user.email };
-    const access_token = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
-    return { user, access_token };
+    return { user, accessToken };
   }
 
   async signin(email: string, password: string) {
     const [user] = await this.usersService.find(email);
     if (!user) {
-      throw new BadRequestException(`User with email ${email} not found`);
+      throw new NotFoundException(`User with email ${email} not found`);
     }
 
     const [salt, storedHash] = user.password.split('.');
@@ -59,9 +59,9 @@ export class AuthService {
       throw new BadRequestException('bad password');
     }
     const payload = { sub: user.id, email: user.email };
-    const access_token = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
-    return { access_token, user };
+    return { accessToken, user };
   }
 
   async verifyEmail(token: string) {
@@ -75,7 +75,7 @@ export class AuthService {
   }
 
   public generateJwtToken(payload: { sub: number; email: string }): string {
-    return this.jwtService.sign(payload);
+    return this.jwtService.sign(payload, { expiresIn: '1h' });
   }
 
    async getUserFromToken(token: string) {

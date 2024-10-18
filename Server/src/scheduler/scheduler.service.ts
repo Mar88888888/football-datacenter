@@ -17,11 +17,6 @@ export class SchedulerService {
     private readonly matchesService: MatchesService,
   ) {}
 
-  @Cron('04 01 * * *')
-  async handleCron() {
-    await this.competitionService.fetchAndStoreCompetitions();
-    await this.teamService.fetchAndStoreTeams();
-  }
 
   @Cron('10 01 * * *')
   async handleMatchdayCron() {

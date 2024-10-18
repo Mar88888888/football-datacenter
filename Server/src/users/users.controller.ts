@@ -15,18 +15,16 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { Serialize } from '../interceptors/serialize.interceptor';
-import { UserDto } from './dtos/user.dto';
+import { UserDto } from './dto/user.dto';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard';
-import { SignInUserDto } from './dtos/signin-user.dto';
-import { TeamService } from '../team/teams.service';
-import { CompetitionService } from '../competition/competition.service';
+import { SignInUserDto } from './dto/signin-user.dto';
 import { EmailGuard } from '../guards/email.guard';
 import { Response } from 'express';
 import { FavouriteService } from './favourite/favourite.service';
@@ -38,8 +36,6 @@ export class UsersController {
     private usersService: UsersService,
     private favService: FavouriteService,
     private authService: AuthService,
-    private teamService: TeamService,
-    private compService: CompetitionService,
   ) {}
   
   @Get()
@@ -63,7 +59,7 @@ export class UsersController {
     }
 
     res.cookie('authToken', token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: false,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, 
@@ -95,7 +91,7 @@ export class UsersController {
   @Post('/auth/signout')
   signOut(@Res() res: Response) {
     res.clearCookie('authToken', {
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: 'none',
     });
@@ -118,7 +114,7 @@ export class UsersController {
     const jwtToken = this.authService.generateJwtToken(payload);
 
     res.cookie('authToken', jwtToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, 
@@ -131,12 +127,12 @@ export class UsersController {
   @Post('/auth/signin')
   async signin(@Body() signinDto: SignInUserDto, @Res() res: Response) {
     try {
-      const { access_token, user } = await this.authService.signin(
+      const { accessToken, user } = await this.authService.signin(
         signinDto.email,
         signinDto.password,
       );
-      res.cookie('authToken', access_token, {
-        httpOnly: true, 
+      res.cookie('authToken', accessToken, {
+        httpOnly: false, 
         secure: true, 
         sameSite: 'none', 
         maxAge: 1000 * 60 * 60 * 24 * 7,

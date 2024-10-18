@@ -1,8 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Competition } from './competition.entity';
+import { Competition } from './competition';
 import { lastValueFrom } from 'rxjs';
 import axios from 'axios';
 
@@ -12,52 +10,49 @@ export class CompetitionService {
   
   constructor(
     private readonly httpService: HttpService,
-    @InjectRepository(Competition)
-    private readonly competitionRepository: Repository<Competition>,
-
   ) {}
 
-  async fetchAndStoreCompetitions(): Promise<void> {
-    try {
-      const categoryIds = Array.from({ length: 1000 }, (_, i) => i + 1);
-      const urlTemplate = 'https://www.sofascore.com/api/v1/category/{category_id}/unique-tournaments';
-      const footballCompetitions = [];
+  // async fetchAndStoreCompetitions(): Promise<void> {
+  //   try {
+  //     const categoryIds = Array.from({ length: 1000 }, (_, i) => i + 1);
+  //     const urlTemplate = 'https://www.sofascore.com/api/v1/category/{category_id}/unique-tournaments';
+  //     const footballCompetitions = [];
 
-      for (const categoryId of categoryIds) {
-        const url = urlTemplate.replace('{category_id}', categoryId.toString());
-        console.log(`GET: ${url}`);
+  //     for (const categoryId of categoryIds) {
+  //       const url = urlTemplate.replace('{category_id}', categoryId.toString());
+  //       console.log(`GET: ${url}`);
 
-        try {
-          const response = await lastValueFrom(this.httpService.get(url));
-          const groups = response.data.groups || [];
-          for (const group of groups) {
-            for (const tournament of group.uniqueTournaments || []) {
-              if (tournament.category.sport.name === 'Football') {
-                footballCompetitions.push(tournament);
-              }
-            }
-          }
-        } catch (error) {
-          if (error.response?.status === 404) {
-            this.logger.warn(`Category ID ${categoryId} returned 404, skipping...`);
-            continue;
-          } else {
-            this.logger.error(`Error fetching data for category ID ${categoryId}: ${error.message}`);
-          }
-        }
-      }
+  //       try {
+  //         const response = await lastValueFrom(this.httpService.get(url));
+  //         const groups = response.data.groups || [];
+  //         for (const group of groups) {
+  //           for (const tournament of group.uniqueTournaments || []) {
+  //             if (tournament.category.sport.name === 'Football') {
+  //               footballCompetitions.push(tournament);
+  //             }
+  //           }
+  //         }
+  //       } catch (error) {
+  //         if (error.response?.status === 404) {
+  //           this.logger.warn(`Category ID ${categoryId} returned 404, skipping...`);
+  //           continue;
+  //         } else {
+  //           this.logger.error(`Error fetching data for category ID ${categoryId}: ${error.message}`);
+  //         }
+  //       }
+  //     }
 
-      for (const competition of footballCompetitions) {
-        competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`
-        await this.competitionRepository.save(competition);
-        console.log(`Saved ${footballCompetitions.length} football competitions.`);
-      }
+  //     for (const competition of footballCompetitions) {
+  //       competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`
+  //       await this.competitionRepository.save(competition);
+  //       console.log(`Saved ${footballCompetitions.length} football competitions.`);
+  //     }
 
 
-    } catch (err) {
-      this.logger.error(`Error in fetchAndStoreCompetitions: ${err.message}`);
-    }
-  }
+  //   } catch (err) {
+  //     this.logger.error(`Error in fetchAndStoreCompetitions: ${err.message}`);
+  //   }
+  // }
 
   async findById(compId: number){
     try {
@@ -70,9 +65,10 @@ export class CompetitionService {
       }
 
       let competition = new Competition();
-      competition.id = compId;
-      competition.name = fetchedComp.name;
-      competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`;      
+      competition.setId(compId);
+      competition.setName(fetchedComp.name);
+      competition.setEmblem(`https://www.sofascore.com/api/v1/unique-tournament/${compId}/image`);
+
       return competition;
 
     } catch (error) {

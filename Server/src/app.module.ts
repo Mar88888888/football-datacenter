@@ -10,8 +10,8 @@ import { TeamsModule } from './team/teams.module';
 import { PlayerModule } from './player/player.module';
 import { CompetitionModule } from './competition/competition.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
-import { Team } from './team/team.entity';
-import { Competition } from './competition/competition.entity';
+import { Team } from './team/team';
+import { Competition } from './competition/competition';
 import { TablesModule } from './tables/tables.module';
 
 @Module({

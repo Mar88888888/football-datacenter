@@ -2,14 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import axios from 'axios';
-import { UsersService } from '../users/users.service';
 import { isSameDate } from '../date.utils';
 import { FavouriteService } from '../users/favourite/favourite.service';
 
 @Injectable()
 export class MatchesService {
   constructor(private readonly httpService: HttpService,
-    private userService: UsersService,
     private favService: FavouriteService,
   ) {}
 
@@ -36,7 +34,7 @@ async getUserMatches(userId: number) {
   let favTeams = await this.favService.getFavTeams(userId);
 
   let favMatches = await Promise.all(favTeams.map(async (team) => {
-    let nextMatches = await this.getTeamMatches(team.id).then(res => res.next);
+    let nextMatches = await this.getTeamMatches(team.getId()).then(res => res.next);
     if (nextMatches.length > 0) {
       let matchDate = new Date(nextMatches[0].startTimestamp * 1000);
       let today = new Date();
@@ -51,7 +49,7 @@ async getUserMatches(userId: number) {
   favMatches = favMatches.filter(match => match !== null);
 
   let allMatches = await this.getMatches();
-  let favTeamIds = favTeams.map(team => team.id);
+  let favTeamIds = favTeams.map(team => team.getId());
   
   let notFavMatches = allMatches.filter(match => 
     !favTeamIds.includes(match.homeTeam.id) && !favTeamIds.includes(match.awayTeam.id)
@@ -101,12 +99,13 @@ async getUserMatches(userId: number) {
       const response = await lastValueFrom(
         this.httpService.get(url),
       );
+      let matches = response.data.events;
       let limitSet = parseInt(limit);
-      if(!isNaN(limitSet)){
-        let matches = response.data.events?.slice(0, limitSet);
-        return matches
+      if(isNaN(limitSet)){
+        limitSet = 10;
       }
-      return response.data.events?.slice(0, 10);
+      return matches?.slice(prev ? matches.length - limitSet : 0, prev ? matches.length : limitSet);
+       
     }catch(e){
       console.log(e.message);
       return [];
