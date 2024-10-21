@@ -56,7 +56,5 @@ export class UsersService {
     let [user] = await this.repo.find({where: {verificationToken: token} });
     return user;
   }
-
-
   
 }

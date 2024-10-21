@@ -1,19 +1,19 @@
 .competition-page-container {
+  display: flex;
   background-color: #f7f7f7;
   padding: 30px;
-  display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .competition-passport-container {
-  background-color: #1F1F1F;
+  display: flex;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 20px;
   position: relative;
-  display: flex;
   justify-content: center;
+  background-color: #1F1F1F;
 }
 
 .competition-passport {

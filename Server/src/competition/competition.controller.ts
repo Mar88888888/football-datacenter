@@ -12,11 +12,14 @@ export class CompetitionController {
   searchCompsByName(@Param('name') name: string) {
     return this.competitionService.searchByName(name);
   }
+
+  @Get('/top')
+  getTopLeagues(){
+    return this.competitionService.getTopLeagues();
+  }
   
   @Get('/:id')
   getCompetitionById(@Param('id') id: string){
     return this.competitionService.findById(parseInt(id));
   }
-  
-
 }

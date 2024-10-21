@@ -1,0 +1,126 @@
+.player-page-container {
+  background-color: #f7f7f7;
+}
+
+.player-header {
+  text-align: center;
+}
+
+.player-info {
+  display: flex;
+  gap: 10px;
+}
+
+.player-photo img {
+  width: 125px;
+  height: 125px;
+  border-radius: 50%;
+  margin-top: 20px;
+}
+.player-team .list-item, .player-country .list-item{
+  position: relative;
+  min-height: 33px;
+
+} 
+
+.player-team .list-item img ,
+.player-country .list-item img {
+  position: absolute;
+  width: 50px;
+  top: 15px;
+  left: 6px;
+  border-radius: 5px;
+} 
+
+.team{
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+.country-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  width: 20%;
+  transform: translate(-90px);
+  margin-top: 5px;
+}
+
+.country-info p, .country-info h3{
+  text-align: center;
+  margin:2px;
+}
+
+.country-info img{
+  width: 40px;
+}
+
+
+.player-details{
+  margin-top: 30px;
+}
+
+.shirt-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.shirt {
+  position: relative;
+  width: 140px;
+  height: 160px;
+  background-color: #004996;
+  border-radius: 10px 10px 10px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.shirt::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 40px;
+  background-color: #f7f7f7;
+  border-radius: 0 0 50% 50%;
+  border-bottom: 2px solid #fff;
+}
+
+.sleeve-left,
+.sleeve-right {
+  position: absolute;
+  top: 0;
+  width: 50px;
+  height: 50px;
+  background-color: #004996;
+  border-radius:  40px 40px 0 0;
+}
+
+.sleeve-left {
+  left: -20px;
+}
+
+.sleeve-right {
+  right: -20px;
+}
+
+.shirt-number {
+  font-size: 4rem;
+  color: #ffffff;
+  font-weight: bold;
+  z-index: 2;
+  user-select: none;
+}
+
+.shirt-container p {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #333;
+}

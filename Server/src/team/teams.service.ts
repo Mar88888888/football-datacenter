@@ -141,6 +141,10 @@ export class TeamService {
     
   async searchByName(name: string): Promise<Team[]> {
     try {
+      if(name.length < 2 || name.trim().length < 2){
+        return [];
+      }
+
       const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
       
       const teams: Team[] = response.data.results

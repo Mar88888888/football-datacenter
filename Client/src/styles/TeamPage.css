@@ -1,4 +1,4 @@
-.team-passport-container {
+.passport-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -101,6 +101,7 @@
 }
 
 .player-item {
+  position: relative;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;

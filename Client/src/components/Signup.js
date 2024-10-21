@@ -49,49 +49,51 @@ const SignUp = () => {
     };
 
     return (
-        <div className="auth-container">
-            <h2>Sign Up</h2>
-            <form onSubmit={handleSubmit} autoComplete='off'>
-                <div>
-                    <label>Username</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Confirm Password</label>
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <button type="submit">Sign Up</button>
-            </form>
-            <p>Already have an account? <Link to="/login">Log In</Link></p>
+        <div id='auth-root'>
+            <div className="auth-container">
+                <h2>Sign Up</h2>
+                <form onSubmit={handleSubmit} autoComplete='off'>
+                    <div>
+                        <label>Username</label>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            />
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            />
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            />
+                    </div>
+                    <div>
+                        <label>Confirm Password</label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            />
+                    </div>
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                    <button type="submit">Sign Up</button>
+                </form>
+                <p>Already have an account? <Link to="/login">Log In</Link></p>
+            </div>
         </div>
     );
 };

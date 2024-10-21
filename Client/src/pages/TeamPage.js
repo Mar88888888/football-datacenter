@@ -140,7 +140,7 @@ const TeamPage = () => {
 
   return (
     <div className="team-page-container">
-      <div className="team-passport-container">
+      <div className="passport-container">
         <div className="team-passport">
           <div className="team-info">
             <div className="team-photo">
@@ -192,7 +192,9 @@ const TeamPage = () => {
         <ul className="players-list">
           {players.map((player) => (
             <li key={player.player.id} className="player-item">
+              <Link to={`/players/${player.player.id}`}>
               {player.player.name} - {player.player.position}
+              </Link>
             </li>
           ))}
         </ul>
@@ -217,11 +219,7 @@ const TeamPage = () => {
         <MatchList matches={lastMatches} />
         </span>
       </div>
-      
-
     </div>
-
-
 
   );
 };

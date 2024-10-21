@@ -23,6 +23,7 @@ const Navbar = () => {
             const teams = teamsResponse.data;
             const competitions = competitionsResponse.data;
 
+            console.log(teams, competitions);
             navigate('/search-results', { state: { results: [...teams, ...competitions] } });
         } catch (error) {
             console.error('Error during search:', error);

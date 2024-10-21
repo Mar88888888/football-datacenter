@@ -13,6 +13,7 @@ import PlayersPage from './pages/PlayersPage';
 import CompetitionPage from './pages/CompetitionPage';
 import EmailVerificationRequired from './pages/EmailVerificationRequired';
 import SearchResultsPage from './pages/SearchResultsPage';
+import PlayerPage from './pages/PlayerPage';
 
 import './styles/global.css';
 
@@ -30,6 +31,7 @@ const App = () => {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/competitions/:id" element={<CompetitionPage />} />
                     <Route path="/teams/:id" element={<TeamPage />} />
+                    <Route path="/players/:id" element={<PlayerPage />} />
                     <Route path="/players" element={<PlayersPage />} />
                 </Routes>
             </Router>

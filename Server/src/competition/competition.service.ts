@@ -80,9 +80,24 @@ export class CompetitionService {
 
   }
 
+  async getTopLeagues(region? :string){
+    const response = await axios.get(`https://www.sofascore.com/api/v1/config/top-unique-tournaments/${region ? region : 'EN'}/football`);
+
+    const competitions: Competition[] = response.data.uniqueTournaments
+        .map((comp: any) => ({
+          id: comp.id,
+          name: comp.name,
+          emblem: `https://www.sofascore.com/api/v1/unique-tournament/${comp.id}/image`
+        }));
+
+    return competitions;
+  }
 
   async searchByName(name: string): Promise<Competition[]> {
     try {
+      if(name.length < 2 || name.trim().length < 2){
+        return [];
+      }
       const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
       
       const competitions: Competition[] = response.data.results

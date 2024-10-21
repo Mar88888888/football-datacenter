@@ -6,10 +6,14 @@ import '../styles/SearchResults.css'
 const SearchResultsPage = () => {
     const location = useLocation();
     const { results } = location.state || { results: [] };
+    console.log(results, results.length === 0);
 
     if (results.length === 0) {
-        return <p>No results found</p>;
+        return  <div className='container'>
+                    <h1>No results found</h1>
+                </div>;
     }
+
 
     return (
         <div className="container">

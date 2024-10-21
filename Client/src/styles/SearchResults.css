@@ -17,6 +17,14 @@
   min-height: 70px;
 }
 
+.emblem {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 15px;
+  height: 15px;
+}
+
 .result-list-item img {
   position: absolute;
   left: 20px;

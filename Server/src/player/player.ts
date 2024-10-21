@@ -1,13 +1,22 @@
-import { Team } from '../team/team';
-
 export class Player {
+  private id: number;
+  private name: string;
+  private position: string;
+  private shirtNumber: number;
+  private photo: string;
+  private currentTeamId: number;
+
   constructor(
-    private id: number,
-    private name: string,
-    private position: string,
-    private shirtNumber: number,
-    private CurrentTeam: Team,
-  ){}
+    data: {
+      id: number, 
+      name: string, 
+      position: string,
+      shirtNumber: number;
+      photo: string;
+      currentTeamId: number;
+    }){
+    Object.assign(this, data);
+  }
 
   getName(): string{
     return this.name;
@@ -18,10 +27,14 @@ export class Player {
   getShirtNumber(): number{
     return this.shirtNumber;
   }
-  getCurrentTeam(): Team{
-    return this.CurrentTeam;
+  getCurrentTeam(): number{
+    return this.currentTeamId;
   }
   getId(): number{
     return this.id;
+  }
+
+  getPhoto(): string{
+    return this.photo;
   }
 }

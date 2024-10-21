@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import axios from 'axios';
+import { Player } from './player';
 
 @Injectable()
 export class PlayerService {
@@ -27,8 +29,12 @@ export class PlayerService {
   async getPlayerById(id: number){
     const url = `https://api.sofascore.com/api/v1/player/${id}`;
     try {
-      const response = await this.httpService.get(url).toPromise();
-      return response.data.player;
+      const response = await axios.get(url);
+      let data = response.data.player;
+      data.photo = `https://api.sofascore.com/api/v1/player/${data.id}/image`;
+      data.currentTeamId = data.team.id;
+      let player = new Player(data);
+      return player;
     } catch (error) {
       if (error.isAxiosError && error.response?.status === 404) {
         throw new NotFoundException(`PLayer with id ${id} not found`);
