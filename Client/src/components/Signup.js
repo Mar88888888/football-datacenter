@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Auth.css'
+import ErrorPage from '../pages/ErrorPage';
 
 const SignUp = () => {
     const [username, setUsername] = useState('');
@@ -47,6 +48,10 @@ const SignUp = () => {
             setError(err.message);
         }
     };
+
+    if (error) {
+        return <ErrorPage />;
+    }
 
     return (
         <div id='auth-root'>

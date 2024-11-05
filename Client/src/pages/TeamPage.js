@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import MatchList from '../components/MatchList';
+import ErrorPage from './ErrorPage';
 
 const TeamPage = () => {
   const { id } = useParams();
@@ -48,7 +49,10 @@ const TeamPage = () => {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?limit=10`)
         .then(res => res.json())
         .then(data => setScheduledMatches(data.next))
-        .catch(err => console.error('Error fetching matches:', err));
+        .catch((err) => {
+            setError(true)
+            console.error(err);
+          });
     }
   }, [id]);
 
@@ -57,7 +61,10 @@ const TeamPage = () => {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forteam/${id}?status=FINISHED`)
         .then(res => res.json())
         .then(data => setLastMatches(data.last.slice(Math.max(data.last.length - 11, 0), data.last.length)))
-        .catch(err => console.error('Error fetching matches:', err));
+        .catch((err) => {
+            setError(true)
+            console.error(err);
+          });
     }
   }, [id]);
 
@@ -73,9 +80,10 @@ const TeamPage = () => {
             const isFav = response.data.some(favTeam => favTeam.id === +id);
             setIsFavourite(isFav);
         })
-        .catch(error => {
-            console.error("There was an error fetching the favourite competitions!", error);
-        });
+        .catch((err) => {
+            setError(true)
+            console.error(err);
+          });
   }, [id, user]);
 
   useEffect(() => {
@@ -115,6 +123,7 @@ const TeamPage = () => {
         alert('Failed to add to favourites.');
       }
     } catch (error) {
+        setError(true)
         console.error('Error adding to favourites:', error);
         alert('An error occurred. Please try again later.');
     }
@@ -127,16 +136,17 @@ const TeamPage = () => {
             setIsFavourite(false);
             alert(`${team.name} has been removed from your favourites!`);
         })
-        .catch(error => {
-            console.error("There was an error removing the competition from favourites!", error);
-        });
+        .catch((err) => {
+            setError(true)
+            console.error(err);
+          });
   };
 
   if (loading) return <div className="loading-message">Loading...</div>;
 
-  if (error) return <div className="error-message">{error}</div>;
-
-  if (!team) return null;
+  if (error || !team) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="team-page-container">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/PlayerPage.css'; 
+import ErrorPage from './ErrorPage';
 
 const PlayerPage = () => {
   const { id } = useParams();
@@ -37,7 +38,9 @@ const PlayerPage = () => {
   }, [id]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) {
+    return <ErrorPage />;
+  }
 
   const dateOfBirth = new Date(player.dateOfBirthTimestamp * 1000).toLocaleDateString();
 

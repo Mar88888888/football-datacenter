@@ -4,11 +4,13 @@ import '../styles/global.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Dashboard.css'
+import ErrorPage from '../pages/ErrorPage';
 
 const Dashboard = () => {
   const [favTeams, setFavTeams] = useState([]);
   const [favComps, setFavComps] = useState([]);
   const { setUser } = useContext(AuthContext);
+  const [error, setError] = useState(false);
 
   const navigate = useNavigate();
 
@@ -26,6 +28,7 @@ const Dashboard = () => {
         setFavTeams(teamsResponse.data);
         setFavComps(compsResponse.data);
       } catch (error) {
+        setError(true)
         console.error('Error fetching favorites:', error);
       }
     };
@@ -39,9 +42,14 @@ const Dashboard = () => {
       setUser(null);
       navigate('/login');
     } catch (error) {
+        setError(true)
       console.error('Error during logout:', error);
     }
   };
+  
+  if (error) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="container">

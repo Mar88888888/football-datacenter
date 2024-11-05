@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/LeagueTable.css'
+import ErrorPage from '../pages/ErrorPage';
 
 const LeagueTable = ({ leagueId }) => {
   const [tableData, setTableData] = useState([]);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -11,12 +13,17 @@ const LeagueTable = ({ leagueId }) => {
         const data = await response.json();
         setTableData(data);
       } catch (error) {
+        setError(true)
         console.error("Error fetching the league table data:", error);
       }
     };
 
     fetchTableData();
   }, [leagueId]);
+  
+  if (error) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="league-table">

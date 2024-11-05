@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Auth.css'
+import ErrorPage from '../pages/ErrorPage';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -24,11 +25,15 @@ const Login = () => {
             } else {
                 setError('Password or email is incorrect');
             }
-        } catch (error) {
+        } catch (error) {            
             console.log(error.message);
             setError(error.response?.data?.message || 'An error occurred');
         }
     };
+
+    if (error) {
+        return <ErrorPage />;
+    }
 
     return (
         <div id='auth-root'>

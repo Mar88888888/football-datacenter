@@ -6,7 +6,6 @@ import '../styles/SearchResults.css'
 const SearchResultsPage = () => {
     const location = useLocation();
     const { results } = location.state || { results: [] };
-    console.log(results, results.length === 0);
 
     if (results.length === 0) {
         return  <div className='container'>

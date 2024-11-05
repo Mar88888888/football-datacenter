@@ -9,7 +9,6 @@ import SignUp from './components/Signup';
 import Dashboard from './components/Dashboard';
 import HomePage from './pages/HomePage';
 import TeamPage from './pages/TeamPage';
-import PlayersPage from './pages/PlayersPage';
 import CompetitionPage from './pages/CompetitionPage';
 import EmailVerificationRequired from './pages/EmailVerificationRequired';
 import SearchResultsPage from './pages/SearchResultsPage';
@@ -32,7 +31,6 @@ const App = () => {
                     <Route path="/competitions/:id" element={<CompetitionPage />} />
                     <Route path="/teams/:id" element={<TeamPage />} />
                     <Route path="/players/:id" element={<PlayerPage />} />
-                    <Route path="/players" element={<PlayersPage />} />
                 </Routes>
             </Router>
         </AuthProvider>

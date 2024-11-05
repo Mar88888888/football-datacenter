@@ -3,10 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import '../styles/Navbar.css'
+import ErrorPage from '../pages/ErrorPage';
 
 const Navbar = () => {
     const { user } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
+    const [error, setError] = useState(false);
+
     const navigate = useNavigate();
 
     const handleSearch = async (e) => {
@@ -26,6 +29,7 @@ const Navbar = () => {
             console.log(teams, competitions);
             navigate('/search-results', { state: { results: [...teams, ...competitions] } });
         } catch (error) {
+            setError(true)
             console.error('Error during search:', error);
         }
     };

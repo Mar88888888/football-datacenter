@@ -6,10 +6,12 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import LeagueTable from '../components/LeagueTable';
 import MatchList from '../components/MatchList';
+import ErrorPage from './ErrorPage';
 
 const CompetitionPage = () => {
   const { id } = useParams();
   const [competition, setCompetition] = useState(null);
+  const [error, setError] = useState(false);
   const [scheduledMatches, setScheduledMatches] = useState([]);
   const [lastMatches, setLastMatches] = useState([]);
   const { user } = useContext(AuthContext);
@@ -20,7 +22,10 @@ const CompetitionPage = () => {
     fetch(`${process.env.REACT_APP_API_URL}/competition/${id}`)
       .then((res) => res.json())
       .then((data) => setCompetition(data))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        setError(true)
+        console.error(err);
+      });
   }, [id]);
 
 
@@ -36,9 +41,10 @@ const CompetitionPage = () => {
             const isFav = response.data.some(favComp => favComp.id === +id);
             setIsFavourite(isFav);
         })
-        .catch(error => {
-            console.error("There was an error fetching the favourite competitions!", error);
-        });
+        .catch((err) => {
+            setError(true)
+            console.error(err);
+          });
   }, [id, user]);
   
   
@@ -47,7 +53,10 @@ const CompetitionPage = () => {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forcomp/${id}`)
         .then(res => res.json())
         .then(data => setScheduledMatches(data))
-        .catch(err => console.error('Error fetching matches:', err));
+        .catch((err) => {
+          setError(true)
+          console.error(err);
+        });
     }
   }, [id]);
 
@@ -56,7 +65,10 @@ const CompetitionPage = () => {
       fetch(`${process.env.REACT_APP_API_URL}/matches/forcomp/${id}?prev=true`)
         .then(res => res.json())
         .then(data => setLastMatches(data.slice(Math.max(data.length - 11, 0), data.length)))
-        .catch(err => console.error('Error fetching matches:', err));
+        .catch((err) => {
+            setError(true)
+            console.error(err);
+          });
     }
   }, [id]);
 
@@ -82,6 +94,7 @@ const CompetitionPage = () => {
         alert('Failed to add to favourites.');
       }
     } catch (error) {
+        setError(true)
         console.error('Error adding to favourites:', error);
         alert('An error occurred. Please try again later.');
     }
@@ -95,6 +108,7 @@ const CompetitionPage = () => {
             alert(`${competition.name} has been removed from your favourites!`);
         })
         .catch(error => {
+            setError(true)
             console.error("There was an error removing the competition from favourites!", error);
         });
   };
@@ -111,6 +125,10 @@ const CompetitionPage = () => {
     const date = new Date(utcDate);
     return date.toLocaleDateString();
   };
+
+  if (error) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="competition-page-container">
