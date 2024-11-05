@@ -1,97 +1,166 @@
-# Football DataCenter
+# Football Datacenter
 
-Football DataCenter is a comprehensive web application that centralizes and displays various football-related data. Whether you're looking to explore detailed team information or check out the latest competitions, Football DataCenter brings all this information into one user-friendly platform.
+Football Datacenter - це веб-додаток для зберігання та відображення даних про футбольні змагання, команди, гравців та тренерів. Використовуючи Football-Data API, додаток автоматично отримує та зберігає інформацію про футбольні ліги, команди, гравців та тренерів у базу даних PostgreSQL.
 
-## Overview
+## Зміст
+- [Структура проєкту](#структура-проєкту)
+- [Налаштування](#налаштування)
+- [Запуск](#запуск)
+- [API](#api)
+- [Авторизація](#авторизація)
+- [Особливості](#особливості)
 
-The application pulls real-time data from reliable sources like SofaScore and offers users up-to-date information about:
+## Структура проєкту
 
-- Football teams and their details.
-- Competitions including major football leagues and tournaments.
-- Fixtures, match results, and more.
+```plaintext
+football-datacenter/
+├── Server/                 # Серверна частина (Nest.js API)
+│   ├── src/
+│   │   ├── users/           # Модуль для управління користувачами
+│   │       ├── auth/        # Модуль управління авторизацією та реєстрацією
+│   │       ├── favourites/  # Модуль управління обраним
+│   │   ├── competitions/    # Модуль для змагань
+│   │   ├── teams/           # Модуль для команд
+│   │   ├── players/         # Модуль для гравців
+│   │   ├── matches/         # Модуль для матчів
+│   │   ├── tables/          # Модуль для турнірних таблиць
+│   │   └── ...              # Інші файли та конфігурації
+│   ├── main.ts              # Головний файл запуску сервера
+│   └── ...
+├── Client/                 # Клієнтська частина (React)
+│   ├── src/
+│   │   ├── components/      # React-компоненти
+│   │   ├── pages/           # Сторінки
+│   │   ├── contexts/        # Контексти для глобального стану
+│   │   ├── styles/          # CSS стилі
+│   │   └── App.js           # Головний файл додатка
+│   └── ...
+└── README.md                # Документація проєкту
+```
+## Налаштування
+Клонування репозиторію:
 
-### Key Features
+```plaintext
+git clone https://github.com/Mar88888888/football-datacenter.git
+cd football-datacenter
+```
+Backend (Nest.js):
 
-- **Team Information:**
-  - Browse through a list of football teams with detailed profiles for each team.
-  - View essential information such as the team's stadium, foundation year, country, and roster.
-  - Teams are fetched dynamically, ensuring that users always get the most up-to-date data.
+Перейдіть до каталогу backend:
+```plaintext
+cd Server
+```
+Встановіть залежності:
+```plaintext
+npm install
+```
 
-- **Competitions:**
-  - Displays an organized list of ongoing and upcoming football competitions.
-  - Provides detailed insights on leagues, cups, and international tournaments.
+Створіть файл .env та налаштуйте змінні середовища:
+```plaintext
+- SMTP_HOST: SMTP server address
+- SMTP_PORT: SMTP server port
+- SMTP_USER: SMTP login username
+- SMTP_PASS: SMTP login password
+- JWT_SECRET: Secret key for JWT authentication
+```
+Frontend (React):
 
-- **Interactive User Interface:**
-  - The front-end is designed to be minimalistic yet highly functional, with blue color scheme.
-  - Users can navigate between different sections such as teams, competitions, and fixtures.
+Перейдіть до каталогу frontend:
+```plaintext
+cd ../Client
+```
+Встановіть залежності:
+```plaintext
+npm install
+```
 
-- **Scraping Real-Time Data:**
-  - Football DataCenter leverages web scraping to keep data fresh and updated, ensuring users always have access to the latest football stats and information.
-  - Data is gathered directly from SofaScore, a leading football statistics platform.
+Створіть файл .env на основі .env.example та налаштуйте змінні середовища, такі як REACT_APP_API_URL для звернень до API.
 
-- **User Authentication:**
-  - The app includes user login and registration functionality, allowing users to create accounts and access personalized data.
-  - Users' sessions are managed using secure session-based authentication.
+## Запуск
+Режим розробки
 
-### Demo
+Запуск Backend:
+```plaintext
+cd Server
+npm run start:dev
+```
 
-#### Home Page
+Запуск Frontend:
+```plaintext
+cd Client
+npm start
+```
 
-The Home Page gives users a broad overview of the current football landscape. Users can explore various teams, competitions, and access detailed statistics.
+Режим продакшн
+Backend:
+```plaintext
+cd Server
+npm run build
+npm run start:prod
+```
 
-![Home Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/home-page.png)
+Frontend:
+Зібрати додаток для продакшн:
+```plaintext
+cd Client
+npm run build
+```
 
-#### Team Page
+Сервер розгортання зібраних файлів з frontend/build (наприклад, використовуючи сервіс на зразок Nginx або сервера статичних файлів).
 
-Clicking on a team from the team list will take you to a detailed **Team Page**. 
+## API
+Проєкт реалізує REST API для роботи з даними про змагання, команди, гравців та тренерів.
 
-![All teams Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/all-teams.png)
+```plaintext
+GET /competition/search/:name: Search competitions by name.
+GET /competition/top: Retrieve top leagues.
+GET /competition/:id: Retrieve competition by ID.
 
+GET /matches: Get matches, optionally by date and limit.
+GET /matches/my/:userId: Get matches for a specific user.
+GET /matches/live: Retrieve live matches.
+GET /matches/forteam/:teamid: Get matches for a specific team, optionally by date, status, and limit.
+GET /matches/forcomp/:compid: Get matches for a competition, with optional previous matches and limit.
 
-Here you can view the team's basic info (name, stadium, city) as well as competitions participating and squad details.
+GET /players/fromteam/:teamid: Get players from a specific team.
+GET /players/:id: Retrieve player by ID.
 
-![Team Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/team-page-1.png)
-![Team Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/team-page-2.png)
+GET /tables/:id: Retrieve league table by league ID.
 
-#### Competitions Page
+GET /teams/search/:name: Search teams by name.
+GET /teams/:id: Retrieve team by ID.
 
-The **Competitions Page** displays all major football tournaments and leagues. Users can select any competition to view additional details such as participating teams, match schedules, and standings.
+GET /user: Retrieve users, optionally by email.
+GET /user/auth/bytoken: Get user by token in request header.
+GET /user/auth/whoami: Get current authenticated user.
+GET /user/auth/verify-email: Verify email by token.
+POST /user/auth/signout: Sign out and clear authentication cookie.
+POST /user/auth/signup: Register a new user.
+POST /user/auth/signin: Log in an existing user.
+GET /user/favteam: Get favorite teams for current user.
+GET /user/favcomp: Get favorite competitions for current user.
+POST /user/favteam/:teamid: Add team to user's favorites.
+POST /user/favcomp/:compid: Add competition to user's favorites.
+DELETE /user/favcomp/:compid: Remove competition from user's favorites.
+DELETE /user/favteam/:teamid: Remove team from user's favorites.
+GET /user/:id: Retrieve user by ID.
+PATCH /user/:id: Update user information by ID.
+```
 
-![All competitions Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/all-competitions.png)
-![Competition Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/competition-1.png)
-![Competition Page](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/competition-2.png)
+## Авторизація
+Проєкт використовує JWT для аутентифікації користувачів. Користувачі можуть реєструватися, входити в систему, а також отримувати доступ до захищених маршрутів після входу.
 
+POST /api/auth/signup - Реєстрація нового користувача.
+POST /api/auth/signin - Вхід користувача.
+Приклад даних авторизації всередині body:
+```plaintext
+{
+  "name": "User name",
+  "email": "user email",
+  "password": "user password"
+}
+```
 
-### How It Works
-
-1. **Data Scraping:**
-   - The backend scrapes real-time football data from SofaScore’s API and other sources.
-   - This data includes team rosters, competition details, and fixture results, which are then stored and updated in the app’s database.
-
-2. **Dynamic API:** 
-   - The app is built with a dynamic REST API, allowing the front-end to request the latest information from the backend. 
-   - This ensures that the displayed data remains current and relevant.
-
-3. **User Interactions:**
-   - Users can browse football data freely but must authenticate to access certain features like managing personal preferences or following specific teams.
-   - All interactions, from logging in to browsing competitions, happen seamlessly through the modern React interface.
-
-
-## More Screenshots
-
-Authorization pages to create or log into user's account.
-
-![Log In](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/log-in.png) 
-
-![Sign Up](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/sign-up.png) 
-
-
-User's favourites page, when he can see all the favourite teams and competitions and easily navigate to their pages.
-
-![User Favourites](https://github.com/Mar88888888/football-datacenter/blob/main/Client/screenshots/user-favourites.png)
-
-
-## Contact
-
-Developed by [Mar88888888](https://github.com/Mar88888888)  
-Project Repository: [Football DataCenter](https://github.com/Mar88888888/football-datacenter)
+## Особливості
+Автоматичне оновлення даних: автоматичний збір та оновлення даних про змагання, команди, гравців і тренерів кожного тижня.
+Інтерактивний інтерфейс: користувачі можуть переглядати дані про змагання та команди, додавати улюблені змагання та команди.
