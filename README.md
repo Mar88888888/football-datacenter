@@ -3,6 +3,7 @@
 Football Datacenter - це веб-додаток для зберігання та відображення даних про футбольні змагання, команди, гравців та тренерів. Використовуючи Football-Data API, додаток автоматично отримує та зберігає інформацію про футбольні ліги, команди, гравців та тренерів у базу даних PostgreSQL.
 
 ## Зміст
+
 - [Структура проєкту](#структура-проєкту)
 - [Налаштування](#налаштування)
 - [Запуск](#запуск)
@@ -37,25 +38,32 @@ football-datacenter/
 │   └── ...
 └── README.md                # Документація проєкту
 ```
+
 ## Налаштування
+
 Клонування репозиторію:
 
 ```plaintext
 git clone https://github.com/Mar88888888/football-datacenter.git
 cd football-datacenter
 ```
+
 Backend (Nest.js):
 
 Перейдіть до каталогу backend:
+
 ```plaintext
 cd Server
 ```
+
 Встановіть залежності:
+
 ```plaintext
 npm install
 ```
 
 Створіть файл .env та налаштуйте змінні середовища:
+
 ```plaintext
 - SMTP_HOST: SMTP server address
 - SMTP_PORT: SMTP server port
@@ -63,13 +71,17 @@ npm install
 - SMTP_PASS: SMTP login password
 - JWT_SECRET: Secret key for JWT authentication
 ```
+
 Frontend (React):
 
 Перейдіть до каталогу frontend:
+
 ```plaintext
 cd ../Client
 ```
+
 Встановіть залежності:
+
 ```plaintext
 npm install
 ```
@@ -77,15 +89,18 @@ npm install
 Створіть файл .env на основі .env.example та налаштуйте змінні середовища, такі як REACT_APP_API_URL для звернень до API.
 
 ## Запуск
+
 Режим розробки
 
 Запуск Backend:
+
 ```plaintext
 cd Server
 npm run start:dev
 ```
 
 Запуск Frontend:
+
 ```plaintext
 cd Client
 npm start
@@ -93,6 +108,7 @@ npm start
 
 Режим продакшн
 Backend:
+
 ```plaintext
 cd Server
 npm run build
@@ -101,6 +117,7 @@ npm run start:prod
 
 Frontend:
 Зібрати додаток для продакшн:
+
 ```plaintext
 cd Client
 npm run build
@@ -109,6 +126,7 @@ npm run build
 Сервер розгортання зібраних файлів з frontend/build (наприклад, використовуючи сервіс на зразок Nginx або сервера статичних файлів).
 
 ## API
+
 Проєкт реалізує REST API для роботи з даними про змагання, команди, гравців та тренерів.
 
 ```plaintext
@@ -148,11 +166,13 @@ PATCH /user/:id: Update user information by ID.
 ```
 
 ## Авторизація
+
 Проєкт використовує JWT для аутентифікації користувачів. Користувачі можуть реєструватися, входити в систему, а також отримувати доступ до захищених маршрутів після входу.
 
 POST /api/auth/signup - Реєстрація нового користувача.
 POST /api/auth/signin - Вхід користувача.
 Приклад даних авторизації всередині body:
+
 ```plaintext
 {
   "name": "User name",
@@ -162,5 +182,13 @@ POST /api/auth/signin - Вхід користувача.
 ```
 
 ## Особливості
+
 Автоматичне оновлення даних: автоматичний збір та оновлення даних про змагання, команди, гравців і тренерів кожного тижня.
 Інтерактивний інтерфейс: користувачі можуть переглядати дані про змагання та команди, додавати улюблені змагання та команди.
+
+## Розподіл завдань команди
+
+Artem Marchenko - Fullstack
+Oleskandr Vershygora - Backend
+Vladyslava Figol - QA
+Stankova Iryna - QA

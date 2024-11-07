@@ -1,10 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { PlayerService } from './player.service';
+import { Controller, Get, Inject, Param } from '@nestjs/common';
+import { IPlayerService } from './player.service.interface';
 
 @Controller('players')
 export class PlayerController {
   constructor(    
-    private readonly playerService: PlayerService
+    @Inject('IPlayerService') private readonly playerService: IPlayerService
 ){}
   @Get('/fromteam/:teamid')
   async getTeamPlayers(@Param('teamid') teamId: string){

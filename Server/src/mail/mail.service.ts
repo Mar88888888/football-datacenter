@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { User } from '../users/user.entity';
+import { IMailService } from './mail.service.interface';
 
 @Injectable()
-export class MailService {
+export class MailService implements IMailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendVerificationEmail(to: string, token: string, user: User) {

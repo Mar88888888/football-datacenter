@@ -31,7 +31,12 @@ const templateDir = path.resolve(__dirname, '../..', 'src', 'mail', 'templates')
       },
     }),
   ],
-  providers: [MailService],
-  exports: [MailService]
+  providers: [
+    {
+      provide: 'IMailService',
+      useClass: MailService,
+    },
+  ],
+  exports: ['IMailService']
 })
 export class MailModule {}

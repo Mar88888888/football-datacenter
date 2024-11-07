@@ -14,28 +14,32 @@ import {
   Res,
   UnauthorizedException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UsersService } from './users.service';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dto/user.dto';
+import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
+import { FavouriteService } from './favourite/favourite.service'; 
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard';
 import { SignInUserDto } from './dto/signin-user.dto';
 import { EmailGuard } from '../guards/email.guard';
 import { Response } from 'express';
-import { FavouriteService } from './favourite/favourite.service';
+import { IFavouriteService } from './favourite/favourite.service.interface';
+import { IAuthService } from './auth.service.interface';
+import { IUsersService } from './users.service.interface';
 
 
 @Controller('user')
 export class UsersController {
   constructor(
-    private usersService: UsersService,
-    private favService: FavouriteService,
-    private authService: AuthService,
+    @Inject('IUsersService') private usersService: IUsersService,
+    @Inject('IFavouriteService') private favService: IFavouriteService,
+    @Inject('IAuthService') private authService: IAuthService,
   ) {}
   
   @Get()

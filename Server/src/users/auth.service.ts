@@ -3,6 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
@@ -10,14 +11,17 @@ import { promisify } from 'util';
 import { MailService } from '../mail/mail.service';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
+import { IAuthService } from './auth.service.interface';
+import { IUsersService } from './users.service.interface';
+import { IMailService } from '../mail/mail.service.interface';
 
 const scrypt = promisify(_scrypt);
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService{
   constructor(
-    private usersService: UsersService,
-    private mailService: MailService,
+    @Inject('IUsersService') private usersService: IUsersService,
+    @Inject('IMailService') private mailService: IMailService,
     private jwtService: JwtService,
   ) {}  
 
