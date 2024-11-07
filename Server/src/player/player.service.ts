@@ -2,9 +2,10 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
 import { Player } from './player';
+import { IPlayerService } from './player.service.interface';
 
 @Injectable()
-export class PlayerService {
+export class PlayerService implements IPlayerService {
   private readonly logger = new Logger
 
   constructor(

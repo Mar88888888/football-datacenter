@@ -3,14 +3,15 @@ import {
   ExecutionContext,
   CallHandler,
   Injectable,
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users.service';
+import { IUsersService } from '../users.service.interface';
 
 @Injectable()
 export class CurrentUserInterceptor implements NestInterceptor {
   constructor(
-    private usersService: UsersService,
+    @Inject('IUsersService') private usersService: IUsersService,
     private jwtService: JwtService,
   ) {}
 

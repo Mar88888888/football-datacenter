@@ -4,6 +4,10 @@ import { TablesService } from './tables.service';
 
 @Module({
   controllers: [TablesController],
-  providers: [TablesService]
+  providers: [    
+    {
+      provide: 'ITablesService',
+      useClass: TablesService,
+    },]
 })
 export class TablesModule {}

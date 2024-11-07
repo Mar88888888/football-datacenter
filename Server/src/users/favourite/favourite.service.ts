@@ -1,23 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserFavTeam } from './user.favteam.entity';
 import { UserFavComp } from './user.favcomp.entity';
-import { UsersService } from '../users.service';
-import { TeamService } from '../../team/teams.service';
-import { CompetitionService } from '../../competition/competition.service';
+import { IFavouriteService } from './favourite.service.interface';
+import { IUsersService } from '../users.service.interface';
+import { ICompetitionService } from '../../competition/competition.service.interface';
+import { ITeamService } from '../../team/teams.service.interface';
 
 @Injectable()
-export class FavouriteService {
+export class FavouriteService implements IFavouriteService {
 
   constructor(
     @InjectRepository(UserFavComp)
     private readonly favCompRepo: Repository<UserFavComp>,
     @InjectRepository(UserFavTeam)
     private readonly favTeamRepo: Repository<UserFavTeam>,
-    private readonly userService: UsersService,
-    private readonly teamService: TeamService,
-    private readonly compService: CompetitionService,
+    @Inject('IUsersService') private readonly userService: IUsersService,
+    @Inject('ITeamService') private readonly teamService: ITeamService,
+    @Inject('ICompetitionService') private readonly compService: ICompetitionService,
   ) {}
 
 

@@ -10,8 +10,11 @@ import { Competition } from './competition';
     TypeOrmModule.forFeature([Competition]),
     HttpModule,
   ],
-  providers: [CompetitionService],
+  providers: [    {
+      provide: 'ICompetitionService',
+      useClass: CompetitionService,
+    },],
   controllers: [CompetitionController],
-  exports: [CompetitionService]
+  exports: ['ICompetitionService']
 })
 export class CompetitionModule {}

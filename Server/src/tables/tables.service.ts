@@ -1,21 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { ITablesService } from './tables.service.interface';
 const axios = require("axios");
 
 @Injectable()
-export class TablesService {
-
-
-
+export class TablesService implements ITablesService {
   async getLeagueTable(tournamentId: number): Promise<any> {
     let leagueTable = [];
     
     try {
-      // Step 1: Get the currentSeasonId by requesting tournament details
       const tournamentUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/seasons`;
       const tournamentResponse = await axios.get(tournamentUrl);
       const currentSeasonId = tournamentResponse.data.seasons[0].id;
 
-      // Step 2: Use the currentSeasonId to get the league standings
       const standingsUrl = `https://www.sofascore.com/api/v1/unique-tournament/${tournamentId}/season/${currentSeasonId}/standings/total`;
       const standingsResponse = await axios.get(standingsUrl);
       const standings = standingsResponse.data.standings;

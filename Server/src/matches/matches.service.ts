@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import axios from 'axios';
 import { isSameDate } from '../date.utils';
 import { FavouriteService } from '../users/favourite/favourite.service';
+import { IFavouriteService } from '../users/favourite/favourite.service.interface';
+import { IMatchesService } from './matches.service.interface';
 
 @Injectable()
-export class MatchesService {
+export class MatchesService implements IMatchesService{
   constructor(private readonly httpService: HttpService,
-    private favService: FavouriteService,
+    @Inject('IFavouriteService') private readonly favService: IFavouriteService,
   ) {}
 
  async getMatches(date?: Date): Promise<any> {

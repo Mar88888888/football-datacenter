@@ -2,12 +2,12 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Team } from './team';
 import axios from 'axios';
 import { Competition } from '../competition/competition';
+import { ITeamService } from './teams.service.interface';
 
 @Injectable()
-export class TeamService {
+export class TeamService implements ITeamService {
 
   private readonly logger = new Logger(TeamService.name);
-
 
   async findById(teamId: number) {
     const teamUrl = `https://www.sofascore.com/api/v1/team/${teamId}`;

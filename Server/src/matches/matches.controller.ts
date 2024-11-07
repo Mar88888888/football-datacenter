@@ -1,9 +1,11 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { MatchesService } from './matches.service';
+import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
+import { IMatchesService } from './matches.service.interface';
 
 @Controller('matches')
 export class MatchesController {
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(
+    @Inject('IMatchesService') private readonly matchesService: IMatchesService
+  ) {}
 
   @Get()
   async getMatches(@Query('date') date?: string, @Query('limit') limit?: string) {

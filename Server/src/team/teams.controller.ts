@@ -1,9 +1,11 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-import { TeamService } from './teams.service';
+import { Controller, Get, Inject, NotFoundException, Param } from '@nestjs/common';
+import { ITeamService } from './teams.service.interface';
 
 @Controller('teams')
 export class TeamsController {
-  constructor(private readonly teamService: TeamService){}
+  constructor(
+    @Inject('ITeamService') private readonly teamService: ITeamService
+  ){}
 
   @Get('/search/:name')
   searchTeamsByName(@Param('name') name: string) {

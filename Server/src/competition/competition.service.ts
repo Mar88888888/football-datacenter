@@ -3,9 +3,10 @@ import { HttpService } from '@nestjs/axios';
 import { Competition } from './competition';
 import { lastValueFrom } from 'rxjs';
 import axios from 'axios';
+import { ICompetitionService } from './competition.service.interface';
 
 @Injectable()
-export class CompetitionService {
+export class CompetitionService implements ICompetitionService {
   private readonly logger = new Logger(CompetitionService.name);
   
   constructor(

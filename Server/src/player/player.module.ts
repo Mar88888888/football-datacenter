@@ -7,14 +7,19 @@ import { Team } from '../team/team';
 import { TeamService } from '../team/teams.service';
 import { Competition } from '../competition/competition';
 import { CompetitionService } from '../competition/competition.service';
+import { TeamsModule } from '../team/teams.module';
+import { CompetitionModule } from '../competition/competition.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Team, Competition]),
-    HttpModule
+    HttpModule, 
   ],
-  providers: [PlayerService, TeamService, CompetitionService],
+  providers: [    
+    {
+      provide: 'IPlayerService',
+      useClass: PlayerService,
+    }],
   controllers: [PlayerController],
-  exports: [PlayerService]
+  exports: ['IPlayerService']
 })
 export class PlayerModule {}

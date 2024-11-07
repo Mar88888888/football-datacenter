@@ -1,10 +1,10 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
-import { TablesService } from './tables.service';
+import { Controller, Get, Query, Param, Inject } from '@nestjs/common';
+import { ITablesService } from './tables.service.interface';
 
 @Controller('tables')
 export class TablesController {
   constructor(
-    private tableService: TablesService,
+    @Inject('ITablesService') private tableService: ITablesService,
   ){}
   
   @Get('/:id')

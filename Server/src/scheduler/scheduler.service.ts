@@ -1,20 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { CompetitionService } from '../competition/competition.service';
-import { TeamService } from '../team/teams.service';
-import { UsersService } from '../users/users.service';
-import { MailService } from '../mail/mail.service';
-import { MatchesService } from '../matches/matches.service';
+import { IUsersService } from '../users/users.service.interface';
+import { IMailService } from '../mail/mail.service.interface';
+import { IMatchesService } from '../matches/matches.service.interface';
 
 @Injectable()
 export class SchedulerService {
   constructor(
-    private readonly competitionService: CompetitionService,
-    private readonly teamService: TeamService,
-    private readonly usersService: UsersService,
-    private readonly competitionsService: CompetitionService,
-    private readonly mailService: MailService,
-    private readonly matchesService: MatchesService,
+    @Inject('IUsersService') private readonly usersService: IUsersService,
+    @Inject('IMailService') private readonly mailService: IMailService,
+    @Inject('IMatchesService') private readonly matchesService: IMatchesService,
   ) {}
 
 
