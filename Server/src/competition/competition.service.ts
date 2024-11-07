@@ -12,48 +12,6 @@ export class CompetitionService {
     private readonly httpService: HttpService,
   ) {}
 
-  // async fetchAndStoreCompetitions(): Promise<void> {
-  //   try {
-  //     const categoryIds = Array.from({ length: 1000 }, (_, i) => i + 1);
-  //     const urlTemplate = 'https://www.sofascore.com/api/v1/category/{category_id}/unique-tournaments';
-  //     const footballCompetitions = [];
-
-  //     for (const categoryId of categoryIds) {
-  //       const url = urlTemplate.replace('{category_id}', categoryId.toString());
-  //       console.log(`GET: ${url}`);
-
-  //       try {
-  //         const response = await lastValueFrom(this.httpService.get(url));
-  //         const groups = response.data.groups || [];
-  //         for (const group of groups) {
-  //           for (const tournament of group.uniqueTournaments || []) {
-  //             if (tournament.category.sport.name === 'Football') {
-  //               footballCompetitions.push(tournament);
-  //             }
-  //           }
-  //         }
-  //       } catch (error) {
-  //         if (error.response?.status === 404) {
-  //           this.logger.warn(`Category ID ${categoryId} returned 404, skipping...`);
-  //           continue;
-  //         } else {
-  //           this.logger.error(`Error fetching data for category ID ${categoryId}: ${error.message}`);
-  //         }
-  //       }
-  //     }
-
-  //     for (const competition of footballCompetitions) {
-  //       competition.emblem = `https://www.sofascore.com/api/v1/unique-tournament/${competition.id}/image`
-  //       await this.competitionRepository.save(competition);
-  //       console.log(`Saved ${footballCompetitions.length} football competitions.`);
-  //     }
-
-
-  //   } catch (err) {
-  //     this.logger.error(`Error in fetchAndStoreCompetitions: ${err.message}`);
-  //   }
-  // }
-
   async findById(compId: number){
     try {
       let competitionUrl = `https://www.sofascore.com/api/v1/unique-tournament/${compId}`;
