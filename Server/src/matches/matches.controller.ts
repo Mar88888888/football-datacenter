@@ -21,7 +21,9 @@ export class MatchesController {
 
   @Get('/my/:userId')
   async getUserMatches(@Param('userId') userId: string){
-    return await this.matchesService.getUserMatches(parseInt(userId));
+    const {favMatches, notFavMatches} = await this.matchesService.getUserMatches(parseInt(userId));
+    let matches = [...favMatches, ...notFavMatches];
+    return matches
   }
 
   @Get('/live')

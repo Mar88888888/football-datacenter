@@ -57,7 +57,7 @@ async getUserMatches(userId: number) {
     !favTeamIds.includes(match.homeTeam.id) && !favTeamIds.includes(match.awayTeam.id)
   );
 
-  return [...favMatches, ...notFavMatches];
+  return {favMatches, notFavMatches};
 }
 
 

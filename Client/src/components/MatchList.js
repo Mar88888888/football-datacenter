@@ -17,6 +17,7 @@ const MatchList = ({ matches }) => {
   return (
     <ul className="matches-list">
       {matches.map(match => (
+        <>
         <li className="match-item list-item" key={match.id}>
           <div className="team-match">
             <Link to={`/teams/${match.homeTeam.id}`}>
@@ -42,6 +43,8 @@ const MatchList = ({ matches }) => {
             </Link>
           </div>
         </li>
+        </>
+
       ))}
     </ul>
   );
