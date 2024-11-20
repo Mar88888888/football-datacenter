@@ -13,36 +13,17 @@ export class SchedulerService {
   ) {}
 
 
-  @Cron('10 01 * * *')
+  @Cron('11 12 * * *')
   async handleMatchdayCron() {
     const today = new Date();
     const tillDay = this.getDateAfterDays(today, 7);
 
     const users = await this.usersService.findAll();
     for (const user of users) {
-      const favCompetitions = user.favCompetitions;
-      const favTeams = user.favTeams;
-
       let matchesToday = [];
-
-      for (const competition of favCompetitions) {
-        const matches = await this.matchesService.getCompMatches(competition.id);
-        for (const match of matches) {
-          const matchDate = new Date(match.startTimestamp * 1000);
-          if (this.isMatchToday(today, matchDate)) {
-            matchesToday.push({ type: 'competition', competition, matchDate });
-          }
-        }
-      }
-
-      for (const team of favTeams) {
-        const matches = (await this.matchesService.getTeamMatches(team.id)).next;
-        for (const match of matches) {
-          const matchDate = new Date(match.startTimestamp * 1000);
-          if (this.isMatchToday(today, matchDate)) {
-            matchesToday.push({ type: 'team', team, matchDate });
-          }
-        }
+      const {favMatches: matches} = await this.matchesService.getUserMatches(user.id);
+      for (const match of matches) {
+        matchesToday.push({ type: 'competition', competition: match.tournament, matchDate: new Date(match.startTimestamp *1000) });
       }
 
       console.log(matchesToday);
