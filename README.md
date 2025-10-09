@@ -131,7 +131,6 @@ npm run build
 
 ```plaintext
 GET /competition/search/:name: Search competitions by name.
-GET /competition/top: Retrieve top leagues.
 GET /competition/:id: Retrieve competition by ID.
 
 GET /matches: Get matches, optionally by date and limit.

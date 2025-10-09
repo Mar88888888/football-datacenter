@@ -6,15 +6,9 @@ import { HttpModule } from '@nestjs/axios';
 import { Competition } from './competition';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Competition]),
-    HttpModule,
-  ],
-  providers: [    {
-      provide: 'ICompetitionService',
-      useClass: CompetitionService,
-    },],
+  imports: [TypeOrmModule.forFeature([Competition]), HttpModule],
+  providers: [CompetitionService],
   controllers: [CompetitionController],
-  exports: ['ICompetitionService']
+  exports: [CompetitionService],
 })
 export class CompetitionModule {}
