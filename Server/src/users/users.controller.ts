@@ -25,16 +25,16 @@ import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard';
 import { SignInUserDto } from './dto/signin-user.dto';
 import { Response } from 'express';
-import { IFavouriteService } from './favourite/favourite.service.interface';
-import { IAuthService } from './auth.service.interface';
-import { IUsersService } from './users.service.interface';
+import { FavouriteService } from './favourite/favourite.service';
+import { AuthService } from './auth.service';
+import { UsersService } from './users.service';
 
 @Controller('user')
 export class UsersController {
   constructor(
-    @Inject('IUsersService') private usersService: IUsersService,
-    @Inject('IFavouriteService') private favService: IFavouriteService,
-    @Inject('IAuthService') private authService: IAuthService,
+    private usersService: UsersService,
+    private favService: FavouriteService,
+    private authService: AuthService,
   ) {}
 
   @Get()

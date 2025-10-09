@@ -3,19 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserFavTeam } from './user.favteam.entity';
 import { UserFavComp } from './user.favcomp.entity';
-import { IFavouriteService } from './favourite.service.interface';
-import { IUsersService } from '../users.service.interface';
 import { CompetitionService } from '../../competition/competition.service';
 import { ITeamService } from '../../team/teams.service.interface';
+import { UsersService } from '../users.service';
 
 @Injectable()
-export class FavouriteService implements IFavouriteService {
+export class FavouriteService {
   constructor(
     @InjectRepository(UserFavComp)
     private readonly favCompRepo: Repository<UserFavComp>,
     @InjectRepository(UserFavTeam)
     private readonly favTeamRepo: Repository<UserFavTeam>,
-    @Inject('IUsersService') private readonly userService: IUsersService,
+    private readonly userService: UsersService,
     @Inject('ITeamService') private readonly teamService: ITeamService,
     private readonly compService: CompetitionService,
   ) {}

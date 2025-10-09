@@ -10,14 +10,14 @@ import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { IAuthService } from './auth.service.interface';
-import { IUsersService } from './users.service.interface';
+import { UsersService } from './users.service';
 
 const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(
-    @Inject('IUsersService') private usersService: IUsersService,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 

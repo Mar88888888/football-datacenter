@@ -6,12 +6,12 @@ import {
   Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IUsersService } from '../users.service.interface';
+import { UsersService } from '../users.service';
 
 @Injectable()
 export class CurrentUserInterceptor implements NestInterceptor {
   constructor(
-    @Inject('IUsersService') private usersService: IUsersService,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -22,7 +22,7 @@ export class CurrentUserInterceptor implements NestInterceptor {
     if (authToken) {
       try {
         const decodedToken = this.jwtService.verify(authToken);
-        const userId = decodedToken.sub; 
+        const userId = decodedToken.sub;
 
         if (userId) {
           const user = await this.usersService.findOne(userId);

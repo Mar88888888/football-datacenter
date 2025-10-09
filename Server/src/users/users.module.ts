@@ -25,23 +25,14 @@ import { UserFavTeam } from './favourite/user.favteam.entity';
   ],
   controllers: [UsersController],
   providers: [
-    {
-      provide: 'IUsersService',
-      useClass: UsersService,
-    },
-    {
-      provide: 'IAuthService',
-      useClass: AuthService,
-    },
-    {
-      provide: 'IFavouriteService',
-      useClass: FavouriteService,
-    },
+    UsersService,
+    AuthService,
+    FavouriteService,
     {
       provide: APP_INTERCEPTOR,
       useClass: CurrentUserInterceptor,
     },
   ],
-  exports: ['IUsersService', 'IFavouriteService'],
+  exports: [UsersService, FavouriteService],
 })
 export class UsersModule {}
