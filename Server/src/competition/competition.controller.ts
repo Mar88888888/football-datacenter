@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { CompetitionService } from './competition.service';
 import { Competition } from './competition';
 
@@ -7,7 +7,9 @@ export class CompetitionController {
   constructor(private readonly competitionService: CompetitionService) {}
 
   @Get('/:id')
-  async getCompetitionById(@Param('id') id: string): Promise<Competition> {
-    return await this.competitionService.findById(parseInt(id));
+  async getCompetitionById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Competition> {
+    return await this.competitionService.findById(id);
   }
 }

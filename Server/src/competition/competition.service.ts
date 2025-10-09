@@ -26,10 +26,9 @@ export class CompetitionService {
 
       return competition;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
+      if (axios.isAxiosError(error)) {
         throw new NotFoundException(`Competition with id ${compId} not found`);
       }
-      throw error;
     }
   }
 }

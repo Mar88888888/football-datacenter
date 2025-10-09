@@ -1,18 +1,20 @@
-import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
-import { IMatchesService } from './matches.service.interface';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { MatchesService } from './matches.service';
 
 @Controller('matches')
 export class MatchesController {
-  constructor(
-    @Inject('IMatchesService') private readonly matchesService: IMatchesService
-  ) {}
+  constructor(private readonly matchesService: MatchesService) {}
 
   @Get()
-  async getMatches(@Query('date') date?: string, @Query('limit') limit?: string) {
-    let matches = (date) ? await this.matchesService.getMatches(new Date(date)) 
-    : await this.matchesService.getMatches();
+  async getMatches(
+    @Query('date') date?: string,
+    @Query('limit') limit?: string,
+  ) {
+    let matches = date
+      ? await this.matchesService.getMatches(new Date(date))
+      : await this.matchesService.getMatches();
     let limitSet = parseInt(limit);
-    if(!isNaN(limitSet)){
+    if (!isNaN(limitSet)) {
       let matchesLimited = matches.slice(0, limitSet);
       return matchesLimited;
     }
@@ -20,10 +22,11 @@ export class MatchesController {
   }
 
   @Get('/my/:userId')
-  async getUserMatches(@Param('userId') userId: string){
-    const {favMatches, notFavMatches} = await this.matchesService.getUserMatches(parseInt(userId));
+  async getUserMatches(@Param('userId') userId: string) {
+    const { favMatches, notFavMatches } =
+      await this.matchesService.getUserMatches(parseInt(userId));
     let matches = [...favMatches, ...notFavMatches];
-    return matches
+    return matches;
   }
 
   @Get('/live')
@@ -32,17 +35,30 @@ export class MatchesController {
   }
 
   @Get('/forteam/:teamid')
-  async getTeamMatches(@Param('teamid') teamid: string, @Query('date') date?: string, @Query('dateTo') dateTo?: string, @Query('status') status?: string, @Query('limit') limit?: string,) {
+  async getTeamMatches(
+    @Param('teamid') teamid: string,
+    @Query('date') date?: string,
+    @Query('dateTo') dateTo?: string,
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+  ) {
     let from: Date;
-    if(date){
+    if (date) {
       from = new Date(date);
     }
     return await this.matchesService.getTeamMatches(parseInt(teamid));
-     
   }
 
   @Get('/forcomp/:compid')
-  async getCompMatches(@Param('compid') compid: string, @Query('limit') limit?: string,  @Query('prev') prev?: string,) {
-    return await this.matchesService.getCompMatches(parseInt(compid), limit ? limit: undefined, prev ? prev == 'true' : undefined);
+  async getCompMatches(
+    @Param('compid') compid: string,
+    @Query('limit') limit?: string,
+    @Query('prev') prev?: string,
+  ) {
+    return await this.matchesService.getCompMatches(
+      parseInt(compid),
+      limit ? limit : undefined,
+      prev ? prev == 'true' : undefined,
+    );
   }
 }
