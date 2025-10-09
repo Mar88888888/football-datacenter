@@ -9,7 +9,6 @@ import { HttpModule } from '@nestjs/axios';
 import { TeamsModule } from './team/teams.module';
 import { PlayerModule } from './player/player.module';
 import { CompetitionModule } from './competition/competition.module';
-import { SchedulerModule } from './scheduler/scheduler.module';
 import { Team } from './team/team';
 import { Competition } from './competition/competition';
 import { TablesModule } from './tables/tables.module';
@@ -28,8 +27,12 @@ import { TablesModule } from './tables/tables.module';
     }),
     TypeOrmModule.forFeature([User, Team, Competition]),
     UsersModule,
-    MatchesModule, 
-    HttpModule, TeamsModule, PlayerModule, CompetitionModule, SchedulerModule, TablesModule,
+    MatchesModule,
+    HttpModule,
+    TeamsModule,
+    PlayerModule,
+    CompetitionModule,
+    TablesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

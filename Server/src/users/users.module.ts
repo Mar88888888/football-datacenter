@@ -6,7 +6,6 @@ import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { CurrentUserInterceptor } from './interceptors/curent-user.interceptor';
-import { MailModule } from '../mail/mail.module';
 import { TeamsModule } from '../team/teams.module';
 import { CompetitionModule } from '../competition/competition.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -15,12 +14,14 @@ import { UserFavComp } from './favourite/user.favcomp.entity';
 import { UserFavTeam } from './favourite/user.favteam.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserFavComp, UserFavTeam]), 
-    MailModule, TeamsModule, CompetitionModule,
+  imports: [
+    TypeOrmModule.forFeature([User, UserFavComp, UserFavTeam]),
+    TeamsModule,
+    CompetitionModule,
     JwtModule.register({
-        secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
   controllers: [UsersController],
   providers: [

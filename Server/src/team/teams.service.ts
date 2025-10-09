@@ -6,7 +6,6 @@ import { ITeamService } from './teams.service.interface';
 
 @Injectable()
 export class TeamService implements ITeamService {
-
   private readonly logger = new Logger(TeamService.name);
 
   async findById(teamId: number) {
@@ -14,7 +13,7 @@ export class TeamService implements ITeamService {
     try {
       const teamResponse = await axios.get(teamUrl);
       const teamFetchedData = teamResponse.data.team;
-      
+
       if (!teamFetchedData) {
         throw new NotFoundException(`Team with id ${teamId} not found`);
       }
@@ -28,14 +27,16 @@ export class TeamService implements ITeamService {
       team.setGender(teamFetchedData.gender);
 
       let date = new Date(teamFetchedData.foundationDateTimestamp * 1000);
-      team.setFounded(`${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`);
+      team.setFounded(
+        `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+      );
       team.setClubColors(teamFetchedData.teamColors.primary);
       team.setCoachName(teamFetchedData.manager?.name);
 
-      let compsUrl = `https://www.sofascore.com/api/v1/team/${teamId}/team-statistics/seasons/`
+      let compsUrl = `https://www.sofascore.com/api/v1/team/${teamId}/team-statistics/seasons/`;
       let teamCompetitions = await axios.get(compsUrl);
-      let competitions = teamCompetitions.data.uniqueTournamentSeasons
-        .filter(comp => {
+      let competitions = teamCompetitions.data.uniqueTournamentSeasons.filter(
+        (comp) => {
           let year = new Date()
             .getFullYear()
             .toString()
@@ -43,38 +44,44 @@ export class TeamService implements ITeamService {
             .splice(2)
             .join('');
           return comp.seasons[0].year.split('/').includes(year);
-        })
+        },
+      );
 
-      team.setCompetitions(competitions.map(comp => {
-        let competition = new Competition();
-        return competition
-          .setId(comp.uniqueTournament.id)
-          .setName(comp.uniqueTournament.name);
-         
-      }));
+      team.setCompetitions(
+        competitions.map((comp) => {
+          let competition = new Competition();
+          competition.id = comp.uniqueTournament.id;
+          competition.name = comp.uniqueTournament.name;
+          return competition;
+        }),
+      );
       return team;
     } catch (error) {
       if (error.response && error.response.status === 404) {
         throw new NotFoundException(`Team with id ${teamId} not found`);
       }
       throw new Error('Failed to fetch team data');
-    }  
+    }
   }
-    
+
   async searchByName(name: string): Promise<Team[]> {
     try {
-      if(name.length < 2 || name.trim().length < 2){
+      if (name.length < 2 || name.trim().length < 2) {
         return [];
       }
 
-      const response = await axios.get(`https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`);
-      
+      const response = await axios.get(
+        `https://www.sofascore.com/api/v1/search/all?q=${encodeURIComponent(name)}`,
+      );
+
       const teams: Team[] = response.data.results
-        .filter(result => result.type === 'team' && result.entity.sport.id === 1)
-        .map(result => ({
+        .filter(
+          (result) => result.type === 'team' && result.entity.sport.id === 1,
+        )
+        .map((result) => ({
           id: result.entity.id,
           name: result.entity.name,
-          crest: `https://www.sofascore.com/api/v1/team/${result.entity.id}/image`
+          crest: `https://www.sofascore.com/api/v1/team/${result.entity.id}/image`,
         }));
 
       return teams;
