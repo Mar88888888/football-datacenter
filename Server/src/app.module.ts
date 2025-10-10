@@ -12,6 +12,8 @@ import { CompetitionModule } from './competition/competition.module';
 import { Team } from './team/team';
 import { Competition } from './competition/competition';
 import { TablesModule } from './tables/tables.module';
+import { FootballDataModule } from './football-data/football-data.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -26,6 +28,9 @@ import { TablesModule } from './tables/tables.module';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Team, Competition]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     UsersModule,
     MatchesModule,
     HttpModule,
@@ -33,6 +38,7 @@ import { TablesModule } from './tables/tables.module';
     PlayerModule,
     CompetitionModule,
     TablesModule,
+    FootballDataModule,
   ],
   controllers: [AppController],
   providers: [AppService],
