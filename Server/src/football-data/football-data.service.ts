@@ -7,9 +7,9 @@ import { AxiosError } from 'axios';
 export class FootballDataService {
   constructor(private readonly httpService: HttpService) {}
 
-  async get<T>(path: string): Promise<T> {
+  async get(path: string): Promise<any> {
     const { data } = await firstValueFrom(
-      this.httpService.get<T>(path).pipe(
+      this.httpService.get(process.env.DATA_API + path).pipe(
         catchError((error: AxiosError) => {
           if (error.response?.status === 404) {
             throw new NotFoundException(`Resource not found at path: ${path}`);

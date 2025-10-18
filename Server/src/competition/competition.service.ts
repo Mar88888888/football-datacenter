@@ -11,9 +11,8 @@ export class CompetitionService {
 
   async findById(compId: number) {
     try {
-      let competitionUrl = `https://api.football-data.org/v4/competitions/${compId}`;
-      const teamResponse =
-        await this.footballDataService.get<Competition>(competitionUrl);
+      let competitionUrl = `competitions/${compId}`;
+      const teamResponse = await this.footballDataService.get(competitionUrl);
       const fetchedComp = teamResponse;
 
       let competition = new Competition();
