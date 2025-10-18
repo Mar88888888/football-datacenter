@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { GetMatchesQueryDto } from './dto/getMatchesQuery.dto';
-import { Match } from './match';
+import { Match } from './dto/match';
 
 @Controller('matches')
 export class MatchesController {
@@ -9,15 +9,6 @@ export class MatchesController {
 
   @Get()
   async getMatches(@Query() query: GetMatchesQueryDto): Promise<Match[]> {
-    const { date, limit } = query;
-    let matches = date
-      ? await this.matchesService.getMatches(new Date(date))
-      : await this.matchesService.getMatches();
-
-    if (limit) {
-      let matchesLimited = matches.slice(0, limit);
-      return matchesLimited;
-    }
-    return matches;
+    return await this.matchesService.getMatches(query);
   }
 }

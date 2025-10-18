@@ -1,5 +1,5 @@
-import { Competition } from '../competition/competition';
-import { Team } from '../team/team';
+import { Competition } from '../../competition/competition';
+import { Team } from '../../team/team';
 import { Score } from './score';
 
 export class Match {

@@ -6,7 +6,7 @@ export class GetMatchesQueryDto {
   @IsDateString(
     {},
     {
-      message: 'Date must be a valid ISO 8601 date string (e.g., YYYY-MM-DD).',
+      message: 'Date must be a valid ISO date string (e.g. YYYY-MM-DD).',
     },
   )
   date?: string;
@@ -15,6 +15,13 @@ export class GetMatchesQueryDto {
   @Type(() => Number)
   @IsInt({ message: 'Limit must be an integer.' })
   @Min(1, { message: 'Limit must be at least 1.' })
-  @Max(100, { message: 'Limit cannot be more than 100.' })
+  @Max(1000, { message: 'Limit cannot be more than 1000.' })
   limit?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'Offset must be an integer.' })
+  @Min(1, { message: 'Offset must be at least 1.' })
+  @Max(1000, { message: 'Offset cannot be more than 1000.' })
+  offset?: number;
 }
