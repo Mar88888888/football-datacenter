@@ -1,31 +1,18 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Competition } from './competition';
-import axios from 'axios';
-import { FootballDataService } from '../football-data/football-data.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { FootballDataClient } from '../football-data/football-data.client';
+import { Match } from '../matches/dto/match';
 
 @Injectable()
 export class CompetitionService {
   private readonly logger = new Logger(CompetitionService.name);
 
-  constructor(private readonly footballDataService: FootballDataService) {}
+  constructor(private readonly dataService: FootballDataClient) {}
 
   async findById(compId: number) {
-    try {
-      let competitionUrl = `competitions/${compId}`;
-      const teamResponse = await this.footballDataService.get(competitionUrl);
-      const fetchedComp = teamResponse;
+    return await this.dataService.getCompetitionById(compId);
+  }
 
-      let competition = new Competition();
-      competition.id = compId;
-      competition.name = fetchedComp.name;
-      competition.emblem = fetchedComp.emblem;
-      competition.type = fetchedComp.type;
-
-      return competition;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new NotFoundException(`Competition with id ${compId} not found`);
-      }
-    }
+  async getMatches(compId: number): Promise<Match[]> {
+    return this.dataService.getCompetitionMatches(compId);
   }
 }
