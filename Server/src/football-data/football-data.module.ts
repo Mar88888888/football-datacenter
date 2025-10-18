@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { FootballDataService } from './football-data.service';
+import { FootballDataClient } from './football-data.client';
 
 @Module({
   imports: [
@@ -9,14 +9,14 @@ import { FootballDataService } from './football-data.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        baseURL: 'https://api.football-data.org/v4',
+        baseURL: configService.get('DATA_API'),
         headers: {
           'X-Auth-Token': configService.get('FOOTBALL_API_TOKEN'),
         },
       }),
     }),
   ],
-  providers: [FootballDataService],
-  exports: [FootballDataService],
+  providers: [FootballDataClient],
+  exports: [FootballDataClient],
 })
 export class FootballDataModule {}

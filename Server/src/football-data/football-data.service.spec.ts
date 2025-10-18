@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FootballDataService } from './football-data.service';
+import { FootballDataClient } from './football-data.client';
 
 describe('FootballDataService', () => {
-  let service: FootballDataService;
+  let service: FootballDataClient;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FootballDataService],
+      providers: [FootballDataClient],
     }).compile();
 
-    service = module.get<FootballDataService>(FootballDataService);
+    service = module.get<FootballDataClient>(FootballDataClient);
   });
 
   it('should be defined', () => {
