@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { Standings } from './standings';
-import { StandingsService } from './tables.service';
+import { StandingsService } from './standings.service';
 
 @Controller('standings')
 export class StandingsController {

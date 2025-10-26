@@ -23,7 +23,7 @@ football-datacenter/
 │   │   ├── competitions/    # Модуль для змагань
 │   │   ├── teams/           # Модуль для команд
 │   │   ├── matches/         # Модуль для матчів
-│   │   ├── tables/          # Модуль для турнірних таблиць
+│   │   ├── standings/          # Модуль для турнірних таблиць
 │   │   └── ...              # Інші файли та конфігурації
 │   ├── main.ts              # Головний файл запуску сервера
 │   └── ...
@@ -138,7 +138,7 @@ GET /matches/live: Retrieve live matches.
 GET /matches/forteam/:teamid: Get matches for a specific team, optionally by date, status, and limit.
 GET /matches/forcomp/:compid: Get matches for a competition, with optional previous matches and limit.
 
-GET /tables/:id: Retrieve league table by league ID.
+GET /standings/:id: Retrieve league table by league ID.
 
 GET /teams/search/:name: Search teams by name.
 GET /teams/:id: Retrieve team by ID.

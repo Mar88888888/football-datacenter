@@ -7,7 +7,7 @@ import { MatchesResponse } from '../matches/dto/matches.response.interface';
 import { Match } from '../matches/dto/match';
 import { Team } from '../team/team';
 import { Table } from 'typeorm';
-import { Standings } from '../tables/standings';
+import { Standings } from '../standings/standings';
 
 @Injectable()
 export class FootballDataClient {

@@ -10,7 +10,7 @@ import { TeamsModule } from './team/teams.module';
 import { CompetitionModule } from './competition/competition.module';
 import { Team } from './team/team';
 import { Competition } from './competition/competition';
-import { StandingsModule } from './tables/tables.module';
+import { StandingsModule } from './standings/standings.module';
 import { FootballDataModule } from './football-data/football-data.module';
 import { ConfigModule } from '@nestjs/config';
 
