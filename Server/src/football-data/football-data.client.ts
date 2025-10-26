@@ -6,6 +6,8 @@ import { Competition } from '../competition/competition';
 import { MatchesResponse } from '../matches/dto/matches.response.interface';
 import { Match } from '../matches/dto/match';
 import { Team } from '../team/team';
+import { Table } from 'typeorm';
+import { Standings } from '../tables/standings';
 
 @Injectable()
 export class FootballDataClient {
@@ -84,5 +86,13 @@ export class FootballDataClient {
     const team = await this.fetchData<Team>(`/teams/${teamId}`);
 
     return team;
+  }
+
+  async getCompetitionStandings(competitionId: number): Promise<Standings> {
+    const standings = await this.fetchData<Standings>(
+      `/competitions/${competitionId}/standings`,
+    );
+
+    return standings;
   }
 }

@@ -1,19 +1,15 @@
-import {
-  Controller,
-  Get,
-  Query,
-  Param,
-  Inject,
-  ParseIntPipe,
-} from '@nestjs/common';
-import { TablesService } from './tables.service';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Standings } from './standings';
+import { StandingsService } from './tables.service';
 
-@Controller('tables')
-export class TablesController {
-  constructor(private tableService: TablesService) {}
+@Controller('standings')
+export class StandingsController {
+  constructor(private standingsService: StandingsService) {}
 
-  @Get('/:id')
-  async getLeagueTable(@Param('id') leagueid: string) {
-    return await this.tableService.getLeagueTable(parseInt(leagueid));
+  @Get('/:competitionId')
+  async getLeagueTable(
+    @Param('competitionId', ParseIntPipe) competitionId: number,
+  ): Promise<Standings> {
+    return await this.standingsService.getCompetitionStandings(competitionId);
   }
 }

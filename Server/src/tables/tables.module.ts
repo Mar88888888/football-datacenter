@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TablesController } from './tables.controller';
-import { TablesService } from './tables.service';
+import { StandingsController } from './tables.controller';
+import { StandingsService } from './tables.service';
+import { FootballDataModule } from '../football-data/football-data.module';
 
 @Module({
-  controllers: [TablesController],
-  providers: [TablesService],
+  imports: [FootballDataModule],
+  controllers: [StandingsController],
+  providers: [StandingsService],
 })
-export class TablesModule {}
+export class StandingsModule {}
