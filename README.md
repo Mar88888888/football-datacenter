@@ -22,9 +22,8 @@ football-datacenter/
 │   │       ├── favourites/  # Модуль управління обраним
 │   │   ├── competitions/    # Модуль для змагань
 │   │   ├── teams/           # Модуль для команд
-│   │   ├── players/         # Модуль для гравців
 │   │   ├── matches/         # Модуль для матчів
-│   │   ├── tables/          # Модуль для турнірних таблиць
+│   │   ├── standings/          # Модуль для турнірних таблиць
 │   │   └── ...              # Інші файли та конфігурації
 │   ├── main.ts              # Головний файл запуску сервера
 │   └── ...
@@ -131,7 +130,6 @@ npm run build
 
 ```plaintext
 GET /competition/search/:name: Search competitions by name.
-GET /competition/top: Retrieve top leagues.
 GET /competition/:id: Retrieve competition by ID.
 
 GET /matches: Get matches, optionally by date and limit.
@@ -140,10 +138,7 @@ GET /matches/live: Retrieve live matches.
 GET /matches/forteam/:teamid: Get matches for a specific team, optionally by date, status, and limit.
 GET /matches/forcomp/:compid: Get matches for a competition, with optional previous matches and limit.
 
-GET /players/fromteam/:teamid: Get players from a specific team.
-GET /players/:id: Retrieve player by ID.
-
-GET /tables/:id: Retrieve league table by league ID.
+GET /standings/:id: Retrieve league table by league ID.
 
 GET /teams/search/:name: Search teams by name.
 GET /teams/:id: Retrieve team by ID.

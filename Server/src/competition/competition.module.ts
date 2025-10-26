@@ -4,17 +4,16 @@ import { CompetitionController } from './competition.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { Competition } from './competition';
+import { FootballDataModule } from '../football-data/football-data.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Competition]),
     HttpModule,
+    FootballDataModule,
   ],
-  providers: [    {
-      provide: 'ICompetitionService',
-      useClass: CompetitionService,
-    },],
+  providers: [CompetitionService],
   controllers: [CompetitionController],
-  exports: ['ICompetitionService']
+  exports: [CompetitionService],
 })
 export class CompetitionModule {}

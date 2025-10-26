@@ -20,34 +20,29 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dto/user.dto';
-import { UsersService } from './users.service';
-import { AuthService } from './auth.service';
-import { FavouriteService } from './favourite/favourite.service'; 
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard';
 import { SignInUserDto } from './dto/signin-user.dto';
-import { EmailGuard } from '../guards/email.guard';
 import { Response } from 'express';
-import { IFavouriteService } from './favourite/favourite.service.interface';
-import { IAuthService } from './auth.service.interface';
-import { IUsersService } from './users.service.interface';
-
+import { FavouriteService } from './favourite/favourite.service';
+import { AuthService } from './auth.service';
+import { UsersService } from './users.service';
 
 @Controller('user')
 export class UsersController {
   constructor(
-    @Inject('IUsersService') private usersService: IUsersService,
-    @Inject('IFavouriteService') private favService: IFavouriteService,
-    @Inject('IAuthService') private authService: IAuthService,
+    private usersService: UsersService,
+    private favService: FavouriteService,
+    private authService: AuthService,
   ) {}
-  
+
   @Get()
   @Serialize(UserDto)
   async findAllUsers(@Query('email') email: string) {
     return await this.usersService.find(email);
   }
-  
+
   @Serialize(UserDto)
   @Get('/auth/bytoken')
   async getUser(@Req() req: Request, @Res() res: Response) {
@@ -56,7 +51,7 @@ export class UsersController {
       throw new UnauthorizedException('Authorization header is missing');
     }
 
-    const token = authHeader.split(' ')[1]; 
+    const token = authHeader.split(' ')[1];
 
     if (!token) {
       throw new UnauthorizedException('Token is missing');
@@ -66,16 +61,16 @@ export class UsersController {
       httpOnly: false,
       secure: false,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24 * 7, 
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
     try {
-      const user = await this.authService.getUserFromToken(token); 
+      const user = await this.authService.getUserFromToken(token);
       return res.json(user);
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
-  }  
+  }
 
   @Serialize(UserDto)
   @UseGuards(AuthGuard)
@@ -83,14 +78,14 @@ export class UsersController {
   whoAmI(@CurrentUser() user: User) {
     return user;
   }
-  
+
   @Serialize(UserDto)
   @Get('/auth/verify-email')
   async verifyEmail(@Query('token') token: string, @Session() session: any) {
-    let res  = await this.authService.verifyEmail(token);
+    let res = await this.authService.verifyEmail(token);
     return res;
   }
-  
+
   @Serialize(UserDto)
   @Post('/auth/signout')
   signOut(@Res() res: Response) {
@@ -101,13 +96,10 @@ export class UsersController {
     });
     return res.send('Signed out!');
   }
-  
+
   @Serialize(UserDto)
   @Post('/auth/signup')
-  async createUser(
-    @Body() body: CreateUserDto,
-    @Res() res: Response,
-  ) {
+  async createUser(@Body() body: CreateUserDto, @Res() res: Response) {
     const result = await this.authService.signup(
       body.email,
       body.password,
@@ -121,7 +113,7 @@ export class UsersController {
       httpOnly: false,
       secure: true,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24 * 7, 
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
     return res.status(200).json(result);
@@ -136,82 +128,87 @@ export class UsersController {
         signinDto.password,
       );
       res.cookie('authToken', accessToken, {
-        httpOnly: false, 
-        secure: true, 
-        sameSite: 'none', 
+        httpOnly: false,
+        secure: true,
+        sameSite: 'none',
         maxAge: 1000 * 60 * 60 * 24 * 7,
       });
 
-      return res.status(200).json({ 
+      return res.status(200).json({
         user: {
-          id: user.id, 
+          id: user.id,
           isEmailVerified: user.isEmailVerified,
           email: user.email,
-          name: user.name
-        }, 
+          name: user.name,
+        },
       });
     } catch (e) {
       console.error(e.message);
       if (e instanceof BadRequestException) {
         return res.status(400).json({ message: e.message });
-      } else{
+      } else {
         return res.status(500).json({ message: 'Internal server error' });
       }
     }
   }
 
-
-  @UseGuards(AuthGuard, EmailGuard)
+  @UseGuards(AuthGuard)
   @Get('/favteam')
-  async getFavTeams(@CurrentUser() user: User)
-  {
+  async getFavTeams(@CurrentUser() user: User) {
     return await this.favService.getFavTeams(user.id);
   }
-  
-  @UseGuards(AuthGuard, EmailGuard)
+
+  @UseGuards(AuthGuard)
   @Get('/favcomp')
-  async getFavComp(@CurrentUser() user: User)
-  {
+  async getFavComp(@CurrentUser() user: User) {
     return await this.favService.getFavComps(user.id);
   }
-  
-  @UseGuards(AuthGuard, EmailGuard)
+
+  @UseGuards(AuthGuard)
   @Post('/favteam/:teamid')
-  async addFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string){
-    try{
+  async addFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string) {
+    try {
       return await this.favService.addFavTeam(user.id, parseInt(teamId));
-    }catch(err){
-      if(err instanceof NotFoundException){
+    } catch (err) {
+      if (err instanceof NotFoundException) {
         throw new NotFoundException('Not found team with id ' + teamId);
       }
     }
   }
-  
-  
-  @UseGuards(AuthGuard, EmailGuard)
+
+  @UseGuards(AuthGuard)
   @Post('/favcomp/:compid')
-  async addFavCompetition(@CurrentUser() user: User, @Param('compid') compId: string){
-    try{
+  async addFavCompetition(
+    @CurrentUser() user: User,
+    @Param('compid') compId: string,
+  ) {
+    try {
       return await this.favService.addFavComp(user.id, parseInt(compId));
-    }catch(err){
-      if(err instanceof NotFoundException){
+    } catch (err) {
+      if (err instanceof NotFoundException) {
         throw new NotFoundException('Not found comp with id ' + compId);
       }
     }
   }
-  
-  @UseGuards(AuthGuard, EmailGuard)
+
+  @UseGuards(AuthGuard)
   @Delete('/favcomp/:compid')
-  async removeFavCompetition(@CurrentUser() user: User, @Param('compid') compId: string){
+  async removeFavCompetition(
+    @CurrentUser() user: User,
+    @Param('compid') compId: string,
+  ) {
     return await this.favService.removeFavComp(user.id, parseInt(compId));
   }
-  
-  @UseGuards(AuthGuard, EmailGuard)
+
+  @UseGuards(AuthGuard)
   @Delete('/favteam/:teamid')
-  async removeFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string){
+  async removeFavTeam(
+    @CurrentUser() user: User,
+    @Param('teamid') teamId: string,
+  ) {
     return await this.favService.removeFavTeam(user.id, parseInt(teamId));
   }
-  
+
   @Get('/:id')
   @Serialize(UserDto)
   async findUser(@Param('id') id: string) {
@@ -221,16 +218,10 @@ export class UsersController {
     }
     return user;
   }
-  
-  // @Delete('/:id')
-  // removeUser(@Param('id') id: string) {
-  //   return this.usersService.remove(parseInt(id));
-  // }
-  
+
   @Patch('/:id')
   @Serialize(UserDto)
   updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.usersService.update(parseInt(id), body);
   }
 }
-

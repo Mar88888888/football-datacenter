@@ -1,25 +1,23 @@
-import { Controller, Get, Inject, Param } from '@nestjs/common';
-import { ICompetitionService } from './competition.service.interface';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { CompetitionService } from './competition.service';
+import { Competition } from './competition';
+import { Match } from '../matches/dto/match';
 
-@Controller('competition')
+@Controller('competitions')
 export class CompetitionController {
-  constructor(
-    @Inject('ICompetitionService') private readonly competitionService: ICompetitionService,
-  ){}
+  constructor(private readonly competitionService: CompetitionService) {}
 
-
-  @Get('/search/:name')
-  searchCompsByName(@Param('name') name: string) {
-    return this.competitionService.searchByName(name);
+  @Get('/:id/matches')
+  async getCompetitionMatches(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Match[]> {
+    return await this.competitionService.getMatches(id);
   }
 
-  @Get('/top')
-  getTopLeagues(){
-    return this.competitionService.getTopLeagues();
-  }
-  
   @Get('/:id')
-  getCompetitionById(@Param('id') id: string){
-    return this.competitionService.findById(parseInt(id));
+  async getCompetitionById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Competition> {
+    return await this.competitionService.findById(id);
   }
 }

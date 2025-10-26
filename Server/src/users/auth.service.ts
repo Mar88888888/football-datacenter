@@ -5,27 +5,23 @@ import {
   UnauthorizedException,
   Inject,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
-import { MailService } from '../mail/mail.service';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { IAuthService } from './auth.service.interface';
-import { IUsersService } from './users.service.interface';
-import { IMailService } from '../mail/mail.service.interface';
+import { UsersService } from './users.service';
 
 const scrypt = promisify(_scrypt);
 
 @Injectable()
-export class AuthService implements IAuthService{
+export class AuthService implements IAuthService {
   constructor(
-    @Inject('IUsersService') private usersService: IUsersService,
-    @Inject('IMailService') private mailService: IMailService,
+    private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}  
+  ) {}
 
-  async signup(email: string, password: string, name:string) {
+  async signup(email: string, password: string, name: string) {
     const users = await this.usersService.find(email);
     if (users.length) {
       throw new BadRequestException('email in use');
@@ -41,7 +37,6 @@ export class AuthService implements IAuthService{
 
     const verificationToken = uuidv4();
     await this.usersService.saveVerificationToken(user.id, verificationToken);
-    await this.mailService.sendVerificationEmail(user.email, verificationToken, user);
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
@@ -82,7 +77,7 @@ export class AuthService implements IAuthService{
     return this.jwtService.sign(payload, { expiresIn: '1h' });
   }
 
-   async getUserFromToken(token: string) {
+  async getUserFromToken(token: string) {
     try {
       const payload = this.jwtService.verify(token);
       const user = await this.usersService.findOne(payload.sub);

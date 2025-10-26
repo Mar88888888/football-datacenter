@@ -7,12 +7,12 @@ import { User } from './users/user.entity';
 import { MatchesModule } from './matches/matches.module';
 import { HttpModule } from '@nestjs/axios';
 import { TeamsModule } from './team/teams.module';
-import { PlayerModule } from './player/player.module';
 import { CompetitionModule } from './competition/competition.module';
-import { SchedulerModule } from './scheduler/scheduler.module';
 import { Team } from './team/team';
 import { Competition } from './competition/competition';
-import { TablesModule } from './tables/tables.module';
+import { StandingsModule } from './standings/standings.module';
+import { FootballDataModule } from './football-data/football-data.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -27,9 +27,16 @@ import { TablesModule } from './tables/tables.module';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Team, Competition]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     UsersModule,
-    MatchesModule, 
-    HttpModule, TeamsModule, PlayerModule, CompetitionModule, SchedulerModule, TablesModule,
+    MatchesModule,
+    HttpModule,
+    TeamsModule,
+    CompetitionModule,
+    StandingsModule,
+    FootballDataModule,
   ],
   controllers: [AppController],
   providers: [AppService],
