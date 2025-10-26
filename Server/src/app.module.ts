@@ -7,7 +7,6 @@ import { User } from './users/user.entity';
 import { MatchesModule } from './matches/matches.module';
 import { HttpModule } from '@nestjs/axios';
 import { TeamsModule } from './team/teams.module';
-import { PlayerModule } from './player/player.module';
 import { CompetitionModule } from './competition/competition.module';
 import { Team } from './team/team';
 import { Competition } from './competition/competition';
@@ -35,7 +34,6 @@ import { ConfigModule } from '@nestjs/config';
     MatchesModule,
     HttpModule,
     TeamsModule,
-    PlayerModule,
     CompetitionModule,
     TablesModule,
     FootballDataModule,

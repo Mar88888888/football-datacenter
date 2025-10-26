@@ -22,7 +22,6 @@ football-datacenter/
 │   │       ├── favourites/  # Модуль управління обраним
 │   │   ├── competitions/    # Модуль для змагань
 │   │   ├── teams/           # Модуль для команд
-│   │   ├── players/         # Модуль для гравців
 │   │   ├── matches/         # Модуль для матчів
 │   │   ├── tables/          # Модуль для турнірних таблиць
 │   │   └── ...              # Інші файли та конфігурації
@@ -138,9 +137,6 @@ GET /matches/my/:userId: Get matches for a specific user.
 GET /matches/live: Retrieve live matches.
 GET /matches/forteam/:teamid: Get matches for a specific team, optionally by date, status, and limit.
 GET /matches/forcomp/:compid: Get matches for a competition, with optional previous matches and limit.
-
-GET /players/fromteam/:teamid: Get players from a specific team.
-GET /players/:id: Retrieve player by ID.
 
 GET /tables/:id: Retrieve league table by league ID.
 

@@ -2,18 +2,12 @@ import { Module } from '@nestjs/common';
 import { TeamsController } from './teams.controller';
 import { TeamService } from './teams.service';
 import { HttpModule } from '@nestjs/axios';
+import { FootballDataModule } from '../football-data/football-data.module';
 
 @Module({
-  imports: [
-    HttpModule
-  ],
+  imports: [HttpModule, FootballDataModule],
   controllers: [TeamsController],
-  providers: [    
-    {
-      provide: 'ITeamService',
-      useClass: TeamService,
-    },
-  ],
-  exports: ['ITeamService']
+  providers: [TeamService],
+  exports: [TeamService],
 })
 export class TeamsModule {}

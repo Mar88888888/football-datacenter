@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { UserFavTeam } from './user.favteam.entity';
 import { UserFavComp } from './user.favcomp.entity';
 import { CompetitionService } from '../../competition/competition.service';
-import { ITeamService } from '../../team/teams.service.interface';
 import { UsersService } from '../users.service';
+import { TeamService } from '../../team/teams.service';
 
 @Injectable()
 export class FavouriteService {
@@ -15,7 +15,7 @@ export class FavouriteService {
     @InjectRepository(UserFavTeam)
     private readonly favTeamRepo: Repository<UserFavTeam>,
     private readonly userService: UsersService,
-    @Inject('ITeamService') private readonly teamService: ITeamService,
+    private readonly teamService: TeamService,
     private readonly compService: CompetitionService,
   ) {}
 
@@ -27,7 +27,7 @@ export class FavouriteService {
     const teamIds = userFavTeams.map((team) => team.teamId);
 
     const favTeams = await Promise.all(
-      teamIds.map((teamId) => this.teamService.findById(teamId)),
+      teamIds.map((teamId) => this.teamService.getById(teamId)),
     );
 
     return favTeams;
@@ -56,7 +56,7 @@ export class FavouriteService {
       throw new Error('Team is already a favorite');
     }
 
-    await this.teamService.findById(teamId);
+    await this.teamService.getById(teamId);
 
     await this.favTeamRepo.insert({
       user: { id: userId },

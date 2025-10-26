@@ -5,6 +5,7 @@ import { AxiosError } from 'axios';
 import { Competition } from '../competition/competition';
 import { MatchesResponse } from '../matches/dto/matches.response.interface';
 import { Match } from '../matches/dto/match';
+import { Team } from '../team/team';
 
 @Injectable()
 export class FootballDataClient {
@@ -77,5 +78,11 @@ export class FootballDataClient {
     const response = await this.fetchData<MatchesResponse>(url);
 
     return response.matches;
+  }
+
+  async getTeamById(teamId: number): Promise<Team> {
+    const team = await this.fetchData<Team>(`/teams/${teamId}`);
+
+    return team;
   }
 }

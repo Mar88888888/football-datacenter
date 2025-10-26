@@ -9,6 +9,6 @@ export class Match {
     public homeTeam: Team,
     public awayTeam: Team,
     public competition: Competition,
-    public startDate: Date,
+    public utcDate: Date,
   ) {}
 }
