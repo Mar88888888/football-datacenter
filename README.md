@@ -129,8 +129,8 @@ npm run build
 Проєкт реалізує REST API для роботи з даними про змагання, команди, гравців та тренерів.
 
 ```plaintext
-GET /competition/search/:name: Search competitions by name.
-GET /competition/:id: Retrieve competition by ID.
+GET /competitions/search/:name: Search competitions by name.
+GET /competitions/:id: Retrieve competition by ID.
 
 GET /matches: Get matches, optionally by date and limit.
 GET /matches/my/:userId: Get matches for a specific user.

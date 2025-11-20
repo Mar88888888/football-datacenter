@@ -3,7 +3,6 @@ import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
-  Inject,
 } from '@nestjs/common';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';

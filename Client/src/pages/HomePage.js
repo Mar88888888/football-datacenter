@@ -10,9 +10,7 @@ const HomePage = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    let url = `${process.env.REACT_APP_API_URL}/matches${
-      user ? '/my/' + user.id : ''
-    }`;
+    let url = `${process.env.REACT_APP_API_URL}/matches`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => setMatches(data))

@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const url = process.env.REACT_APP_API_URL;
 
 export const fetchCompetitions = async () => {
@@ -15,7 +14,9 @@ export const fetchCompetitions = async () => {
 
 export const fetchTeams = async (competitionId) => {
   try {
-    const response = await axios.get(`${url}/competition/${competitionId}/teams`);
+    const response = await axios.get(
+      `${url}/competitions/${competitionId}/teams`
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching teams:', error);

@@ -1,4 +1,4 @@
-import { Competition } from '../competition/competition';
+import { Competition } from '../competitions/competition';
 import { User } from '../users/user.entity';
 
 export class Team {

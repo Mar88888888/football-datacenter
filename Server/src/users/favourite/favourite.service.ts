@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserFavTeam } from './user.favteam.entity';
 import { UserFavComp } from './user.favcomp.entity';
-import { CompetitionService } from '../../competition/competition.service';
+import { CompetitionService } from '../../competitions/competition.service';
 import { UsersService } from '../users.service';
 import { TeamService } from '../../team/teams.service';
 

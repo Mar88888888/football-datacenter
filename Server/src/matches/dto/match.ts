@@ -1,4 +1,4 @@
-import { Competition } from '../../competition/competition';
+import { Competition } from '../../competitions/competition';
 import { Team } from '../../team/team';
 import { Score } from './score';
 

@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import { Competition } from '../competition/competition';
+import { Competition } from '../competitions/competition';
 import { MatchesResponse } from '../matches/dto/matches.response.interface';
 import { Match } from '../matches/dto/match';
 import { Team } from '../team/team';
@@ -82,17 +82,25 @@ export class FootballDataClient {
     return response.matches;
   }
 
-  async getTeamById(teamId: number): Promise<Team> {
-    const team = await this.fetchData<Team>(`/teams/${teamId}`);
-
-    return team;
-  }
-
   async getCompetitionStandings(competitionId: number): Promise<Standings> {
     const standings = await this.fetchData<Standings>(
       `/competitions/${competitionId}/standings`,
     );
 
     return standings;
+  }
+
+  async getTeamById(teamId: number): Promise<Team> {
+    const team = await this.fetchData<Team>(`/teams/${teamId}`);
+
+    return team;
+  }
+
+  async getTeamMatches(teamId: number): Promise<Match[]> {
+    const response = await this.fetchData<MatchesResponse>(
+      `/teams/${teamId}/matches`,
+    );
+
+    return response.matches;
   }
 }

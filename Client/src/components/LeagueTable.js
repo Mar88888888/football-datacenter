@@ -1,35 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import '../styles/LeagueTable.css'
+import { useEffect, useState } from 'react';
+import '../styles/LeagueTable.css';
 import ErrorPage from '../pages/ErrorPage';
 
-const LeagueTable = ({ leagueId }) => {
+const LeagueTable = ({ competitionId }) => {
   const [tableData, setTableData] = useState([]);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchTableData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/fdc-api/tables/${leagueId}`);
+        const response = await fetch(
+          `http://localhost:3000/fdc-api/standings/${competitionId}`
+        );
         const data = await response.json();
-        setTableData(data);
+        setTableData(data.standings[0].table);
       } catch (error) {
-        setError(true)
-        console.error("Error fetching the league table data:", error);
+        setError(true);
+        console.error('Error fetching the league table data:', error);
       }
     };
 
     fetchTableData();
-  }, [leagueId]);
-  
+  }, [competitionId]);
+
   if (error) {
     return <ErrorPage />;
   }
 
   return (
     <div className="league-table">
-      {tableData.length == 0 ? (
+      {tableData.length === 0 ? (
         ''
-      ):(
+      ) : (
         <table>
           <thead>
             <tr>
@@ -46,18 +48,18 @@ const LeagueTable = ({ leagueId }) => {
             </tr>
           </thead>
           <tbody>
-            {tableData.map((team, index) => (
+            {tableData.map((item, index) => (
               <tr key={index}>
-                <td>{index+1}</td>
-                <td>{team.Team}</td>
-                <td>{team.Played}</td>
-                <td>{team.Won}</td>
-                <td>{team.Drawn}</td>
-                <td>{team.Lost}</td>
-                <td>{team['Goals For']}</td>
-                <td>{team['Goals Against']}</td>
-                <td>{team['Goals Difference']}</td>
-                <td>{team.Points}</td>
+                <td>{index + 1}</td>
+                <td>{item.team.name}</td>
+                <td>{item.playedGames}</td>
+                <td>{item.won}</td>
+                <td>{item.draw}</td>
+                <td>{item.lost}</td>
+                <td>{item.goalsFor}</td>
+                <td>{item.goalsAgainst}</td>
+                <td>{item.goalDifference}</td>
+                <td>{item.points}</td>
               </tr>
             ))}
           </tbody>
