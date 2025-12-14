@@ -1,4 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
@@ -6,14 +13,18 @@ import { Competition } from '../competitions/competition';
 import { MatchesResponse } from '../matches/dto/matches.response.interface';
 import { Match } from '../matches/dto/match';
 import { Team } from '../team/team';
-import { Table } from 'typeorm';
 import { Standings } from '../standings/standings';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class FootballDataClient {
   private readonly logger = new Logger(FootballDataClient.name);
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   private async fetchData<T>(path: string): Promise<T> {
     const { data } = await firstValueFrom(
@@ -83,11 +94,32 @@ export class FootballDataClient {
   }
 
   async getCompetitionStandings(competitionId: number): Promise<Standings> {
-    const standings = await this.fetchData<Standings>(
-      `/competitions/${competitionId}/standings`,
-    );
+    const cacheKey = `standings_${competitionId}`;
 
-    return standings;
+    const cachedData = await this.cacheManager.get<Standings>(cacheKey);
+
+    if (cachedData) {
+      console.log(`CACHE: ${cacheKey}`);
+      return cachedData;
+    }
+
+    try {
+      console.log(`API: ${competitionId}`);
+
+      const standings = await this.fetchData<Standings>(
+        `/competitions/${competitionId}/standings`,
+      );
+
+      await this.cacheManager.set(cacheKey, standings, 1800);
+
+      return standings;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Failed to fetch standings',
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async getTeamById(teamId: number): Promise<Team> {
