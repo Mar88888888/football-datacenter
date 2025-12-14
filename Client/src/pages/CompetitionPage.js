@@ -106,22 +106,6 @@ const CompetitionPage = () => {
       });
   };
 
-  const formatTime = (utcDate) => {
-    if (!utcDate) {
-      return 'Not Set';
-    }
-    const date = new Date(utcDate);
-    return `${date.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`;
-  };
-
-  const formatDateOnly = (utcDate) => {
-    const date = new Date(utcDate);
-    return date.toLocaleDateString();
-  };
-
   if (error) {
     return <ErrorPage />;
   }
