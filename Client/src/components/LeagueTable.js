@@ -4,18 +4,22 @@ import ErrorPage from '../pages/ErrorPage';
 const LeagueTable = ({ competitionId }) => {
   const [tableData, setTableData] = useState([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTableData = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:3000/fdc-api/standings/${competitionId}`
+          `${process.env.REACT_APP_API_URL}/standings/${competitionId}`
         );
         const data = await response.json();
-        setTableData(data.standings[0].table);
+        setTableData(data.standings?.[0]?.table || []);
       } catch (error) {
         setError(true);
         console.error('Error fetching the league table data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -26,10 +30,19 @@ const LeagueTable = ({ competitionId }) => {
     return <ErrorPage />;
   }
 
+  if (loading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto my-8 flex flex-col items-center justify-center py-12">
+        <div className="w-10 h-10 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin"></div>
+        <p className="mt-4 text-slate-400 animate-pulse">Loading standings...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto my-8 overflow-x-auto">
       {tableData.length === 0 ? (
-        ''
+        <p className="text-center text-slate-400 py-8">No standings available</p>
       ) : (
         <table className="w-full border-collapse bg-slate-800 rounded-lg overflow-hidden shadow-lg">
           <thead className="sticky top-0">

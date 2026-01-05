@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import MatchList from '../components/MatchList';
+import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 
 const TeamPage = () => {
@@ -17,6 +18,12 @@ const TeamPage = () => {
   const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
+    // Reset state when navigating to a different team
+    setLoading(true);
+    setTeam(null);
+    setMatches([]);
+    setError(null);
+
     const fetchTeamData = async () => {
       try {
         const response = await fetch(
@@ -113,11 +120,9 @@ const TeamPage = () => {
       });
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-2xl text-slate-400">Loading...</div>
-    </div>
-  );
+  if (loading) {
+    return <LoadingSpinner message="Loading team data..." />;
+  }
 
   if (error || !team) {
     return <ErrorPage />;

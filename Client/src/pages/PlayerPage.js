@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
+import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 
 const PlayerPage = () => {
@@ -40,11 +41,9 @@ const PlayerPage = () => {
     fetchPlayerData();
   }, [id]);
 
-  if (loading) return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-2xl text-slate-400">Loading...</div>
-    </div>
-  );
+  if (loading) {
+    return <LoadingSpinner message="Loading player data..." />;
+  }
 
   if (error) {
     return <ErrorPage />;

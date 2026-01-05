@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import LoadingSpinner from './LoadingSpinner';
 import ErrorPage from '../pages/ErrorPage';
 
 const Dashboard = () => {
@@ -9,11 +10,13 @@ const Dashboard = () => {
   const [favComps, setFavComps] = useState([]);
   const { setUser } = useContext(AuthContext);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFavorites = async () => {
+      setLoading(true);
       try {
         const [teamsResponse, compsResponse] = await Promise.all([
           axios.get(`${process.env.REACT_APP_API_URL}/user/favteam`, {
@@ -28,6 +31,8 @@ const Dashboard = () => {
       } catch (error) {
         setError(true);
         console.error('Error fetching favorites:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -48,6 +53,10 @@ const Dashboard = () => {
       console.error('Error during logout:', error);
     }
   };
+
+  if (loading) {
+    return <LoadingSpinner message="Loading your favorites..." />;
+  }
 
   if (error) {
     return <ErrorPage />;

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import LeagueTable from '../components/LeagueTable';
 import MatchList from '../components/MatchList';
+import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 
 const CompetitionPage = () => {
@@ -16,6 +17,11 @@ const CompetitionPage = () => {
   const [isFavourite, setIsFavourite] = useState(false);
 
   useEffect(() => {
+    // Reset state when navigating to a different competition
+    setCompetition(null);
+    setScheduledMatches([]);
+    setError(false);
+
     fetch(`${process.env.REACT_APP_API_URL}/competitions/${id}`)
       .then((res) => res.json())
       .then((data) => setCompetition(data))
@@ -57,11 +63,9 @@ const CompetitionPage = () => {
     }
   }, [id]);
 
-  if (!competition) return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-2xl text-slate-400">Loading...</div>
-    </div>
-  );
+  if (!competition) {
+    return <LoadingSpinner message="Loading competition data..." />;
+  }
 
   const handleAddToFavourite = async () => {
     if (!user) {
