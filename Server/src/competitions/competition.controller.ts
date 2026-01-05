@@ -7,6 +7,11 @@ import { Match } from '../matches/dto/match';
 export class CompetitionController {
   constructor(private readonly competitionService: CompetitionService) {}
 
+  @Get()
+  async getAllCompetitions(): Promise<Competition[]> {
+    return await this.competitionService.findAll();
+  }
+
   @Get('/:id/matches')
   async getCompetitionMatches(
     @Param('id', ParseIntPipe) id: number,

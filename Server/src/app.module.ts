@@ -4,16 +4,17 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
+import { UserFavComp } from './users/favourite/user.favcomp.entity';
+import { UserFavTeam } from './users/favourite/user.favteam.entity';
 import { MatchesModule } from './matches/matches.module';
 import { HttpModule } from '@nestjs/axios';
 import { TeamsModule } from './team/teams.module';
 import { CompetitionModule } from './competitions/competition.module';
-import { Team } from './team/team';
-import { Competition } from './competitions/competition';
 import { StandingsModule } from './standings/standings.module';
 import { FootballDataModule } from './football-data/football-data.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ScheduleModule } from '@nestjs/schedule';
 import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -22,6 +23,8 @@ import * as redisStore from 'cache-manager-ioredis';
       isGlobal: true,
       envFilePath: '.env',
     }),
+
+    ScheduleModule.forRoot(),
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -33,7 +36,7 @@ import * as redisStore from 'cache-manager-ioredis';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [User, UserFavComp, UserFavTeam],
         synchronize: true,
       }),
     }),
@@ -50,7 +53,6 @@ import * as redisStore from 'cache-manager-ioredis';
       }),
     }),
 
-    TypeOrmModule.forFeature([User, Team, Competition]),
     UsersModule,
     MatchesModule,
     HttpModule,

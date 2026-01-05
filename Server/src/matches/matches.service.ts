@@ -14,14 +14,25 @@ export class MatchesService {
 
     const dateToFetch = date ? new Date(date) : undefined;
 
-    const matches = await this.dataClient.getMatches(dateToFetch);
+    const [matches, availableCompetitions] = await Promise.all([
+      this.dataClient.getMatches(dateToFetch),
+      this.dataClient.getAvailableCompetitions(),
+    ]);
+
+    const availableCompetitionIds = new Set(
+      availableCompetitions.map((c) => c.id),
+    );
+
+    const filteredMatches = matches.filter((match) =>
+      availableCompetitionIds.has(match.competition?.id),
+    );
 
     if (limit) {
       const startIndex = offset || 0;
       const endIndex = startIndex + limit;
-      return matches.slice(startIndex, endIndex);
+      return filteredMatches.slice(startIndex, endIndex);
     }
 
-    return matches;
+    return filteredMatches;
   }
 }

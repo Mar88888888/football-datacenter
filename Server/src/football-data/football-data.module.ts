@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FootballDataClient } from './football-data.client';
+import { SyncService } from './sync.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { FootballDataClient } from './football-data.client';
       }),
     }),
   ],
-  providers: [FootballDataClient],
+  providers: [FootballDataClient, SyncService],
   exports: [FootballDataClient],
 })
 export class FootballDataModule {}

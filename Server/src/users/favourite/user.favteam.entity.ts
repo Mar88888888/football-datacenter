@@ -6,9 +6,15 @@ export class UserFavTeam {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.favTeams, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.favTeams, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()
-  teamId: number; 
+  teamId: number;
+
+  @Column()
+  name: string;
+
+  @Column({ nullable: true })
+  crest: string;
 }

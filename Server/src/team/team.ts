@@ -9,5 +9,6 @@ export class Team {
   address: string;
   founded: number;
   competitions: Competition[];
+  runningCompetitions?: Competition[];
   users: User[];
 }

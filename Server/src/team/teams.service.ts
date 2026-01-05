@@ -9,11 +9,35 @@ export class TeamService {
 
   constructor(private dataClient: FootballDataClient) {}
 
+  private async getAvailableCompetitionIds(): Promise<Set<number>> {
+    const competitions = await this.dataClient.getAvailableCompetitions();
+    return new Set(competitions.map((c) => c.id));
+  }
+
   async getById(id: number): Promise<Team> {
-    return this.dataClient.getTeamById(id);
+    const [team, availableIds] = await Promise.all([
+      this.dataClient.getTeamById(id),
+      this.getAvailableCompetitionIds(),
+    ]);
+
+    // Filter runningCompetitions to only include available ones
+    if (team.runningCompetitions) {
+      team.runningCompetitions = team.runningCompetitions.filter((comp) =>
+        availableIds.has(comp.id),
+      );
+    }
+
+    return team;
   }
 
   async getMatches(teamId: number): Promise<Match[]> {
-    return this.dataClient.getTeamMatches(teamId);
+    const [matches, availableIds] = await Promise.all([
+      this.dataClient.getTeamMatches(teamId),
+      this.getAvailableCompetitionIds(),
+    ]);
+
+    return matches.filter((match) =>
+      availableIds.has(match.competition?.id),
+    );
   }
 }

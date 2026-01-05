@@ -6,9 +6,15 @@ export class UserFavComp {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.favCompetitions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.favCompetitions, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()
   competitionId: number;
+
+  @Column()
+  name: string;
+
+  @Column({ nullable: true })
+  emblem: string;
 }
