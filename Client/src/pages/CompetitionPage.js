@@ -122,11 +122,13 @@ const CompetitionPage = () => {
       <div className="bg-slate-950 py-8 px-4">
         <div className="max-w-md mx-auto bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl text-center">
           <div className="flex flex-col items-center gap-4">
-            <img
-              src={competition.emblem}
-              alt="Competition Logo"
-              className="w-24 h-24 object-contain"
-            />
+            <div className="w-28 h-28 bg-white rounded-lg p-2 flex items-center justify-center">
+              <img
+                src={competition.emblem}
+                alt="Competition Logo"
+                className="w-24 h-24 object-contain"
+              />
+            </div>
             <h2 className="text-2xl font-bold text-white">{competition.name}</h2>
           </div>
 

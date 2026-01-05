@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import ErrorPage from '../pages/ErrorPage';
 
 const LeagueTable = ({ competitionId }) => {
@@ -68,7 +69,23 @@ const LeagueTable = ({ competitionId }) => {
                 }`}
               >
                 <td className="p-4 text-center text-slate-200 font-medium">{index + 1}</td>
-                <td className="p-4 text-left text-slate-200 font-medium">{item.team.name}</td>
+                <td className="p-4 text-left">
+                  <Link
+                    to={`/teams/${item.team.id}`}
+                    className="flex items-center gap-3 text-slate-200 font-medium hover:text-blue-400 transition-colors"
+                  >
+                    {item.team.crest && (
+                      <div className="w-7 h-7 bg-white rounded p-0.5 flex items-center justify-center flex-shrink-0">
+                        <img
+                          src={item.team.crest}
+                          alt={item.team.name}
+                          className="w-6 h-6 object-contain"
+                        />
+                      </div>
+                    )}
+                    {item.team.name}
+                  </Link>
+                </td>
                 <td className="p-4 text-center">
                   <span className="inline-block px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded font-bold">
                     {item.playedGames}

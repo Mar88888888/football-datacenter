@@ -137,7 +137,9 @@ const TeamPage = () => {
             {/* Team Info */}
             <div className="flex gap-4 flex-1">
               <div className="flex-shrink-0">
-                <img src={team.crest} alt="Team Logo" className="w-24 h-24 object-contain" />
+                <div className="w-28 h-28 bg-white rounded-lg p-2 flex items-center justify-center">
+                  <img src={team.crest} alt="Team Logo" className="w-24 h-24 object-contain" />
+                </div>
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-white">{team.name}</h2>
