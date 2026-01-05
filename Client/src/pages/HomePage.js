@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from 'react';
-import '../styles/global.css';
 import { AuthContext } from '../context/AuthContext';
 import MatchList from '../components/MatchList';
 import ErrorPage from './ErrorPage';
@@ -25,12 +24,12 @@ const HomePage = () => {
   }
 
   return (
-    <div>
-      <div className="container">
-        <span className="container-content">
-          <h3 className="title">Today Matches</h3>
-          <MatchList matches={matches} />
-        </span>
+    <div className="min-h-screen bg-slate-900 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h3 className="text-4xl font-bold text-center text-white mb-8">
+          Today's Matches
+        </h3>
+        <MatchList matches={matches} />
       </div>
     </div>
   );

@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import '../styles/Auth.css';
 import ErrorPage from '../pages/ErrorPage';
 
 const Login = () => {
@@ -39,33 +38,51 @@ const Login = () => {
   }
 
   return (
-    <div id="auth-root">
-      <div className="auth-container">
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md bg-slate-800 rounded-xl p-8 border border-slate-700 shadow-xl">
+        <h2 className="text-2xl font-bold text-white text-center mb-8">Login</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label>Email</label>
+            <label className="block text-slate-300 text-sm font-medium mb-2">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+              placeholder="Enter your email"
             />
           </div>
           <div>
-            <label>Password</label>
+            <label className="block text-slate-300 text-sm font-medium mb-2">
+              Password
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+              placeholder="Enter your password"
             />
           </div>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          <button type="submit">Login</button>
+          {error && (
+            <p className="text-red-400 text-sm text-center">{error}</p>
+          )}
+          <button
+            type="submit"
+            className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors duration-200"
+          >
+            Login
+          </button>
         </form>
-        <p>
-          Don't have an account? <Link to="/signup">Sign Up</Link>
+        <p className="mt-6 text-center text-slate-400">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
+            Sign Up
+          </Link>
         </p>
       </div>
     </div>

@@ -1,7 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../styles/CompetitionPage.css';
-import '../styles/global.css';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import LeagueTable from '../components/LeagueTable';
@@ -59,7 +57,11 @@ const CompetitionPage = () => {
     }
   }, [id]);
 
-  if (!competition) return <div className="loading-message">Loading...</div>;
+  if (!competition) return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="text-2xl text-slate-400">Loading...</div>
+    </div>
+  );
 
   const handleAddToFavourite = async () => {
     if (!user) {
@@ -111,40 +113,51 @@ const CompetitionPage = () => {
   }
 
   return (
-    <div className="competition-page-container">
-      <div className="competition-passport-container">
-        <div className="competition-passport">
-          <div className="competition-info">
-            <div className="competition-photo">
-              <img src={competition.emblem} alt="Competition Logo" />
-            </div>
-            <div className="competition-details">
-              <h2>{competition.name}</h2>
-            </div>
+    <div className="min-h-screen bg-slate-900">
+      {/* Competition Header */}
+      <div className="bg-slate-950 py-8 px-4">
+        <div className="max-w-md mx-auto bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl text-center">
+          <div className="flex flex-col items-center gap-4">
+            <img
+              src={competition.emblem}
+              alt="Competition Logo"
+              className="w-24 h-24 object-contain"
+            />
+            <h2 className="text-2xl font-bold text-white">{competition.name}</h2>
           </div>
-          <div className="website-button">
+
+          <div className="mt-6">
             {isFavourite ? (
               <button
-                className="add-to-favourite-btn"
                 onClick={handleRemoveFromFavourite}
+                className="px-6 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-all duration-200 font-medium"
               >
                 Remove from favourites
               </button>
             ) : (
               <button
-                className="add-to-favourite-btn"
                 onClick={handleAddToFavourite}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 font-medium"
               >
-                Add to favourite
+                Add to favourites
               </button>
             )}
           </div>
         </div>
       </div>
-      <div className="container">
-        <LeagueTable competitionId={id} />
-        <h3 className="title">Scheduled Matches</h3>
-        <MatchList matches={scheduledMatches} />
+
+      {/* Content */}
+      <div className="py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <LeagueTable competitionId={id} />
+
+          <h3 className="text-3xl font-bold text-center text-white mt-12 mb-6">
+            Scheduled Matches
+          </h3>
+          <div className="max-w-2xl mx-auto">
+            <MatchList matches={scheduledMatches} />
+          </div>
+        </div>
       </div>
     </div>
   );

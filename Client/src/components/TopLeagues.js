@@ -1,23 +1,26 @@
 import { Link } from 'react-router-dom';
-import '../styles/MatchList.css';
 
 const TopLeagues = ({ leagues }) => {
   return (
-    <div className="players-squad container">
-      <h3>Top Leagues</h3>
-      <ul className="players-list">
+    <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+      <h3 className="text-lg font-bold text-white mb-4">Top Leagues</h3>
+      <ul className="space-y-2">
         {leagues.map((league) => (
-          <Link to={`/competitions/${league.id}`}>
-            <li key={league.id} className="player-item">
+          <li key={league.id}>
+            <Link
+              to={`/competitions/${league.id}`}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700 transition-colors"
+            >
               <img
                 src={league.crest ? league.crest : league.emblem}
                 alt={league.name}
-                className="emblem"
-                style={{ width: '25px', height: '25px', marginRight: '5px' }}
+                className="w-6 h-6 object-contain"
               />
-              {league.name}
-            </li>
-          </Link>
+              <span className="text-slate-200 text-sm font-medium">
+                {league.name}
+              </span>
+            </Link>
+          </li>
         ))}
       </ul>
     </div>

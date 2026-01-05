@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../styles/TeamPage.css';
-import '../styles/global.css';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
@@ -115,85 +113,97 @@ const TeamPage = () => {
       });
   };
 
-  if (loading) return <div className="loading-message">Loading...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="text-2xl text-slate-400">Loading...</div>
+    </div>
+  );
 
   if (error || !team) {
     return <ErrorPage />;
   }
 
   return (
-    <div className="team-page-container">
-      <div className="passport-container">
-        <div className="team-passport">
-          <div className="team-info">
-            <div className="team-photo">
-              <img src={team.crest} alt="Team Logo" />
-            </div>
-            <div className="team-details">
-              <h2>{team.name}</h2>
-              {team.founded !== 'NaN/NaN/NaN' ? (
-                <p>
-                  <strong>Founded:</strong> {team.founded}
+    <div className="min-h-screen bg-slate-900">
+      {/* Team Header/Passport */}
+      <div className="bg-slate-950 py-8 px-4">
+        <div className="max-w-2xl mx-auto bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Team Info */}
+            <div className="flex gap-4 flex-1">
+              <div className="flex-shrink-0">
+                <img src={team.crest} alt="Team Logo" className="w-24 h-24 object-contain" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-white">{team.name}</h2>
+                {team.founded !== 'NaN/NaN/NaN' && (
+                  <p className="text-slate-400">
+                    <span className="text-slate-500">Founded:</span> {team.founded}
+                  </p>
+                )}
+                <p className="text-slate-400 flex items-center gap-2">
+                  <span className="text-slate-500">Colors:</span>
+                  <span
+                    className="inline-block w-12 h-4 rounded border border-slate-600"
+                    style={{ backgroundColor: team.clubColors }}
+                  ></span>
                 </p>
-              ) : (
-                ''
-              )}
-              <p>
-                <strong>Club Colors:</strong>{' '}
-                <span
-                  style={{
-                    backgroundColor: `${team.clubColors}`,
-                    width: '50px',
-                    height: '0.5em',
-                    border: '1px solid black',
-                    display: 'inline-block',
-                  }}
-                ></span>
-              </p>
-              <p>
-                <strong>City:</strong> {team.address}
-              </p>
+                <p className="text-slate-400">
+                  <span className="text-slate-500">City:</span> {team.address}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="coach-info">
-            <h3>Coach</h3>
-            <p>{team.coachName}</p>
+
+            {/* Coach Info */}
+            <div className="text-center md:text-right md:self-center">
+              <h3 className="text-sm uppercase text-slate-500 tracking-wider mb-1">Coach</h3>
+              <p className="text-lg text-white font-medium">{team.coachName}</p>
+            </div>
           </div>
 
-          <div>
+          {/* Favourite Button */}
+          <div className="mt-6 text-center">
             {isFavourite ? (
               <button
-                className="add-to-favourite-btn"
                 onClick={handleRemoveFromFavourite}
+                className="px-6 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-all duration-200 font-medium"
               >
                 Remove from favourites
               </button>
             ) : (
               <button
-                className="add-to-favourite-btn"
                 onClick={handleAddToFavourite}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 font-medium"
               >
-                Add to favourite
+                Add to favourites
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <div className="container">
-        <span className="container-content">
-          <h3 className="title">Competitions</h3>
-          <ul className="list">
+      {/* Content */}
+      <div className="py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Competitions */}
+          <h3 className="text-3xl font-bold text-center text-white mb-6">Competitions</h3>
+          <ul className="list-none p-0 mb-12 flex flex-col gap-3 max-w-xl mx-auto">
             {team.runningCompetitions.map((comp) => (
-              <li className="list-item" key={comp.id}>
-                <Link to={`/competitions/${comp.id}`}>{comp.name}</Link>
+              <li key={comp.id}>
+                <Link
+                  to={`/competitions/${comp.id}`}
+                  className="block bg-slate-800 border border-slate-700 rounded-lg p-4 text-center text-slate-200 font-semibold hover:bg-slate-700 hover:border-slate-600 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  {comp.name}
+                </Link>
               </li>
             ))}
           </ul>
 
-          <h3 className="title">Scheduled Matches</h3>
+          {/* Scheduled Matches */}
+          <h3 className="text-3xl font-bold text-center text-white mb-6">Scheduled Matches</h3>
           <MatchList matches={matches} />
-        </span>
+        </div>
       </div>
     </div>
   );
