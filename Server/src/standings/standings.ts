@@ -1,6 +1,6 @@
 import { Team } from '../team/team';
 
-export class Standings {
+export class StandingsEntry {
   stage: string;
   type: string;
   group: string | null;
@@ -10,12 +10,27 @@ export class Standings {
 export class TablePosition {
   position: number;
   team: Team;
-  playedGames: 9;
-  won: 8;
-  draw: 0;
-  lost: 1;
-  points: 24;
-  goalsFor: 20;
-  goalsAgainst: 9;
-  goalDifference: 11;
+  playedGames: number;
+  won: number;
+  draw: number;
+  lost: number;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+}
+
+export class Standings {
+  competition: {
+    id: number;
+    name: string;
+    type: string;
+  };
+  season: {
+    id: number;
+    startDate: string;
+    endDate: string;
+    currentMatchday: number;
+  };
+  standings: StandingsEntry[];
 }
