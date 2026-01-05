@@ -1,7 +1,38 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-const MatchList = ({ matches, pageSize = 10 }) => {
+// Team display component - conditionally links based on whether it's a national team
+const TeamCard = ({ team, isNationalTeam }) => {
+  const content = (
+    <>
+      <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center">
+        <img
+          src={team?.crest}
+          alt={team?.shortName || team?.name || 'Team'}
+          className="w-14 h-14 object-contain select-none"
+        />
+      </div>
+      <div className="text-sm mt-2 text-slate-200 font-medium">
+        {team?.shortName || team?.name || 'TBD'}
+      </div>
+    </>
+  );
+
+  if (isNationalTeam || !team?.id) {
+    return <div className="flex flex-col items-center">{content}</div>;
+  }
+
+  return (
+    <Link
+      to={`/teams/${team.id}`}
+      className="flex flex-col items-center hover:opacity-80 transition-opacity"
+    >
+      {content}
+    </Link>
+  );
+};
+
+const MatchList = ({ matches, pageSize = 10, isNationalTeam = false }) => {
   // Calculate the smart default page based on current date
   const getDefaultPage = useMemo(() => {
     if (!matches || matches.length === 0) return 1;
@@ -67,16 +98,7 @@ const MatchList = ({ matches, pageSize = 10 }) => {
           className="flex items-center justify-between bg-slate-800 p-4 rounded-lg shadow-md hover:shadow-lg hover:bg-slate-700 transition-all duration-200 border border-slate-700"
         >
           <div className="flex flex-col items-center w-[30%] text-center">
-            <Link to={`/teams/${match.homeTeam.id}`} className="flex flex-col items-center hover:opacity-80 transition-opacity">
-              <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center">
-                <img
-                  src={match.homeTeam.crest}
-                  alt="Home Team Logo"
-                  className="w-14 h-14 object-contain select-none"
-                />
-              </div>
-              <div className="text-sm mt-2 text-slate-200 font-medium">{match.homeTeam.shortName}</div>
-            </Link>
+            <TeamCard team={match.homeTeam} isNationalTeam={isNationalTeam} />
           </div>
 
           <div className="text-center w-[40%] space-y-1">
@@ -106,16 +128,7 @@ const MatchList = ({ matches, pageSize = 10 }) => {
           </div>
 
           <div className="flex flex-col items-center w-[30%] text-center">
-            <Link to={`/teams/${match?.awayTeam?.id}`} className="flex flex-col items-center hover:opacity-80 transition-opacity">
-              <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center">
-                <img
-                  src={match.awayTeam.crest}
-                  alt="Away Team Logo"
-                  className="w-14 h-14 object-contain select-none"
-                />
-              </div>
-              <div className="text-sm mt-2 text-slate-200 font-medium">{match?.awayTeam?.shortName}</div>
-            </Link>
+            <TeamCard team={match.awayTeam} isNationalTeam={isNationalTeam} />
           </div>
         </li>
       ))}

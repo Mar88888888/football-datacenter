@@ -7,6 +7,38 @@ import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 
+// Map color names to hex values
+const colorMap = {
+  red: '#DC2626',
+  blue: '#2563EB',
+  white: '#FFFFFF',
+  black: '#1F2937',
+  yellow: '#EAB308',
+  gold: '#CA8A04',
+  green: '#16A34A',
+  orange: '#EA580C',
+  purple: '#9333EA',
+  pink: '#EC4899',
+  brown: '#92400E',
+  navy: '#1E3A5A',
+  sky: '#0EA5E9',
+  claret: '#7B1E3A',
+  maroon: '#7F1D1D',
+  silver: '#9CA3AF',
+  grey: '#6B7280',
+  gray: '#6B7280',
+};
+
+const parseClubColors = (colorString) => {
+  if (!colorString) return [];
+  return colorString
+    .toLowerCase()
+    .split('/')
+    .map((c) => c.trim())
+    .map((colorName) => colorMap[colorName] || null)
+    .filter(Boolean);
+};
+
 const TeamPage = () => {
   const { id } = useParams();
   const [team, setTeam] = useState(null);
@@ -130,60 +162,96 @@ const TeamPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Team Header/Passport */}
-      <div className="bg-slate-950 py-8 px-4">
-        <div className="max-w-2xl mx-auto bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Team Info */}
-            <div className="flex gap-4 flex-1">
-              <div className="flex-shrink-0">
-                <div className="w-28 h-28 bg-white rounded-lg p-2 flex items-center justify-center">
-                  <img src={team.crest} alt="Team Logo" className="w-24 h-24 object-contain" />
+      {/* Team Header */}
+      <div className="bg-gradient-to-b from-slate-950 to-slate-900 py-10 px-4">
+        <div className="max-w-3xl mx-auto">
+          {/* Main Card */}
+          <div className="bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-700/50 shadow-2xl overflow-hidden">
+            {/* Top Section - Crest and Name */}
+            <div className="bg-slate-900/50 px-8 py-6 border-b border-slate-700/50">
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 bg-white rounded-xl p-2 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <img src={team.crest} alt={team.name} className="w-20 h-20 object-contain" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-3xl font-bold text-white truncate">{team.name}</h1>
+                  {team.tla && (
+                    <span className="inline-block mt-2 px-3 py-1 bg-slate-700 text-slate-300 text-sm font-medium rounded-full">
+                      {team.tla}
+                    </span>
+                  )}
+                </div>
+                {/* Favourite Button */}
+                <div className="flex-shrink-0">
+                  {isFavourite ? (
+                    <button
+                      onClick={handleRemoveFromFavourite}
+                      className="p-3 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/30 transition-all duration-200"
+                      title="Remove from favourites"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAddToFavourite}
+                      className="p-3 bg-slate-700 text-slate-300 border border-slate-600 rounded-xl hover:bg-slate-600 hover:text-white transition-all duration-200"
+                      title="Add to favourites"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-white">{team.name}</h2>
-                {team.founded !== 'NaN/NaN/NaN' && (
-                  <p className="text-slate-400">
-                    <span className="text-slate-500">Founded:</span> {team.founded}
-                  </p>
-                )}
-                <p className="text-slate-400 flex items-center gap-2">
-                  <span className="text-slate-500">Colors:</span>
-                  <span
-                    className="inline-block w-12 h-4 rounded border border-slate-600"
-                    style={{ backgroundColor: team.clubColors }}
-                  ></span>
-                </p>
-                <p className="text-slate-400">
-                  <span className="text-slate-500">City:</span> {team.address}
+            </div>
+
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-700/50">
+              {team.founded && (
+                <div className="p-5 text-center">
+                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">Founded</p>
+                  <p className="text-lg font-semibold text-white">{team.founded}</p>
+                </div>
+              )}
+              {team.coach?.name && (
+                <div className="p-5 text-center">
+                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">Manager</p>
+                  <p className="text-lg font-semibold text-white">{team.coach.name}</p>
+                </div>
+              )}
+              {team.venue && (
+                <div className="p-5 text-center">
+                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">Stadium</p>
+                  <p className="text-lg font-semibold text-white truncate" title={team.venue}>{team.venue}</p>
+                </div>
+              )}
+              {team.clubColors && (
+                <div className="p-5 text-center">
+                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">Colors</p>
+                  <div className="flex justify-center gap-1 mt-2">
+                    {parseClubColors(team.clubColors).map((color, idx) => (
+                      <span
+                        key={idx}
+                        className="w-8 h-8 rounded-full border-2 border-slate-600 shadow-inner"
+                        style={{ backgroundColor: color }}
+                        title={team.clubColors}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Address Bar */}
+            {team.address && (
+              <div className="px-8 py-4 bg-slate-900/30 border-t border-slate-700/50">
+                <p className="text-sm text-slate-400 text-center">
+                  <span className="text-slate-500">Location:</span> {team.address}
                 </p>
               </div>
-            </div>
-
-            {/* Coach Info */}
-            <div className="text-center md:text-right md:self-center">
-              <h3 className="text-sm uppercase text-slate-500 tracking-wider mb-1">Coach</h3>
-              <p className="text-lg text-white font-medium">{team.coachName}</p>
-            </div>
-          </div>
-
-          {/* Favourite Button */}
-          <div className="mt-6 text-center">
-            {isFavourite ? (
-              <button
-                onClick={handleRemoveFromFavourite}
-                className="px-6 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-all duration-200 font-medium"
-              >
-                Remove from favourites
-              </button>
-            ) : (
-              <button
-                onClick={handleAddToFavourite}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 font-medium"
-              >
-                Add to favourites
-              </button>
             )}
           </div>
         </div>

@@ -10,6 +10,7 @@ import Dashboard from './components/Dashboard';
 import HomePage from './pages/HomePage';
 import TeamPage from './pages/TeamPage';
 import CompetitionPage from './pages/CompetitionPage';
+import GroupPage from './pages/GroupPage';
 import EmailVerificationRequired from './pages/EmailVerificationRequired';
 import SearchResultsPage from './pages/SearchResultsPage';
 import PlayerPage from './pages/PlayerPage';
@@ -28,6 +29,7 @@ const App = () => {
                         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                         <Route path="/" element={<HomePage />} />
                         <Route path="/competitions/:id" element={<CompetitionPage />} />
+                        <Route path="/competitions/:competitionId/groups/:groupName" element={<GroupPage />} />
                         <Route path="/teams/:id" element={<TeamPage />} />
                         <Route path="/players/:id" element={<PlayerPage />} />
                     </Routes>

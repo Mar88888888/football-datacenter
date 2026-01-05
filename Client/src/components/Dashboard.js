@@ -80,24 +80,32 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-white text-center mb-6">
             Favorite Teams
           </h2>
-          <ul className="list-none p-0 flex flex-col gap-3 max-w-xl mx-auto">
-            {favTeams.length === 0 ? (
-              <li className="text-slate-400 text-center py-8">
-                You have no favourite teams
-              </li>
-            ) : (
-              favTeams.map((team) => (
-                <li key={team.id}>
-                  <Link
-                    to={`/teams/${team.id}`}
-                    className="block bg-slate-800 border border-slate-700 rounded-lg p-4 text-center text-slate-200 font-semibold hover:bg-slate-700 hover:border-slate-600 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
+          {favTeams.length === 0 ? (
+            <p className="text-slate-400 text-center py-8">
+              You have no favourite teams
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {favTeams.map((team) => (
+                <Link
+                  key={team.id}
+                  to={`/teams/${team.id}`}
+                  className="flex flex-col items-center gap-3 bg-slate-800 border border-slate-700 rounded-xl p-4 hover:bg-slate-700 hover:border-slate-600 transition-all duration-200 shadow-md hover:shadow-lg group"
+                >
+                  <div className="w-16 h-16 bg-white rounded-lg p-1.5 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <img
+                      src={team.crest}
+                      alt={team.name}
+                      className="w-12 h-12 object-contain"
+                    />
+                  </div>
+                  <span className="text-slate-200 font-medium text-sm text-center line-clamp-2">
                     {team.name}
-                  </Link>
-                </li>
-              ))
-            )}
-          </ul>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Favorite Competitions */}
@@ -105,24 +113,32 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-white text-center mb-6">
             Favorite Competitions
           </h2>
-          <ul className="list-none p-0 flex flex-col gap-3 max-w-xl mx-auto">
-            {favComps.length === 0 ? (
-              <li className="text-slate-400 text-center py-8">
-                You have no favourite competitions
-              </li>
-            ) : (
-              favComps.map((comp) => (
-                <li key={comp.id}>
-                  <Link
-                    to={`/competitions/${comp.id}`}
-                    className="block bg-slate-800 border border-slate-700 rounded-lg p-4 text-center text-slate-200 font-semibold hover:bg-slate-700 hover:border-slate-600 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
+          {favComps.length === 0 ? (
+            <p className="text-slate-400 text-center py-8">
+              You have no favourite competitions
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {favComps.map((comp) => (
+                <Link
+                  key={comp.id}
+                  to={`/competitions/${comp.id}`}
+                  className="flex flex-col items-center gap-3 bg-slate-800 border border-slate-700 rounded-xl p-4 hover:bg-slate-700 hover:border-slate-600 transition-all duration-200 shadow-md hover:shadow-lg group"
+                >
+                  <div className="w-16 h-16 bg-white rounded-lg p-1.5 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <img
+                      src={comp.emblem}
+                      alt={comp.name}
+                      className="w-12 h-12 object-contain"
+                    />
+                  </div>
+                  <span className="text-slate-200 font-medium text-sm text-center line-clamp-2">
                     {comp.name}
-                  </Link>
-                </li>
-              ))
-            )}
-          </ul>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
