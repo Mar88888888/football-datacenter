@@ -1,24 +1,31 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Team } from './team';
-import { FootballDataClient } from '../football-data/football-data.client';
+import { FootballDataService, DataResult } from '../football-data/football-data.service';
 import { Match } from '../matches/dto/match';
 
 @Injectable()
 export class TeamService {
   private readonly logger = new Logger(TeamService.name);
 
-  constructor(private dataClient: FootballDataClient) {}
+  constructor(private dataService: FootballDataService) {}
 
-  private async getAvailableCompetitionIds(): Promise<Set<number>> {
-    const competitions = await this.dataClient.getAvailableCompetitions();
-    return new Set(competitions.map((c) => c.id));
-  }
-
-  async getById(id: number): Promise<Team> {
-    const [team, availableIds] = await Promise.all([
-      this.dataClient.getTeamById(id),
-      this.getAvailableCompetitionIds(),
+  async getById(id: number): Promise<DataResult<Team>> {
+    const [teamResult, competitionsResult] = await Promise.all([
+      this.dataService.getTeam(id),
+      this.dataService.getAvailableCompetitions(),
     ]);
+
+    // If any data is still processing, return processing with max retryAfter
+    if (teamResult.status === 'processing' || competitionsResult.status === 'processing') {
+      const retryAfter = Math.max(
+        teamResult.retryAfter ?? 0,
+        competitionsResult.retryAfter ?? 0,
+      ) || undefined;
+      return { data: null, status: 'processing', retryAfter };
+    }
+
+    const team = teamResult.data!;
+    const availableIds = new Set(competitionsResult.data!.map((c) => c.id));
 
     // Filter runningCompetitions to only include available ones
     if (team.runningCompetitions) {
@@ -27,17 +34,38 @@ export class TeamService {
       );
     }
 
-    return team;
+    // Return stale if any source was stale
+    const status = teamResult.status === 'stale' || competitionsResult.status === 'stale'
+      ? 'stale'
+      : 'fresh';
+
+    return { data: team, status };
   }
 
-  async getMatches(teamId: number): Promise<Match[]> {
-    const [matches, availableIds] = await Promise.all([
-      this.dataClient.getTeamMatches(teamId),
-      this.getAvailableCompetitionIds(),
+  async getMatches(teamId: number): Promise<DataResult<Match[]>> {
+    const [matchesResult, competitionsResult] = await Promise.all([
+      this.dataService.getTeamMatches(teamId),
+      this.dataService.getAvailableCompetitions(),
     ]);
 
-    return matches.filter((match) =>
+    // If any data is still processing, return processing with max retryAfter
+    if (matchesResult.status === 'processing' || competitionsResult.status === 'processing') {
+      const retryAfter = Math.max(
+        matchesResult.retryAfter ?? 0,
+        competitionsResult.retryAfter ?? 0,
+      ) || undefined;
+      return { data: null, status: 'processing', retryAfter };
+    }
+
+    const availableIds = new Set(competitionsResult.data!.map((c) => c.id));
+    const filteredMatches = matchesResult.data!.filter((match) =>
       availableIds.has(match.competition?.id),
     );
+
+    const status = matchesResult.status === 'stale' || competitionsResult.status === 'stale'
+      ? 'stale'
+      : 'fresh';
+
+    return { data: filteredMatches, status };
   }
 }

@@ -1,35 +1,30 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useApi } from '../hooks/useApi';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 
 const HomePage = () => {
-  const [matches, setMatches] = useState([]);
-  const [competitions, setCompetitions] = useState([]);
-  const { user } = useContext(AuthContext);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // Fetch matches and competitions with automatic 202 retry
+  const {
+    data: matchesData,
+    loading: loadingMatches,
+    error: matchesError,
+  } = useApi('/matches');
 
-  useEffect(() => {
-    setLoading(true);
+  const {
+    data: competitionsData,
+    loading: loadingComps,
+    error: compsError,
+  } = useApi('/competitions');
 
-    Promise.all([
-      fetch(`${process.env.REACT_APP_API_URL}/matches`).then((res) => res.json()),
-      fetch(`${process.env.REACT_APP_API_URL}/competitions`).then((res) => res.json()),
-    ])
-      .then(([matchesData, competitionsData]) => {
-        setMatches(matchesData);
-        setCompetitions(competitionsData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(true);
-        setLoading(false);
-        console.error(err);
-      });
-  }, [user]);
+  // Ensure arrays are always defined
+  const matches = matchesData || [];
+  const competitions = competitionsData || [];
+
+  const loading = loadingMatches || loadingComps;
+  const error = matchesError || compsError;
 
   if (loading) {
     return <LoadingSpinner message="Loading today's matches..." />;

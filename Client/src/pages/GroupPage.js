@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
@@ -49,36 +50,34 @@ const TeamCell = ({ team, isNationalTeam }) => {
 
 const GroupPage = () => {
   const { competitionId, groupName } = useParams();
-  const [competition, setCompetition] = useState(null);
-  const [standings, setStandings] = useState(null);
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   // Decode the group name from URL (e.g., "Group%20A" -> "Group A")
   const decodedGroupName = decodeURIComponent(groupName);
 
-  useEffect(() => {
-    setLoading(true);
-    setError(false);
+  // Fetch data with automatic 202 retry
+  const {
+    data: competition,
+    loading: loadingComp,
+    error: compError,
+  } = useApi(`/competitions/${competitionId}`);
 
-    Promise.all([
-      fetch(`${process.env.REACT_APP_API_URL}/competitions/${competitionId}`).then(res => res.json()),
-      fetch(`${process.env.REACT_APP_API_URL}/standings/${competitionId}`).then(res => res.json()),
-      fetch(`${process.env.REACT_APP_API_URL}/competitions/${competitionId}/matches`).then(res => res.json()),
-    ])
-      .then(([compData, standingsData, matchesData]) => {
-        setCompetition(compData);
-        setStandings(standingsData);
-        setMatches(matchesData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching group data:', err);
-        setError(true);
-        setLoading(false);
-      });
-  }, [competitionId]);
+  const {
+    data: standings,
+    loading: loadingStandings,
+    error: standingsError,
+  } = useApi(`/standings/${competitionId}`);
+
+  const {
+    data: matchesData,
+    loading: loadingMatches,
+    error: matchesError,
+  } = useApi(`/competitions/${competitionId}/matches`);
+
+  // Ensure matches is always an array
+  const matches = matchesData || [];
+
+  const loading = loadingComp || loadingStandings || loadingMatches;
+  const error = compError || standingsError || matchesError;
 
   // Determine if team links should be disabled (national teams or competitions with teams outside our API plan)
   const disableTeamLinks = useMemo(() => {

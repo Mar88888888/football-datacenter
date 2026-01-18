@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useContext, useMemo } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useApi, useAuthApi, useAuthMutation } from '../hooks/useApi';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
@@ -41,75 +40,33 @@ const parseClubColors = (colorString) => {
 
 const TeamPage = () => {
   const { id } = useParams();
-  const [team, setTeam] = useState(null);
-  const [matches, setMatches] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [isFavourite, setIsFavourite] = useState(false);
 
-  useEffect(() => {
-    // Reset state when navigating to a different team
-    setLoading(true);
-    setTeam(null);
-    setMatches([]);
-    setError(null);
+  // Fetch team data with automatic 202 retry
+  const {
+    data: team,
+    loading,
+    error: teamError,
+  } = useApi(`/teams/${id}`);
 
-    const fetchTeamData = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/teams/${id}`
-        );
-        if (response.status === 404) {
-          setError('Team not found.');
-          setLoading(false);
-          return;
-        }
-        const data = await response.json();
-        setTeam(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch team data.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch team matches
+  const { data: matchesData } = useApi(`/teams/${id}/matches`);
+  const matches = matchesData || [];
 
-    fetchTeamData();
-  }, [id]);
+  // Fetch user's favourite teams (only if logged in)
+  const { data: favTeams } = useAuthApi('/user/favteam', {
+    enabled: !!user,
+  });
 
-  useEffect(() => {
-    if (id) {
-      fetch(`${process.env.REACT_APP_API_URL}/teams/${id}/matches`)
-        .then((res) => res.json())
-        .then((data) => setMatches(data))
-        .catch((err) => {
-          setError(true);
-          console.error(err);
-        });
-    }
-  }, [id]);
+  // Mutation hook for adding/removing favourites
+  const { post, delete: deleteFav } = useAuthMutation();
 
-  useEffect(() => {
-    if (!user) {
-      setIsFavourite(false);
-      return;
-    }
-
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/user/favteam`, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        const isFav = response.data.some((favTeam) => favTeam.id === +id);
-        setIsFavourite(isFav);
-      })
-      .catch((err) => {
-        setError(true);
-        console.error(err);
-      });
-  }, [id, user]);
+  // Derive favourite status from fetched data
+  const isFavourite = useMemo(() => {
+    if (!favTeams || !id) return false;
+    return favTeams.some((favTeam) => favTeam.id === +id);
+  }, [favTeams, id]);
 
   const handleAddToFavourite = async () => {
     if (!user) {
@@ -117,46 +74,31 @@ const TeamPage = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`,
-        {},
-        { withCredentials: true }
-      );
-      setIsFavourite(true);
-
-      if (response.status === 201) {
-        alert(`${team.name} has been added to your favourites!`);
-      } else {
-        console.log(response.status);
-        alert('Failed to add to favourites.');
-      }
-    } catch (error) {
-      setError(true);
-      console.error('Error adding to favourites:', error);
-      alert('An error occurred. Please try again later.');
+      await post(`/user/favteam/${team.id}`, {});
+      alert(`${team.name} has been added to your favourites!`);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error adding to favourites:', err);
+      alert(err.message || 'An error occurred. Please try again later.');
     }
   };
 
-  const handleRemoveFromFavourite = () => {
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/user/favteam/${team.id}`, {
-        withCredentials: true,
-      })
-      .then((_) => {
-        setIsFavourite(false);
-        alert(`${team.name} has been removed from your favourites!`);
-      })
-      .catch((err) => {
-        setError(true);
-        console.error(err);
-      });
+  const handleRemoveFromFavourite = async () => {
+    try {
+      await deleteFav(`/user/favteam/${team.id}`);
+      alert(`${team.name} has been removed from your favourites!`);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error removing from favourites:', err);
+      alert(err.message || 'An error occurred. Please try again later.');
+    }
   };
 
   if (loading) {
     return <LoadingSpinner message="Loading team data..." />;
   }
 
-  if (error || !team) {
+  if (teamError || !team) {
     return <ErrorPage />;
   }
 

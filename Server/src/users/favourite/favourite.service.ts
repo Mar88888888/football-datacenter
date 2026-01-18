@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserFavTeam } from './user.favteam.entity';
@@ -20,8 +20,11 @@ export class FavouriteService {
   ) {}
 
   private async getAvailableCompetitionIds(): Promise<Set<number>> {
-    const competitions = await this.compService.findAll();
-    return new Set(competitions.map((c) => c.id));
+    const result = await this.compService.findAll();
+    if (result.status === 'processing' || !result.data) {
+      throw new ServiceUnavailableException('Competition data is loading. Please try again shortly.');
+    }
+    return new Set(result.data.map((c) => c.id));
   }
 
   async getFavTeams(userId: number) {
@@ -65,7 +68,11 @@ export class FavouriteService {
     }
 
     // Fetch team data to store name and crest
-    const team = await this.teamService.getById(teamId);
+    const result = await this.teamService.getById(teamId);
+    if (result.status === 'processing' || !result.data) {
+      throw new ServiceUnavailableException('Team data is loading. Please try again shortly.');
+    }
+    const team = result.data;
 
     await this.favTeamRepo.insert({
       user: { id: userId },
@@ -92,7 +99,11 @@ export class FavouriteService {
     }
 
     // Fetch competition data to store name and emblem
-    const competition = await this.compService.findById(compId);
+    const result = await this.compService.findById(compId);
+    if (result.status === 'processing' || !result.data) {
+      throw new ServiceUnavailableException('Competition data is loading. Please try again shortly.');
+    }
+    const competition = result.data;
 
     await this.favCompRepo.insert({
       user: { id: userId },

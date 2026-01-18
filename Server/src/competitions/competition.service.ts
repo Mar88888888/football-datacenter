@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { FootballDataClient } from '../football-data/football-data.client';
+import { FootballDataService, DataResult } from '../football-data/football-data.service';
 import { Match } from '../matches/dto/match';
 import { Competition } from './competition';
 
@@ -7,17 +7,17 @@ import { Competition } from './competition';
 export class CompetitionService {
   private readonly logger = new Logger(CompetitionService.name);
 
-  constructor(private readonly dataClient: FootballDataClient) {}
+  constructor(private readonly dataService: FootballDataService) {}
 
-  async findAll(): Promise<Competition[]> {
-    return await this.dataClient.getAvailableCompetitions();
+  async findAll(): Promise<DataResult<Competition[]>> {
+    return await this.dataService.getAvailableCompetitions();
   }
 
-  async findById(compId: number) {
-    return await this.dataClient.getCompetitionById(compId);
+  async findById(compId: number): Promise<DataResult<Competition>> {
+    return await this.dataService.getCompetition(compId);
   }
 
-  async getMatches(compId: number): Promise<Match[]> {
-    return this.dataClient.getCompetitionMatches(compId);
+  async getMatches(compId: number): Promise<DataResult<Match[]>> {
+    return await this.dataService.getCompetitionMatches(compId);
   }
 }

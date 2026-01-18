@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { useApi, useAuthApi, useAuthMutation } from '../hooks/useApi';
 import LeagueTable from '../components/LeagueTable';
 import GroupStage from '../components/GroupStage';
 import KnockoutBracket from '../components/KnockoutBracket';
@@ -11,73 +11,48 @@ import ErrorPage from './ErrorPage';
 
 const CompetitionPage = () => {
   const { id } = useParams();
-  const [competition, setCompetition] = useState(null);
-  const [standings, setStandings] = useState(null);
-  const [error, setError] = useState(false);
-  const [scheduledMatches, setScheduledMatches] = useState([]);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [isFavourite, setIsFavourite] = useState(false);
   const [activeTab, setActiveTab] = useState('standings');
 
+  // Fetch competition data with automatic 202 retry
+  const {
+    data: competition,
+    loading: loadingCompetition,
+    error: competitionError,
+  } = useApi(`/competitions/${id}`);
+
+  // Fetch standings
+  const { data: standings } = useApi(`/standings/${id}`);
+
+  // Fetch matches
+  const {
+    data: scheduledMatchesData,
+    error: matchesError,
+  } = useApi(`/competitions/${id}/matches`);
+
+  // Ensure scheduledMatches is always an array
+  const scheduledMatches = scheduledMatchesData || [];
+
+  // Fetch user's favourite competitions (only if logged in)
+  const { data: favComps } = useAuthApi('/user/favcomp', {
+    enabled: !!user,
+  });
+
+  // Mutation hook for adding/removing favourites
+  const { post, delete: deleteFav } = useAuthMutation();
+
+  // Derive favourite status from fetched data
+  const isFavourite = useMemo(() => {
+    if (!favComps || !id) return false;
+    return favComps.some((favComp) => favComp.id === +id);
+  }, [favComps, id]);
+
+  const error = competitionError || matchesError;
+
+  // Reset tab when competition changes
   useEffect(() => {
-    // Reset state when navigating to a different competition
-    setCompetition(null);
-    setStandings(null);
-    setScheduledMatches([]);
-    setError(false);
     setActiveTab('standings');
-
-    fetch(`${process.env.REACT_APP_API_URL}/competitions/${id}`)
-      .then((res) => res.json())
-      .then((data) => setCompetition(data))
-      .catch((err) => {
-        setError(true);
-        console.error(err);
-      });
-  }, [id]);
-
-  useEffect(() => {
-    if (id) {
-      fetch(`${process.env.REACT_APP_API_URL}/standings/${id}`)
-        .then((res) => res.json())
-        .then((data) => setStandings(data))
-        .catch((err) => {
-          console.error('Error fetching standings:', err);
-        });
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (!user) {
-      setIsFavourite(false);
-      return;
-    }
-
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/user/favcomp`, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        const isFav = response.data.some((favComp) => favComp.id === +id);
-        setIsFavourite(isFav);
-      })
-      .catch((err) => {
-        setError(true);
-        console.error(err);
-      });
-  }, [id, user]);
-
-  useEffect(() => {
-    if (id) {
-      fetch(`${process.env.REACT_APP_API_URL}/competitions/${id}/matches`)
-        .then((res) => res.json())
-        .then((data) => setScheduledMatches(data))
-        .catch((err) => {
-          setError(true);
-          console.error(err);
-        });
-    }
   }, [id]);
 
   // Determine if team links should be disabled (national teams or competitions with teams outside our API plan)
@@ -167,7 +142,7 @@ const CompetitionPage = () => {
     }
   }, [competitionFormat]);
 
-  if (!competition) {
+  if (loadingCompetition || !competition) {
     return <LoadingSpinner message="Loading competition data..." />;
   }
 
@@ -177,43 +152,24 @@ const CompetitionPage = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/favcomp/${competition.id}`,
-        {},
-        { withCredentials: true }
-      );
-      setIsFavourite(true);
-
-      if (response.status === 201) {
-        alert(`${competition.name} has been added to your favourites!`);
-      } else {
-        console.log(response.status);
-        alert('Failed to add to favourites.');
-      }
-    } catch (error) {
-      setError(true);
-      console.error('Error adding to favourites:', error);
-      alert('An error occurred. Please try again later.');
+      await post(`/user/favcomp/${competition.id}`, {});
+      alert(`${competition.name} has been added to your favourites!`);
+      window.location.reload(); // Refresh to update favourite status
+    } catch (err) {
+      console.error('Error adding to favourites:', err);
+      alert(err.message || 'An error occurred. Please try again later.');
     }
   };
 
-  const handleRemoveFromFavourite = () => {
-    axios
-      .delete(
-        `${process.env.REACT_APP_API_URL}/user/favcomp/${competition.id}`,
-        { withCredentials: true }
-      )
-      .then((response) => {
-        setIsFavourite(false);
-        alert(`${competition.name} has been removed from your favourites!`);
-      })
-      .catch((error) => {
-        setError(true);
-        console.error(
-          'There was an error removing the competition from favourites!',
-          error
-        );
-      });
+  const handleRemoveFromFavourite = async () => {
+    try {
+      await deleteFav(`/user/favcomp/${competition.id}`);
+      alert(`${competition.name} has been removed from your favourites!`);
+      window.location.reload(); // Refresh to update favourite status
+    } catch (err) {
+      console.error('Error removing from favourites:', err);
+      alert(err.message || 'An error occurred. Please try again later.');
+    }
   };
 
   if (error) {

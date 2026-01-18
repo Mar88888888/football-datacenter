@@ -1,4 +1,5 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Res, HttpStatus } from '@nestjs/common';
+import { Response } from 'express';
 import { Standings } from './standings';
 import { StandingsService } from './standings.service';
 
@@ -9,7 +10,16 @@ export class StandingsController {
   @Get('/:competitionId')
   async getLeagueTable(
     @Param('competitionId', ParseIntPipe) competitionId: number,
-  ): Promise<Standings> {
-    return await this.standingsService.getCompetitionStandings(competitionId);
+    @Res() res: Response,
+  ): Promise<void> {
+    const result = await this.standingsService.getCompetitionStandings(competitionId);
+
+    if (result.status === 'processing') {
+      res.setHeader('Retry-After', String(result.retryAfter ?? 5));
+      res.status(HttpStatus.ACCEPTED).json({ status: 'processing' });
+      return;
+    }
+
+    res.status(HttpStatus.OK).json(result.data);
   }
 }

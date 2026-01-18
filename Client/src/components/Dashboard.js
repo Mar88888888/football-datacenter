@@ -1,58 +1,45 @@
-import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useAuthApi, useAuthMutation } from '../hooks/useApi';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorPage from '../pages/ErrorPage';
 
 const Dashboard = () => {
-  const [favTeams, setFavTeams] = useState([]);
-  const [favComps, setFavComps] = useState([]);
   const { setUser } = useContext(AuthContext);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      setLoading(true);
-      try {
-        const [teamsResponse, compsResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/user/favteam`, {
-            withCredentials: true,
-          }),
-          axios.get(`${process.env.REACT_APP_API_URL}/user/favcomp`, {
-            withCredentials: true,
-          }),
-        ]);
-        setFavTeams(teamsResponse.data);
-        setFavComps(compsResponse.data);
-      } catch (error) {
-        setError(true);
-        console.error('Error fetching favorites:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch favourites with automatic 202 retry
+  const {
+    data: favTeams,
+    loading: loadingTeams,
+    error: teamsError,
+  } = useAuthApi('/user/favteam');
 
-    fetchFavorites();
-  }, []);
+  const {
+    data: favComps,
+    loading: loadingComps,
+    error: compsError,
+  } = useAuthApi('/user/favcomp');
+
+  const { post } = useAuthMutation();
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/auth/signout`,
-        {},
-        { withCredentials: true }
-      );
+      await post('/user/auth/signout', {});
       setUser(null);
       navigate('/login');
-    } catch (error) {
-      setError(true);
-      console.error('Error during logout:', error);
+    } catch (err) {
+      console.error('Error during logout:', err);
     }
   };
+
+  const loading = loadingTeams || loadingComps;
+  const error = teamsError || compsError;
+
+  // Ensure arrays are always defined
+  const teams = favTeams || [];
+  const comps = favComps || [];
 
   if (loading) {
     return <LoadingSpinner message="Loading your favorites..." />;
@@ -80,13 +67,13 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-white text-center mb-6">
             Favorite Teams
           </h2>
-          {favTeams.length === 0 ? (
+          {teams.length === 0 ? (
             <p className="text-slate-400 text-center py-8">
               You have no favourite teams
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {favTeams.map((team) => (
+              {teams.map((team) => (
                 <Link
                   key={team.id}
                   to={`/teams/${team.id}`}
@@ -113,13 +100,13 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-white text-center mb-6">
             Favorite Competitions
           </h2>
-          {favComps.length === 0 ? (
+          {comps.length === 0 ? (
             <p className="text-slate-400 text-center py-8">
               You have no favourite competitions
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {favComps.map((comp) => (
+              {comps.map((comp) => (
                 <Link
                   key={comp.id}
                   to={`/competitions/${comp.id}`}

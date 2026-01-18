@@ -15,7 +15,8 @@ import { FootballDataModule } from './football-data/football-data.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ScheduleModule } from '@nestjs/schedule';
-import * as redisStore from 'cache-manager-ioredis';
+import { BullModule } from '@nestjs/bullmq';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -45,11 +46,25 @@ import * as redisStore from 'cache-manager-ioredis';
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        store: await redisStore({
+          socket: {
+            host: configService.get<string>('REDIS_HOST') || 'localhost',
+            port: configService.get<number>('REDIS_PORT') || 6379,
+          },
+        }),
+        ttl: 60 * 1000, // cache-manager v5 uses milliseconds
+      }),
+    }),
+
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        store: redisStore,
-        host: configService.get<string>('REDIS_HOST') || 'localhost',
-        port: configService.get<number>('REDIS_PORT') || 6379,
-        ttl: 60,
+        connection: {
+          host: configService.get<string>('REDIS_HOST') || 'localhost',
+          port: configService.get<number>('REDIS_PORT') || 6379,
+        },
       }),
     }),
 

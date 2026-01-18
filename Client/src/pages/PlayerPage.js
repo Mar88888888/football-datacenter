@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
+import { useApi } from '../hooks/useApi';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 
 const PlayerPage = () => {
   const { id } = useParams();
-  const [player, setPlayer] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  // Fetch player data with automatic 202 retry
+  const { data: player, loading, error } = useApi(`/players/${id}`);
 
   const calculateAge = (birthTimestamp) => {
     const birthDate = new Date(birthTimestamp * 1000);
@@ -24,28 +24,11 @@ const PlayerPage = () => {
     return age;
   };
 
-  useEffect(() => {
-    const fetchPlayerData = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/players/${id}`
-        );
-        setPlayer(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch player data.');
-        setLoading(false);
-      }
-    };
-
-    fetchPlayerData();
-  }, [id]);
-
   if (loading) {
     return <LoadingSpinner message="Loading player data..." />;
   }
 
-  if (error) {
+  if (error || !player) {
     return <ErrorPage />;
   }
 
