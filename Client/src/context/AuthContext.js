@@ -1,38 +1,45 @@
-import { createContext, useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import api from '../utils/api';
 
-export const AuthContext = createContext(); 
-
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-};
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [authToken, setAuthToken] = useState(null);
+    const [authToken, setAuthToken] = useState(() => localStorage.getItem('authToken'));
+    const [loading, setLoading] = useState(true);
+
+    const saveToken = useCallback((token) => {
+        if (token) {
+            localStorage.setItem('authToken', token);
+        } else {
+            localStorage.removeItem('authToken');
+        }
+        setAuthToken(token);
+    }, []);
+
+    const logout = useCallback(() => {
+        localStorage.removeItem('authToken');
+        setAuthToken(null);
+        setUser(null);
+    }, []);
 
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
-                const token = getCookie('authToken');
+                const token = localStorage.getItem('authToken');
                 if (token) {
-                    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/auth/bytoken`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                        withCredentials: true,
-                    });
+                    const response = await api.get('/user/auth/bytoken');
                     setUser(response.data);
-                    setAuthToken(token);
                 } else {
                     setUser(null);
                 }
             } catch (error) {
                 console.error('Failed to fetch user details:', error);
+                localStorage.removeItem('authToken');
+                setAuthToken(null);
                 setUser(null);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -40,8 +47,8 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const contextValue = useMemo(() => ({
-        user, setUser, authToken, setAuthToken,
-    }), [user, authToken]);
+        user, setUser, authToken, saveToken, logout, loading,
+    }), [user, authToken, saveToken, logout, loading]);
 
 
 

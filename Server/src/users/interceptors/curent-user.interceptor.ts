@@ -17,9 +17,10 @@ export class CurrentUserInterceptor implements NestInterceptor {
 
   async intercept(context: ExecutionContext, handler: CallHandler) {
     const request = context.switchToHttp().getRequest();
-    const authToken = request.cookies['authToken'];
+    const authHeader = request.headers['authorization'];
 
-    if (authToken) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const authToken = authHeader.split(' ')[1];
       try {
         const decodedToken = this.jwtService.verify(authToken);
         const userId = decodedToken.sub;

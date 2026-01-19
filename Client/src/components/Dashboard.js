@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { useAuthApi, useAuthMutation } from '../hooks/useApi';
+import { useAuthApi } from '../hooks/useApi';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorPage from '../pages/ErrorPage';
 
 const Dashboard = () => {
-  const { setUser } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Fetch favourites with automatic 202 retry
@@ -22,16 +22,9 @@ const Dashboard = () => {
     error: compsError,
   } = useAuthApi('/user/favcomp');
 
-  const { post } = useAuthMutation();
-
-  const handleLogout = async () => {
-    try {
-      await post('/user/auth/signout', {});
-      setUser(null);
-      navigate('/login');
-    } catch (err) {
-      console.error('Error during logout:', err);
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const loading = loadingTeams || loadingComps;

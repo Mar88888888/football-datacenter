@@ -1,41 +1,29 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
-import ErrorPage from '../pages/ErrorPage';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const { setUser, saveToken } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = `${process.env.REACT_APP_API_URL}/user/auth/signin`;
-      const response = await axios.post(
-        url,
-        { email, password },
-        { withCredentials: true }
-      );
+      const response = await api.post('/user/auth/signin', { email, password });
 
-      if (response.status === 200) {
-        setUser(response.data.user);
-        navigate('/dashboard');
-      } else {
-        setError('Password or email is incorrect');
-      }
+      saveToken(response.data.accessToken);
+      setUser(response.data.user);
+      navigate('/dashboard');
     } catch (error) {
       console.log(error.message);
       setError(error.response?.data?.message || 'An error occurred');
     }
   };
 
-  if (error) {
-    return <ErrorPage />;
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-12">

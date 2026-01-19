@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
-import ErrorPage from '../pages/ErrorPage';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
@@ -10,7 +10,7 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const { setUser, saveToken } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,34 +21,26 @@ const SignUp = () => {
     }
 
     try {
-      let url = `${process.env.REACT_APP_API_URL}/user/auth/signup`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: username,
-          email,
-          password,
-        }),
+      const response = await api.post('/user/auth/signup', {
+        name: username,
+        email,
+        password,
       });
-      if (response.status === 400) {
-        throw new Error('Email already in use!');
-      }
-      const userData = await response.json();
-      setUser(userData.user);
+
+      saveToken(response.data.accessToken);
+      setUser(response.data.user);
 
       alert('Check your email to verify it and use the app without limits!');
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      if (err.response?.status === 400) {
+        setError('Email already in use!');
+      } else {
+        setError(err.message);
+      }
     }
   };
 
-  if (error) {
-    return <ErrorPage />;
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-12">
