@@ -33,10 +33,12 @@ const SignUp = () => {
       alert('Check your email to verify it and use the app without limits!');
       navigate('/');
     } catch (err) {
-      if (err.response?.status === 400) {
+      if (err.response?.status === 429) {
+        setError('Too many signup attempts. Please try again in a minute.');
+      } else if (err.response?.status === 400) {
         setError('Email already in use!');
       } else {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
       }
     }
   };

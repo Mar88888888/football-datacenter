@@ -60,7 +60,7 @@ const TeamPage = () => {
   });
 
   // Mutation hook for adding/removing favourites
-  const { post, delete: deleteFav } = useAuthMutation();
+  const { post, delete: deleteFav, loading: mutationLoading } = useAuthMutation();
 
   // Derive favourite status from fetched data
   const isFavourite = useMemo(() => {
@@ -128,7 +128,8 @@ const TeamPage = () => {
                   {isFavourite ? (
                     <button
                       onClick={handleRemoveFromFavourite}
-                      className="p-3 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/30 transition-all duration-200"
+                      disabled={mutationLoading}
+                      className="p-3 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Remove from favourites"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
@@ -138,7 +139,8 @@ const TeamPage = () => {
                   ) : (
                     <button
                       onClick={handleAddToFavourite}
-                      className="p-3 bg-slate-700 text-slate-300 border border-slate-600 rounded-xl hover:bg-slate-600 hover:text-white transition-all duration-200"
+                      disabled={mutationLoading}
+                      className="p-3 bg-slate-700 text-slate-300 border border-slate-600 rounded-xl hover:bg-slate-600 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Add to favourites"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

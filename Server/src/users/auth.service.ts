@@ -13,6 +13,7 @@ import { UsersService } from './users.service';
 
 const scrypt = promisify(_scrypt);
 const SALT_BYTES = 16;
+const TOKEN_EXPIRY = '7d';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -37,7 +38,7 @@ export class AuthService implements IAuthService {
     await this.usersService.saveVerificationToken(user.id, verificationToken);
 
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: TOKEN_EXPIRY });
 
     return { user, accessToken };
   }
@@ -56,7 +57,7 @@ export class AuthService implements IAuthService {
     }
 
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: TOKEN_EXPIRY });
 
     return { accessToken, user };
   }
@@ -72,7 +73,7 @@ export class AuthService implements IAuthService {
   }
 
   public generateJwtToken(payload: { sub: number; email: string }): string {
-    return this.jwtService.sign(payload, { expiresIn: '1h' });
+    return this.jwtService.sign(payload, { expiresIn: TOKEN_EXPIRY });
   }
 
   async getUserFromToken(token: string) {

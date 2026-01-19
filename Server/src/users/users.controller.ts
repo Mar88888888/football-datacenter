@@ -12,7 +12,9 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
+  HttpCode,
 } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
@@ -82,6 +84,8 @@ export class UsersController {
 
   @Serialize(UserDto)
   @Post('/auth/signup')
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
   async createUser(@Body() body: CreateUserDto) {
     const result = await this.authService.signup(
       body.email,
@@ -97,6 +101,8 @@ export class UsersController {
 
   @Serialize(UserDto)
   @Post('/auth/signin')
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
   async signin(@Body() signinDto: SignInUserDto) {
     const { accessToken, user } = await this.authService.signin(
       signinDto.email,
@@ -130,11 +136,13 @@ export class UsersController {
   @Post('/favteam/:teamid')
   async addFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string) {
     try {
-      return await this.favService.addFavTeam(user.id, parseInt(teamId));
+      await this.favService.addFavTeam(user.id, parseInt(teamId));
+      return { success: true };
     } catch (err) {
       if (err instanceof NotFoundException) {
         throw new NotFoundException('Not found team with id ' + teamId);
       }
+      throw err;
     }
   }
 
@@ -145,16 +153,19 @@ export class UsersController {
     @Param('compid') compId: string,
   ) {
     try {
-      return await this.favService.addFavComp(user.id, parseInt(compId));
+      await this.favService.addFavComp(user.id, parseInt(compId));
+      return { success: true };
     } catch (err) {
       if (err instanceof NotFoundException) {
         throw new NotFoundException('Not found comp with id ' + compId);
       }
+      throw err;
     }
   }
 
   @UseGuards(AuthGuard)
   @Delete('/favcomp/:compid')
+  @HttpCode(204)
   async removeFavCompetition(
     @CurrentUser() user: User,
     @Param('compid') compId: string,
@@ -164,6 +175,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Delete('/favteam/:teamid')
+  @HttpCode(204)
   async removeFavTeam(
     @CurrentUser() user: User,
     @Param('teamid') teamId: string,

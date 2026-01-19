@@ -20,7 +20,11 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error) {
       console.log(error.message);
-      setError(error.response?.data?.message || 'An error occurred');
+      if (error.response?.status === 429) {
+        setError('Too many login attempts. Please try again in a minute.');
+      } else {
+        setError(error.response?.data?.message || 'An error occurred');
+      }
     }
   };
 

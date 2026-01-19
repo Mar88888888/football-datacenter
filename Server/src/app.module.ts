@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -67,6 +68,19 @@ import { redisStore } from 'cache-manager-redis-yet';
         },
       }),
     }),
+
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 60000,   // 1 minute
+        limit: 10,    // 10 requests per minute (general)
+      },
+      {
+        name: 'auth',
+        ttl: 60000,   // 1 minute
+        limit: 5,     // 5 auth attempts per minute
+      },
+    ]),
 
     UsersModule,
     MatchesModule,
