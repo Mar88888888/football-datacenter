@@ -12,6 +12,7 @@ import { IAuthService } from './auth.service.interface';
 import { UsersService } from './users.service';
 
 const scrypt = promisify(_scrypt);
+const SALT_BYTES = 16;
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -26,13 +27,11 @@ export class AuthService implements IAuthService {
       throw new BadRequestException('email in use');
     }
 
-    const salt = randomBytes(8).toString('hex');
-
+    const salt = randomBytes(SALT_BYTES).toString('hex');
     const hash = (await scrypt(password, salt, 32)) as Buffer;
+    const hashedPassword = salt + '.' + hash.toString('hex');
 
-    const result = salt + '.' + hash.toString('hex');
-
-    const user = await this.usersService.create(email, result, name);
+    const user = await this.usersService.create(email, hashedPassword, name);
 
     const verificationToken = uuidv4();
     await this.usersService.saveVerificationToken(user.id, verificationToken);
@@ -50,12 +49,12 @@ export class AuthService implements IAuthService {
     }
 
     const [salt, storedHash] = user.password.split('.');
-
     const hash = (await scrypt(password, salt, 32)) as Buffer;
 
     if (storedHash !== hash.toString('hex')) {
       throw new BadRequestException('bad password');
     }
+
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 

@@ -8,8 +8,14 @@ import { IUsersService } from './users.service.interface';
 export class UsersService implements IUsersService {
   constructor(@InjectRepository(User) private repo: Repository<User>) {}
 
-  create(email: string, password: string, name:string) {
-    const user = this.repo.create({ email, password, name, favCompetitions: [], favTeams: [] });
+  create(email: string, password: string, name: string) {
+    const user = this.repo.create({
+      email,
+      password,
+      name,
+      favCompetitions: [],
+      favTeams: [],
+    });
 
     return this.repo.save(user);
   }
