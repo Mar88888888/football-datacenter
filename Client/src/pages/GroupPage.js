@@ -4,6 +4,7 @@ import { useApi } from '../hooks/useApi';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
+import { API_ENDPOINTS } from '../constants';
 
 const TeamCell = ({ team, isNationalTeam }) => {
   if (!team || !team.id || !team.name) {
@@ -59,19 +60,19 @@ const GroupPage = () => {
     data: competition,
     loading: loadingComp,
     error: compError,
-  } = useApi(`/competitions/${competitionId}`);
+  } = useApi(API_ENDPOINTS.COMPETITION(competitionId));
 
   const {
     data: standings,
     loading: loadingStandings,
     error: standingsError,
-  } = useApi(`/standings/${competitionId}`);
+  } = useApi(API_ENDPOINTS.STANDINGS(competitionId));
 
   const {
     data: matchesData,
     loading: loadingMatches,
     error: matchesError,
-  } = useApi(`/competitions/${competitionId}/matches`);
+  } = useApi(API_ENDPOINTS.COMPETITION_MATCHES(competitionId));
 
   // Ensure matches is always an array
   const matches = matchesData || [];

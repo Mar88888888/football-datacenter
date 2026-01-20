@@ -20,10 +20,11 @@ import { Competition } from '../competitions/competition';
 import { Match } from '../matches/dto/match';
 import { Team } from '../team/team';
 import { Standings } from '../standings/standings';
+import { DataStatus, DataStatusType, Defaults } from '../common/constants';
 
 export interface DataResult<T> {
   data: T | null;
-  status: 'fresh' | 'stale' | 'processing';
+  status: DataStatusType;
   isRefreshing?: boolean;
   retryAfter?: number; // seconds until client should retry
 }
@@ -138,11 +139,11 @@ export class FootballDataService {
           `Stale data for ${cacheKey}, triggering background refresh`,
         );
         await this.queueJob(jobData);
-        return { data: cached.data, status: 'stale', isRefreshing: true };
+        return { data: cached.data, status: DataStatus.STALE, isRefreshing: true };
       }
 
       // Fresh data
-      return { data: cached.data, status: 'fresh' };
+      return { data: cached.data, status: DataStatus.FRESH };
     }
 
     // Cache miss - try sync fetch with deduplication
@@ -191,18 +192,18 @@ export class FootballDataService {
       await this.cacheManager.set(cacheKey, cacheEntry, ttl);
       this.logger.debug(`Sync fetch success: ${cacheKey}`);
 
-      return { data: result as T, status: 'fresh' };
+      return { data: result as T, status: DataStatus.FRESH };
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 429) {
         const retryAfter = this.extractRetryAfter(error);
         this.logger.debug(`Rate limited, queueing: ${cacheKey} (retry in ${retryAfter}s)`);
         await this.queueJob(jobData);
-        return { data: null, status: 'processing', retryAfter };
+        return { data: null, status: DataStatus.PROCESSING, retryAfter };
       }
 
       this.logger.error(`Sync fetch failed, queueing: ${error.message}`);
       await this.queueJob(jobData);
-      return { data: null, status: 'processing', retryAfter: 5 };
+      return { data: null, status: DataStatus.PROCESSING, retryAfter: Defaults.RETRY_AFTER_SECONDS };
     }
   }
 

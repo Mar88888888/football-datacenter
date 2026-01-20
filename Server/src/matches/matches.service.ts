@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { FootballDataService, DataResult } from '../football-data/football-data.service';
 import { Match } from './dto/match';
 import { GetMatchesQueryDto } from './dto/getMatchesQuery.dto';
+import { DataStatus } from '../common/constants';
 
 @Injectable()
 export class MatchesService {
@@ -20,12 +21,12 @@ export class MatchesService {
     ]);
 
     // If any data is still processing, return processing with max retryAfter
-    if (matchesResult.status === 'processing' || competitionsResult.status === 'processing') {
+    if (matchesResult.status === DataStatus.PROCESSING || competitionsResult.status === DataStatus.PROCESSING) {
       const retryAfter = Math.max(
         matchesResult.retryAfter ?? 0,
         competitionsResult.retryAfter ?? 0,
       ) || undefined;
-      return { data: null, status: 'processing', retryAfter };
+      return { data: null, status: DataStatus.PROCESSING, retryAfter };
     }
 
     const availableCompetitionIds = new Set(
@@ -42,9 +43,9 @@ export class MatchesService {
       filteredMatches = filteredMatches.slice(startIndex, endIndex);
     }
 
-    const status = matchesResult.status === 'stale' || competitionsResult.status === 'stale'
-      ? 'stale'
-      : 'fresh';
+    const status = matchesResult.status === DataStatus.STALE || competitionsResult.status === DataStatus.STALE
+      ? DataStatus.STALE
+      : DataStatus.FRESH;
 
     return { data: filteredMatches, status };
   }

@@ -4,6 +4,7 @@ import { useApi } from '../hooks/useApi';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
+import { API_ENDPOINTS } from '../constants';
 
 const HomePage = () => {
   // Fetch matches and competitions with automatic 202 retry
@@ -11,13 +12,13 @@ const HomePage = () => {
     data: matchesData,
     loading: loadingMatches,
     error: matchesError,
-  } = useApi('/matches');
+  } = useApi(API_ENDPOINTS.MATCHES);
 
   const {
     data: competitionsData,
     loading: loadingComps,
     error: compsError,
-  } = useApi('/competitions');
+  } = useApi(API_ENDPOINTS.COMPETITIONS);
 
   // Ensure arrays are always defined
   const matches = matchesData || [];

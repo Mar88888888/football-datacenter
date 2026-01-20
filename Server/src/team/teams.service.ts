@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Team } from './team';
 import { FootballDataService, DataResult } from '../football-data/football-data.service';
 import { Match } from '../matches/dto/match';
+import { DataStatus } from '../common/constants';
 
 @Injectable()
 export class TeamService {
@@ -16,12 +17,12 @@ export class TeamService {
     ]);
 
     // If any data is still processing, return processing with max retryAfter
-    if (teamResult.status === 'processing' || competitionsResult.status === 'processing') {
+    if (teamResult.status === DataStatus.PROCESSING || competitionsResult.status === DataStatus.PROCESSING) {
       const retryAfter = Math.max(
         teamResult.retryAfter ?? 0,
         competitionsResult.retryAfter ?? 0,
       ) || undefined;
-      return { data: null, status: 'processing', retryAfter };
+      return { data: null, status: DataStatus.PROCESSING, retryAfter };
     }
 
     const team = teamResult.data!;
@@ -35,9 +36,9 @@ export class TeamService {
     }
 
     // Return stale if any source was stale
-    const status = teamResult.status === 'stale' || competitionsResult.status === 'stale'
-      ? 'stale'
-      : 'fresh';
+    const status = teamResult.status === DataStatus.STALE || competitionsResult.status === DataStatus.STALE
+      ? DataStatus.STALE
+      : DataStatus.FRESH;
 
     return { data: team, status };
   }
@@ -49,12 +50,12 @@ export class TeamService {
     ]);
 
     // If any data is still processing, return processing with max retryAfter
-    if (matchesResult.status === 'processing' || competitionsResult.status === 'processing') {
+    if (matchesResult.status === DataStatus.PROCESSING || competitionsResult.status === DataStatus.PROCESSING) {
       const retryAfter = Math.max(
         matchesResult.retryAfter ?? 0,
         competitionsResult.retryAfter ?? 0,
       ) || undefined;
-      return { data: null, status: 'processing', retryAfter };
+      return { data: null, status: DataStatus.PROCESSING, retryAfter };
     }
 
     const availableIds = new Set(competitionsResult.data!.map((c) => c.id));
@@ -62,9 +63,9 @@ export class TeamService {
       availableIds.has(match.competition?.id),
     );
 
-    const status = matchesResult.status === 'stale' || competitionsResult.status === 'stale'
-      ? 'stale'
-      : 'fresh';
+    const status = matchesResult.status === DataStatus.STALE || competitionsResult.status === DataStatus.STALE
+      ? DataStatus.STALE
+      : DataStatus.FRESH;
 
     return { data: filteredMatches, status };
   }

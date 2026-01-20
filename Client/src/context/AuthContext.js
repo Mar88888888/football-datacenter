@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../utils/api';
+import { API_ENDPOINTS } from '../constants';
 
 export const AuthContext = createContext();
 
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 const token = localStorage.getItem('authToken');
                 if (token) {
-                    const response = await api.get('/user/auth/bytoken');
+                    const response = await api.get(API_ENDPOINTS.AUTH_BY_TOKEN);
                     setUser(response.data);
                 } else {
                     setUser(null);

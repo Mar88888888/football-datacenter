@@ -5,28 +5,7 @@ import { useApi, useAuthApi, useAuthMutation } from '../hooks/useApi';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
-
-// Map color names to hex values
-const colorMap = {
-  red: '#DC2626',
-  blue: '#2563EB',
-  white: '#FFFFFF',
-  black: '#1F2937',
-  yellow: '#EAB308',
-  gold: '#CA8A04',
-  green: '#16A34A',
-  orange: '#EA580C',
-  purple: '#9333EA',
-  pink: '#EC4899',
-  brown: '#92400E',
-  navy: '#1E3A5A',
-  sky: '#0EA5E9',
-  claret: '#7B1E3A',
-  maroon: '#7F1D1D',
-  silver: '#9CA3AF',
-  grey: '#6B7280',
-  gray: '#6B7280',
-};
+import { API_ENDPOINTS, TEAM_COLORS } from '../constants';
 
 const parseClubColors = (colorString) => {
   if (!colorString) return [];
@@ -34,7 +13,7 @@ const parseClubColors = (colorString) => {
     .toLowerCase()
     .split('/')
     .map((c) => c.trim())
-    .map((colorName) => colorMap[colorName] || null)
+    .map((colorName) => TEAM_COLORS[colorName] || null)
     .filter(Boolean);
 };
 
@@ -48,14 +27,14 @@ const TeamPage = () => {
     data: team,
     loading,
     error: teamError,
-  } = useApi(`/teams/${id}`);
+  } = useApi(API_ENDPOINTS.TEAM(id));
 
   // Fetch team matches
-  const { data: matchesData } = useApi(`/teams/${id}/matches`);
+  const { data: matchesData } = useApi(API_ENDPOINTS.TEAM_MATCHES(id));
   const matches = matchesData || [];
 
   // Fetch user's favourite teams (only if logged in)
-  const { data: favTeams } = useAuthApi('/user/favteam', {
+  const { data: favTeams } = useAuthApi(API_ENDPOINTS.USER_FAV_TEAMS, {
     enabled: !!user,
   });
 
@@ -74,7 +53,7 @@ const TeamPage = () => {
       return;
     }
     try {
-      await post(`/user/favteam/${team.id}`, {});
+      await post(API_ENDPOINTS.USER_FAV_TEAM(team.id), {});
       alert(`${team.name} has been added to your favourites!`);
       window.location.reload();
     } catch (err) {
@@ -85,7 +64,7 @@ const TeamPage = () => {
 
   const handleRemoveFromFavourite = async () => {
     try {
-      await deleteFav(`/user/favteam/${team.id}`);
+      await deleteFav(API_ENDPOINTS.USER_FAV_TEAM(team.id));
       alert(`${team.name} has been removed from your favourites!`);
       window.location.reload();
     } catch (err) {

@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useAuthApi } from '../hooks/useApi';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorPage from '../pages/ErrorPage';
+import { API_ENDPOINTS } from '../constants';
 
 const Dashboard = () => {
   const { logout } = useContext(AuthContext);
@@ -14,13 +15,13 @@ const Dashboard = () => {
     data: favTeams,
     loading: loadingTeams,
     error: teamsError,
-  } = useAuthApi('/user/favteam');
+  } = useAuthApi(API_ENDPOINTS.USER_FAV_TEAMS);
 
   const {
     data: favComps,
     loading: loadingComps,
     error: compsError,
-  } = useAuthApi('/user/favcomp');
+  } = useAuthApi(API_ENDPOINTS.USER_FAV_COMPS);
 
   const handleLogout = () => {
     logout();

@@ -1,53 +1,24 @@
-import { Controller, Get, Param, ParseIntPipe, Res, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Param, ParseIntPipe, UseInterceptors } from '@nestjs/common';
 import { CompetitionService } from './competition.service';
+import { ProcessingInterceptor } from '../interceptors/processing.interceptor';
 
 @Controller('competitions')
+@UseInterceptors(ProcessingInterceptor)
 export class CompetitionController {
   constructor(private readonly competitionService: CompetitionService) {}
 
   @Get()
-  async getAllCompetitions(@Res() res: Response): Promise<void> {
-    const result = await this.competitionService.findAll();
-
-    if (result.status === 'processing') {
-      res.setHeader('Retry-After', String(result.retryAfter ?? 5));
-      res.status(HttpStatus.ACCEPTED).json({ status: 'processing' });
-      return;
-    }
-
-    res.status(HttpStatus.OK).json(result.data);
+  async getAllCompetitions() {
+    return this.competitionService.findAll();
   }
 
   @Get('/:id/matches')
-  async getCompetitionMatches(
-    @Param('id', ParseIntPipe) id: number,
-    @Res() res: Response,
-  ): Promise<void> {
-    const result = await this.competitionService.getMatches(id);
-
-    if (result.status === 'processing') {
-      res.setHeader('Retry-After', String(result.retryAfter ?? 5));
-      res.status(HttpStatus.ACCEPTED).json({ status: 'processing' });
-      return;
-    }
-
-    res.status(HttpStatus.OK).json(result.data);
+  async getCompetitionMatches(@Param('id', ParseIntPipe) id: number) {
+    return this.competitionService.getMatches(id);
   }
 
   @Get('/:id')
-  async getCompetitionById(
-    @Param('id', ParseIntPipe) id: number,
-    @Res() res: Response,
-  ): Promise<void> {
-    const result = await this.competitionService.findById(id);
-
-    if (result.status === 'processing') {
-      res.setHeader('Retry-After', String(result.retryAfter ?? 5));
-      res.status(HttpStatus.ACCEPTED).json({ status: 'processing' });
-      return;
-    }
-
-    res.status(HttpStatus.OK).json(result.data);
+  async getCompetitionById(@Param('id', ParseIntPipe) id: number) {
+    return this.competitionService.findById(id);
   }
 }

@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../constants';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/user/auth/signin', { email, password });
+      const response = await api.post(API_ENDPOINTS.AUTH_SIGNIN, { email, password });
 
       saveToken(response.data.accessToken);
       setUser(response.data.user);

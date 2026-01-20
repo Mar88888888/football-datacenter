@@ -8,6 +8,7 @@ import KnockoutBracket from '../components/KnockoutBracket';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
+import { API_ENDPOINTS } from '../constants';
 
 const CompetitionPage = () => {
   const { id } = useParams();
@@ -20,22 +21,22 @@ const CompetitionPage = () => {
     data: competition,
     loading: loadingCompetition,
     error: competitionError,
-  } = useApi(`/competitions/${id}`);
+  } = useApi(API_ENDPOINTS.COMPETITION(id));
 
   // Fetch standings
-  const { data: standings } = useApi(`/standings/${id}`);
+  const { data: standings } = useApi(API_ENDPOINTS.STANDINGS(id));
 
   // Fetch matches
   const {
     data: scheduledMatchesData,
     error: matchesError,
-  } = useApi(`/competitions/${id}/matches`);
+  } = useApi(API_ENDPOINTS.COMPETITION_MATCHES(id));
 
   // Ensure scheduledMatches is always an array
   const scheduledMatches = scheduledMatchesData || [];
 
   // Fetch user's favourite competitions (only if logged in)
-  const { data: favComps } = useAuthApi('/user/favcomp', {
+  const { data: favComps } = useAuthApi(API_ENDPOINTS.USER_FAV_COMPS, {
     enabled: !!user,
   });
 
@@ -152,7 +153,7 @@ const CompetitionPage = () => {
       return;
     }
     try {
-      await post(`/user/favcomp/${competition.id}`, {});
+      await post(API_ENDPOINTS.USER_FAV_COMP(competition.id), {});
       alert(`${competition.name} has been added to your favourites!`);
       window.location.reload(); // Refresh to update favourite status
     } catch (err) {
@@ -163,7 +164,7 @@ const CompetitionPage = () => {
 
   const handleRemoveFromFavourite = async () => {
     try {
-      await deleteFav(`/user/favcomp/${competition.id}`);
+      await deleteFav(API_ENDPOINTS.USER_FAV_COMP(competition.id));
       alert(`${competition.name} has been removed from your favourites!`);
       window.location.reload(); // Refresh to update favourite status
     } catch (err) {

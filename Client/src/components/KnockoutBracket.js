@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { STAGE_ORDER, STAGE_LABELS } from '../constants';
 
 const TeamDisplay = ({ team, isWinner, result, isNationalTeam }) => {
   const content = (
@@ -36,34 +37,6 @@ const TeamDisplay = ({ team, isWinner, result, isNationalTeam }) => {
       {content}
     </Link>
   );
-};
-
-const STAGE_ORDER = {
-  ROUND_1: 1,
-  ROUND_2: 2,
-  ROUND_3: 3,
-  LAST_64: 4,
-  LAST_32: 5,
-  LAST_16: 6,
-  ROUND_OF_16: 6,
-  QUARTER_FINALS: 7,
-  SEMI_FINALS: 8,
-  THIRD_PLACE: 9,
-  FINAL: 10,
-};
-
-const STAGE_LABELS = {
-  ROUND_1: 'Qualifying Round 1',
-  ROUND_2: 'Qualifying Round 2',
-  ROUND_3: 'Qualifying Round 3',
-  LAST_64: 'Round of 64',
-  LAST_32: 'Round of 32',
-  LAST_16: 'Round of 16',
-  ROUND_OF_16: 'Round of 16',
-  QUARTER_FINALS: 'Quarter-Finals',
-  SEMI_FINALS: 'Semi-Finals',
-  THIRD_PLACE: 'Third Place',
-  FINAL: 'Final',
 };
 
 const KnockoutBracket = ({ matches, isNationalTeam = false }) => {

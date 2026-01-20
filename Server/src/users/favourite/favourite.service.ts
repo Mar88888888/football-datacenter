@@ -6,6 +6,7 @@ import { UserFavComp } from './user.favcomp.entity';
 import { CompetitionService } from '../../competitions/competition.service';
 import { UsersService } from '../users.service';
 import { TeamService } from '../../team/teams.service';
+import { DataStatus } from '../../common/constants';
 
 @Injectable()
 export class FavouriteService {
@@ -21,7 +22,7 @@ export class FavouriteService {
 
   private async getAvailableCompetitionIds(): Promise<Set<number>> {
     const result = await this.compService.findAll();
-    if (result.status === 'processing' || !result.data) {
+    if (result.status === DataStatus.PROCESSING || !result.data) {
       throw new ServiceUnavailableException('Competition data is loading. Please try again shortly.');
     }
     return new Set(result.data.map((c) => c.id));
@@ -69,7 +70,7 @@ export class FavouriteService {
 
     // Fetch team data to store name and crest
     const result = await this.teamService.getById(teamId);
-    if (result.status === 'processing' || !result.data) {
+    if (result.status === DataStatus.PROCESSING || !result.data) {
       throw new ServiceUnavailableException('Team data is loading. Please try again shortly.');
     }
     const team = result.data;
@@ -100,7 +101,7 @@ export class FavouriteService {
 
     // Fetch competition data to store name and emblem
     const result = await this.compService.findById(compId);
-    if (result.status === 'processing' || !result.data) {
+    if (result.status === DataStatus.PROCESSING || !result.data) {
       throw new ServiceUnavailableException('Competition data is loading. Please try again shortly.');
     }
     const competition = result.data;
@@ -114,38 +115,47 @@ export class FavouriteService {
   }
 
   async removeFavTeam(userId: number, teamId: number) {
-    const userWithFavTeams = await this.userService.findOne(userId);
-
-    if (!userWithFavTeams || !userWithFavTeams.favTeams) {
-      throw new Error('User or favorite teams not found.');
-    }
-
-    const teamLink = userWithFavTeams.favTeams.find(
-      (fav) => fav.teamId === teamId,
+    await this.removeFavorite(
+      userId,
+      teamId,
+      'favTeams',
+      'teamId',
+      this.favTeamRepo,
+      'teams',
     );
-
-    if (!teamLink) {
-      return;
-    }
-
-    await this.favTeamRepo.delete({ id: teamLink.id });
   }
 
   async removeFavComp(userId: number, compId: number) {
-    const userWithFavComps = await this.userService.findOne(userId);
+    await this.removeFavorite(
+      userId,
+      compId,
+      'favCompetitions',
+      'competitionId',
+      this.favCompRepo,
+      'competitions',
+    );
+  }
 
-    if (!userWithFavComps || !userWithFavComps.favTeams) {
-      throw new Error('User or favorite comps not found.');
+  private async removeFavorite<T extends { id: number }>(
+    userId: number,
+    entityId: number,
+    relationKey: 'favTeams' | 'favCompetitions',
+    idField: 'teamId' | 'competitionId',
+    repo: Repository<T>,
+    entityName: string,
+  ) {
+    const user = await this.userService.findOne(userId);
+
+    if (!user || !user[relationKey]) {
+      throw new Error(`User or favorite ${entityName} not found.`);
     }
 
-    const compLink = userWithFavComps.favCompetitions.find(
-      (fav) => fav.competitionId === compId,
-    );
+    const link = user[relationKey].find((fav) => fav[idField] === entityId);
 
-    if (!compLink) {
+    if (!link) {
       return;
     }
 
-    await this.favCompRepo.delete({ id: compLink.id });
+    await repo.delete({ id: link.id } as any);
   }
 }

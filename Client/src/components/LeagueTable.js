@@ -1,31 +1,11 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
+import { API_ENDPOINTS } from '../constants';
 import ErrorPage from '../pages/ErrorPage';
 
 const LeagueTable = ({ competitionId }) => {
-  const [tableData, setTableData] = useState([]);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTableData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/standings/${competitionId}`
-        );
-        const data = await response.json();
-        setTableData(data.standings?.[0]?.table || []);
-      } catch (error) {
-        setError(true);
-        console.error('Error fetching the league table data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTableData();
-  }, [competitionId]);
+  const { data, loading, error } = useApi(API_ENDPOINTS.STANDINGS(competitionId));
+  const tableData = data?.standings?.[0]?.table || [];
 
   if (error) {
     return <ErrorPage />;

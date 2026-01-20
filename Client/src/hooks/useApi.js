@@ -2,7 +2,94 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL;
 const DEFAULT_RETRY_DELAY = 3000;
-const MAX_RETRIES = 20; // Increased: 20 retries × 3s = 60 seconds max wait
+const MAX_RETRIES = 20;
+
+/**
+ * Shared helper for fetch requests with 202 polling support
+ * @param {string} url - Full URL to fetch
+ * @param {Object} fetchOptions - Options for fetch (method, headers, body, signal)
+ * @param {Object} callbacks - Optional callbacks { onProcessing }
+ * @returns {Promise<any>} Response data
+ */
+const fetchWithPolling = async (url, fetchOptions = {}, callbacks = {}) => {
+  const { signal } = fetchOptions;
+  const { onProcessing } = callbacks;
+  let retries = 0;
+
+  while (retries < MAX_RETRIES) {
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+
+    const response = await fetch(url, fetchOptions);
+
+    // Success - return data
+    if (response.status === 200) {
+      return await response.json();
+    }
+
+    // No content - return null
+    if (response.status === 204) {
+      return null;
+    }
+
+    // Processing - poll with retry
+    if (response.status === 202) {
+      retries++;
+      onProcessing?.(true);
+
+      const retryAfter = response.headers.get('Retry-After');
+      const delay = retryAfter
+        ? parseInt(retryAfter, 10) * 1000
+        : DEFAULT_RETRY_DELAY;
+
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(resolve, delay);
+        signal?.addEventListener('abort', () => {
+          clearTimeout(timeout);
+          reject(new DOMException('Aborted', 'AbortError'));
+        });
+      });
+      continue;
+    }
+
+    // Unauthorized - clear token and redirect
+    if (response.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+
+    // Error responses
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  throw new Error('Request timeout. Please try again later.');
+};
+
+/**
+ * Build headers with optional auth token
+ */
+const buildHeaders = (authenticated, contentType = null) => {
+  const headers = {};
+  if (contentType) {
+    headers['Content-Type'] = contentType;
+  }
+  if (authenticated) {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+};
 
 /**
  * Custom hook for fetching data with automatic 202 polling
@@ -22,7 +109,6 @@ export const useApi = (endpoint, options = {}) => {
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Track if component is mounted and current fetch
   const abortControllerRef = useRef(null);
   const isMountedRef = useRef(true);
 
@@ -32,87 +118,28 @@ export const useApi = (endpoint, options = {}) => {
 
       setLoading(true);
       setError(null);
-      let retries = 0;
 
       try {
-        while (retries < MAX_RETRIES) {
-          // Check if aborted
-          if (signal?.aborted) {
-            return;
-          }
-
-          const headers = {};
-          if (authenticated) {
-            const token = localStorage.getItem('authToken');
-            if (token) {
-              headers['Authorization'] = `Bearer ${token}`;
-            }
-          }
-
-          const response = await fetch(`${API_URL}${endpoint}`, {
-            headers,
+        const result = await fetchWithPolling(
+          `${API_URL}${endpoint}`,
+          {
+            headers: buildHeaders(authenticated),
             signal,
-          });
-
-          // Data is ready
-          if (response.status === 200) {
-            const result = await response.json();
-            if (isMountedRef.current) {
-              setData(result);
-              setIsProcessing(false);
-              setLoading(false);
-            }
-            return result;
+          },
+          {
+            onProcessing: (processing) => {
+              if (isMountedRef.current) setIsProcessing(processing);
+            },
           }
+        );
 
-          // Data is being processed - retry
-          if (response.status === 202) {
-            retries++;
-            if (isMountedRef.current) {
-              setIsProcessing(true);
-            }
-
-            const retryAfter = response.headers.get('Retry-After');
-            const delay = retryAfter
-              ? parseInt(retryAfter, 10) * 1000
-              : DEFAULT_RETRY_DELAY;
-
-            // Wait but check for abort
-            await new Promise((resolve, reject) => {
-              const timeout = setTimeout(resolve, delay);
-              signal?.addEventListener('abort', () => {
-                clearTimeout(timeout);
-                reject(new DOMException('Aborted', 'AbortError'));
-              });
-            });
-            continue;
-          }
-
-          // Unauthorized - clear token and redirect
-          if (response.status === 401) {
-            localStorage.removeItem('authToken');
-            window.location.href = '/login';
-            return;
-          }
-
-          // Error responses
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          // Other success responses
-          const result = await response.json();
-          if (isMountedRef.current) {
-            setData(result);
-            setLoading(false);
-          }
-          return result;
+        if (isMountedRef.current) {
+          setData(result);
+          setIsProcessing(false);
+          setLoading(false);
         }
-
-        // Max retries reached
-        throw new Error('Data is still loading. Please try again later.');
+        return result;
       } catch (err) {
-        // Ignore abort errors
         if (err.name === 'AbortError') {
           return;
         }
@@ -124,7 +151,7 @@ export const useApi = (endpoint, options = {}) => {
         throw err;
       }
     },
-    [endpoint, authenticated],
+    [endpoint, authenticated]
   );
 
   // Initial fetch with cleanup
@@ -183,6 +210,7 @@ export const useApiMutation = (options = {}) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const mutate = useCallback(
     async (endpoint, method = 'POST', body = null) => {
@@ -190,49 +218,36 @@ export const useApiMutation = (options = {}) => {
       setError(null);
 
       try {
-        const headers = body ? { 'Content-Type': 'application/json' } : {};
-        if (authenticated) {
-          const token = localStorage.getItem('authToken');
-          if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+        const result = await fetchWithPolling(
+          `${API_URL}${endpoint}`,
+          {
+            method,
+            headers: buildHeaders(authenticated, body ? 'application/json' : null),
+            body: body ? JSON.stringify(body) : null,
+          },
+          {
+            onProcessing: setIsProcessing,
           }
-        }
+        );
 
-        const response = await fetch(`${API_URL}${endpoint}`, {
-          method,
-          headers,
-          body: body ? JSON.stringify(body) : null,
-        });
-
-        if (response.status === 401) {
-          localStorage.removeItem('authToken');
-          window.location.href = '/login';
-          return;
-        }
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message || `HTTP error! status: ${response.status}`,
-          );
-        }
-
-        const data = response.status !== 204 ? await response.json() : null;
         setLoading(false);
-        return data;
+        setIsProcessing(false);
+        return result;
       } catch (err) {
         setError(err);
         setLoading(false);
+        setIsProcessing(false);
         throw err;
       }
     },
-    [authenticated],
+    [authenticated]
   );
 
   return {
     mutate,
     loading,
     error,
+    isProcessing,
     post: (endpoint, body) => mutate(endpoint, 'POST', body),
     delete: (endpoint) => mutate(endpoint, 'DELETE'),
   };

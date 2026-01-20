@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../constants';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
@@ -21,7 +22,7 @@ const SignUp = () => {
     }
 
     try {
-      const response = await api.post('/user/auth/signup', {
+      const response = await api.post(API_ENDPOINTS.AUTH_SIGNUP, {
         name: username,
         email,
         password,
