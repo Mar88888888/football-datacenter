@@ -1,4 +1,5 @@
 import axios from 'axios';
+import authService from '../services/authService';
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -7,7 +8,7 @@ const api = axios.create({
 // Request interceptor to add Authorization header
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,7 +24,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
+      authService.clearToken();
       window.location.href = '/login';
     }
     return Promise.reject(error);

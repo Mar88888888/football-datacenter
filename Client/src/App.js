@@ -12,7 +12,6 @@ import HomePage from './pages/HomePage';
 import TeamPage from './pages/TeamPage';
 import CompetitionPage from './pages/CompetitionPage';
 import GroupPage from './pages/GroupPage';
-import SearchResultsPage from './pages/SearchResultsPage';
 import PlayerPage from './pages/PlayerPage';
 
 const App = () => {
@@ -25,7 +24,6 @@ const App = () => {
                         <Routes>
                             <Route path="/login" element={<UnAuthRoute><Login /></UnAuthRoute>} />
                             <Route path="/signup" element={<UnAuthRoute><SignUp /></UnAuthRoute>} />
-                            <Route path="/search-results" element={<SearchResultsPage />} />
                             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                             <Route path="/" element={<HomePage />} />
                             <Route path="/competitions/:id" element={<CompetitionPage />} />

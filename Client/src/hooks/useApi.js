@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import authService from '../services/authService';
 
 const API_URL = process.env.REACT_APP_API_URL;
 const DEFAULT_RETRY_DELAY = 3000;
@@ -55,7 +56,7 @@ const fetchWithPolling = async (url, fetchOptions = {}, callbacks = {}) => {
 
     // Unauthorized - clear token and redirect
     if (response.status === 401) {
-      localStorage.removeItem('authToken');
+      authService.clearToken();
       window.location.href = '/login';
       throw new Error('Unauthorized');
     }
@@ -83,7 +84,7 @@ const buildHeaders = (authenticated, contentType = null) => {
     headers['Content-Type'] = contentType;
   }
   if (authenticated) {
-    const token = localStorage.getItem('authToken');
+    const token = authService.getToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
