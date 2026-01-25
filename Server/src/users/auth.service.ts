@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
-import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { IAuthService } from './auth.service.interface';
 import { UsersService } from './users.service';
@@ -34,9 +33,6 @@ export class AuthService implements IAuthService {
 
     const user = await this.usersService.create(email, hashedPassword, name);
 
-    const verificationToken = uuidv4();
-    await this.usersService.saveVerificationToken(user.id, verificationToken);
-
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload, { expiresIn: TOKEN_EXPIRY });
 
@@ -60,16 +56,6 @@ export class AuthService implements IAuthService {
     const accessToken = this.jwtService.sign(payload, { expiresIn: TOKEN_EXPIRY });
 
     return { accessToken, user };
-  }
-
-  async verifyEmail(token: string) {
-    const user = await this.usersService.findByVerificationToken(token);
-    if (!user) {
-      throw new BadRequestException('Invalid verification token');
-    }
-    user.isEmailVerified = true;
-    await this.usersService.update(user.id, user);
-    return { message: 'Email verified successfully' };
   }
 
   public generateJwtToken(payload: { sub: number; email: string }): string {

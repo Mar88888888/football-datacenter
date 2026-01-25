@@ -9,8 +9,4 @@ export class UserDto {
 
   @Expose()
   name: string;
-
-  @Expose()
-  isEmailVerified: boolean;
-
 }

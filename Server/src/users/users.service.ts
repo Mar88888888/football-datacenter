@@ -53,15 +53,4 @@ export class UsersService implements IUsersService {
     return this.repo.remove(user);
   }
 
-  async saveVerificationToken(userId: number, token: string) {
-    const user = await this.repo.findOne({ where: { id: userId } });
-    user.verificationToken = token;
-    await this.repo.save(user);
-  }
-
-  async findByVerificationToken(token: string): Promise<User> {
-    let [user] = await this.repo.find({where: {verificationToken: token} });
-    return user;
-  }
-  
 }

@@ -8,7 +8,6 @@ import {
   Param,
   Query,
   NotFoundException,
-  Session,
   UseGuards,
   Req,
   UnauthorizedException,
@@ -70,13 +69,6 @@ export class UsersController {
     return user;
   }
 
-  @Serialize(UserDto)
-  @Get('/auth/verify-email')
-  async verifyEmail(@Query('token') token: string, @Session() session: any) {
-    let res = await this.authService.verifyEmail(token);
-    return res;
-  }
-
   @Post('/auth/signout')
   signOut() {
     return { message: 'Signed out successfully' };
@@ -113,7 +105,6 @@ export class UsersController {
       accessToken,
       user: {
         id: user.id,
-        isEmailVerified: user.isEmailVerified,
         email: user.email,
         name: user.name,
       },

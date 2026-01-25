@@ -146,7 +146,6 @@ GET /teams/:id: Retrieve team by ID.
 GET /user: Retrieve users, optionally by email.
 GET /user/auth/bytoken: Get user by token in request header.
 GET /user/auth/whoami: Get current authenticated user.
-GET /user/auth/verify-email: Verify email by token.
 POST /user/auth/signout: Sign out and clear authentication cookie.
 POST /user/auth/signup: Register a new user.
 POST /user/auth/signin: Log in an existing user.
@@ -180,10 +179,3 @@ POST /api/auth/signin - Вхід користувача.
 
 Автоматичне оновлення даних: автоматичний збір та оновлення даних про змагання, команди, гравців і тренерів кожного тижня.
 Інтерактивний інтерфейс: користувачі можуть переглядати дані про змагання та команди, додавати улюблені змагання та команди.
-
-## Розподіл завдань команди
-
-Artem Marchenko - Fullstack
-Oleskandr Vershygora - Backend
-Vladyslava Figol - QA
-Stankova Iryna - QA
