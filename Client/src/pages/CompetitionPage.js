@@ -42,7 +42,7 @@ const CompetitionPage = () => {
   const { isFavourite, loading: favouriteLoading, toggleFavourite } = useFavourite(
     'competition',
     id,
-    competition?.name
+    competition
   );
 
   const error = competitionError || matchesError;

@@ -1,46 +1,21 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { useAuthApi } from '../hooks/useApi';
+import { FavouritesContext } from '../context/FavouritesContext';
 import LoadingSpinner from './LoadingSpinner';
-import ErrorPage from '../pages/ErrorPage';
-import { API_ENDPOINTS } from '../constants';
 
 const Dashboard = () => {
   const { logout } = useContext(AuthContext);
+  const { favTeams, favComps, loading } = useContext(FavouritesContext);
   const navigate = useNavigate();
-
-  // Fetch favourites with automatic 202 retry
-  const {
-    data: favTeams,
-    loading: loadingTeams,
-    error: teamsError,
-  } = useAuthApi(API_ENDPOINTS.USER_FAV_TEAMS);
-
-  const {
-    data: favComps,
-    loading: loadingComps,
-    error: compsError,
-  } = useAuthApi(API_ENDPOINTS.USER_FAV_COMPS);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const loading = loadingTeams || loadingComps;
-  const error = teamsError || compsError;
-
-  // Ensure arrays are always defined
-  const teams = favTeams || [];
-  const comps = favComps || [];
-
   if (loading) {
     return <LoadingSpinner message="Loading your favorites..." />;
-  }
-
-  if (error) {
-    return <ErrorPage />;
   }
 
   return (
@@ -61,13 +36,13 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-white text-center mb-6">
             Favorite Teams
           </h2>
-          {teams.length === 0 ? (
+          {favTeams.length === 0 ? (
             <p className="text-slate-400 text-center py-8">
               You have no favourite teams
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {teams.map((team) => (
+              {favTeams.map((team) => (
                 <Link
                   key={team.id}
                   to={`/teams/${team.id}`}
@@ -94,13 +69,13 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-white text-center mb-6">
             Favorite Competitions
           </h2>
-          {comps.length === 0 ? (
+          {favComps.length === 0 ? (
             <p className="text-slate-400 text-center py-8">
               You have no favourite competitions
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {comps.map((comp) => (
+              {favComps.map((comp) => (
                 <Link
                   key={comp.id}
                   to={`/competitions/${comp.id}`}

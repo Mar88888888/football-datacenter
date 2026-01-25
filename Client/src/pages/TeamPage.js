@@ -32,7 +32,7 @@ const TeamPage = () => {
   const { isFavourite, loading: favouriteLoading, toggleFavourite } = useFavourite(
     'team',
     id,
-    team?.name
+    team
   );
 
   if (loading) {
