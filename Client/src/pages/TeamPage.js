@@ -1,7 +1,8 @@
-import React, { useContext, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { useApi, useAuthApi, useAuthMutation } from '../hooks/useApi';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
+import useFavourite from '../hooks/useFavourite';
+import FavouriteButton from '../components/FavouriteButton';
 import MatchList from '../components/MatchList';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
@@ -19,59 +20,20 @@ const parseClubColors = (colorString) => {
 
 const TeamPage = () => {
   const { id } = useParams();
-  const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
 
-  // Fetch team data with automatic 202 retry
-  const {
-    data: team,
-    loading,
-    error: teamError,
-  } = useApi(API_ENDPOINTS.TEAM(id));
+  // Fetch team data
+  const { data: team, loading, error: teamError } = useApi(API_ENDPOINTS.TEAM(id));
 
   // Fetch team matches
   const { data: matchesData } = useApi(API_ENDPOINTS.TEAM_MATCHES(id));
   const matches = matchesData || [];
 
-  // Fetch user's favourite teams (only if logged in)
-  const { data: favTeams } = useAuthApi(API_ENDPOINTS.USER_FAV_TEAMS, {
-    enabled: !!user,
-  });
-
-  // Mutation hook for adding/removing favourites
-  const { post, delete: deleteFav, loading: mutationLoading } = useAuthMutation();
-
-  // Derive favourite status from fetched data
-  const isFavourite = useMemo(() => {
-    if (!favTeams || !id) return false;
-    return favTeams.some((favTeam) => favTeam.id === +id);
-  }, [favTeams, id]);
-
-  const handleAddToFavourite = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    try {
-      await post(API_ENDPOINTS.USER_FAV_TEAM(team.id), {});
-      alert(`${team.name} has been added to your favourites!`);
-      window.location.reload();
-    } catch (err) {
-      console.error('Error adding to favourites:', err);
-      alert(err.message || 'An error occurred. Please try again later.');
-    }
-  };
-
-  const handleRemoveFromFavourite = async () => {
-    try {
-      await deleteFav(API_ENDPOINTS.USER_FAV_TEAM(team.id));
-      alert(`${team.name} has been removed from your favourites!`);
-      window.location.reload();
-    } catch (err) {
-      console.error('Error removing from favourites:', err);
-      alert(err.message || 'An error occurred. Please try again later.');
-    }
-  };
+  // Favourite management
+  const { isFavourite, loading: favouriteLoading, toggleFavourite } = useFavourite(
+    'team',
+    id,
+    team?.name
+  );
 
   if (loading) {
     return <LoadingSpinner message="Loading team data..." />;
@@ -86,7 +48,6 @@ const TeamPage = () => {
       {/* Team Header */}
       <div className="bg-gradient-to-b from-slate-950 to-slate-900 py-10 px-4">
         <div className="max-w-3xl mx-auto">
-          {/* Main Card */}
           <div className="bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-700/50 shadow-2xl overflow-hidden">
             {/* Top Section - Crest and Name */}
             <div className="bg-slate-900/50 px-8 py-6 border-b border-slate-700/50">
@@ -102,31 +63,12 @@ const TeamPage = () => {
                     </span>
                   )}
                 </div>
-                {/* Favourite Button */}
                 <div className="flex-shrink-0">
-                  {isFavourite ? (
-                    <button
-                      onClick={handleRemoveFromFavourite}
-                      disabled={mutationLoading}
-                      className="p-3 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Remove from favourites"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleAddToFavourite}
-                      disabled={mutationLoading}
-                      className="p-3 bg-slate-700 text-slate-300 border border-slate-600 rounded-xl hover:bg-slate-600 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Add to favourites"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  )}
+                  <FavouriteButton
+                    isFavourite={isFavourite}
+                    onClick={toggleFavourite}
+                    loading={favouriteLoading}
+                  />
                 </div>
               </div>
             </div>
@@ -148,7 +90,9 @@ const TeamPage = () => {
               {team.venue && (
                 <div className="p-5 text-center">
                   <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">Stadium</p>
-                  <p className="text-lg font-semibold text-white truncate" title={team.venue}>{team.venue}</p>
+                  <p className="text-lg font-semibold text-white truncate" title={team.venue}>
+                    {team.venue}
+                  </p>
                 </div>
               )}
               {team.clubColors && (

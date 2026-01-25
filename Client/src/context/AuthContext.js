@@ -25,27 +25,37 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
+        const abortController = new AbortController();
+
         const fetchUserDetails = async () => {
             try {
-                const token = localStorage.getItem('authToken');
-                if (token) {
-                    const response = await api.get(API_ENDPOINTS.AUTH_BY_TOKEN);
+                if (authToken) {
+                    const response = await api.get(API_ENDPOINTS.AUTH_BY_TOKEN, {
+                        signal: abortController.signal,
+                    });
                     setUser(response.data);
                 } else {
                     setUser(null);
                 }
             } catch (error) {
+                if (error.name === 'AbortError' || error.name === 'CanceledError') {
+                    return;
+                }
                 console.error('Failed to fetch user details:', error);
-                localStorage.removeItem('authToken');
-                setAuthToken(null);
-                setUser(null);
+                logout();
             } finally {
-                setLoading(false);
+                if (!abortController.signal.aborted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchUserDetails();
-    }, []);
+
+        return () => {
+            abortController.abort();
+        };
+    }, [authToken, logout]);
 
     const contextValue = useMemo(() => ({
         user, setUser, authToken, saveToken, logout, loading,
