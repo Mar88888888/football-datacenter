@@ -1,181 +1,231 @@
 # Football Datacenter
 
-Football Datacenter - це веб-додаток для зберігання та відображення даних про футбольні змагання, команди, гравців та тренерів. Використовуючи Football-Data API, додаток автоматично отримує та зберігає інформацію про футбольні ліги, команди, гравців та тренерів у базу даних PostgreSQL.
+A full-stack web application for tracking football competitions, teams, matches, and standings. Built with React and NestJS, integrating with the Football-Data API to provide real-time football data.
 
-## Зміст
+## Features
 
-- [Структура проєкту](#структура-проєкту)
-- [Налаштування](#налаштування)
-- [Запуск](#запуск)
-- [API](#api)
-- [Авторизація](#авторизація)
-- [Особливості](#особливості)
+- **Live Match Tracking** - Follow matches in real-time with live score updates
+- **Competition Browser** - Explore leagues and tournaments from around the world
+- **Team Profiles** - View detailed information about teams, including recent and upcoming matches
+- **Standings Tables** - Access up-to-date league tables and group stage standings
+- **User Favorites** - Save your favorite teams and competitions for quick access
+- **Multiple Competition Formats** - Support for leagues, knockout tournaments, and group+knockout formats (e.g., Champions League)
+- **Responsive Design** - Optimized for both desktop and mobile devices
 
-## Структура проєкту
+## Tech Stack
 
-```plaintext
-football-datacenter/
-├── Server/                 # Серверна частина (Nest.js API)
-│   ├── src/
-│   │   ├── users/           # Модуль для управління користувачами
-│   │       ├── auth/        # Модуль управління авторизацією та реєстрацією
-│   │       ├── favourites/  # Модуль управління обраним
-│   │   ├── competitions/    # Модуль для змагань
-│   │   ├── teams/           # Модуль для команд
-│   │   ├── matches/         # Модуль для матчів
-│   │   ├── standings/          # Модуль для турнірних таблиць
-│   │   └── ...              # Інші файли та конфігурації
-│   ├── main.ts              # Головний файл запуску сервера
-│   └── ...
-├── Client/                 # Клієнтська частина (React)
-│   ├── src/
-│   │   ├── components/      # React-компоненти
-│   │   ├── pages/           # Сторінки
-│   │   ├── contexts/        # Контексти для глобального стану
-│   │   ├── styles/          # CSS стилі
-│   │   └── App.js           # Головний файл додатка
-│   └── ...
-└── README.md                # Документація проєкту
-```
+### Backend
 
-## Налаштування
+- **NestJS** - Node.js framework
+- **TypeScript** - Type-safe development
+- **PostgreSQL** - Relational database
+- **Redis** - Caching and job queues
+- **BullMQ** - Background job processing
+- **TypeORM** - Database ORM
+- **JWT** - Secure authentication
+- **Docker** - Containerized infrastructure
+- **Jest** - Testing framework
 
-Клонування репозиторію:
+### Frontend
 
-```plaintext
-git clone https://github.com/Mar88888888/football-datacenter.git
-cd football-datacenter
-```
+- **React 18** - UI library
+- **TypeScript** - Type-safe components
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Utility-first styling
+- **Jest + React Testing Library** - Component testing
 
-Backend (Nest.js):
+## Getting Started
 
-Перейдіть до каталогу backend:
+### Prerequisites
 
-```plaintext
-cd Server
-```
+- Node.js (v18 or higher)
+- Docker and Docker Compose
+- Football-Data API key ([Get one here](https://www.football-data.org/))
 
-Встановіть залежності:
+### Installation
 
-```plaintext
-npm install
-```
+1. **Clone the repository**
 
-Створіть файл .env та налаштуйте змінні середовища:
+   ```bash
+   git clone https://github.com/Mar88888888/football-datacenter.git
+   cd football-datacenter
+   ```
 
-```plaintext
-- SMTP_HOST: SMTP server address
-- SMTP_PORT: SMTP server port
-- SMTP_USER: SMTP login username
-- SMTP_PASS: SMTP login password
-- JWT_SECRET: Secret key for JWT authentication
-```
+2. **Start Infrastructure with Docker**
 
-Frontend (React):
+   ```bash
+   cd Server
+   docker-compose up -d
+   ```
 
-Перейдіть до каталогу frontend:
+   This starts:
+   | Service | Port | Description |
+   |---------|------|-------------|
+   | PostgreSQL | 5433 | Database |
+   | Redis | 6379 | Cache |
+   | pgAdmin | 5050 | Database GUI |
 
-```plaintext
-cd ../Client
-```
+3. **Backend Setup**
 
-Встановіть залежності:
+   ```bash
+   npm install
+   ```
 
-```plaintext
-npm install
-```
+   Create a `.env` file in the Server directory:
 
-Створіть файл .env на основі .env.example та налаштуйте змінні середовища, такі як REACT_APP_API_URL для звернень до API.
+   ```env
+   # Database (matches docker-compose defaults)
+   DB_HOST=localhost
+   DB_PORT=5433
+   DB_USER=postgres
+   DB_PASSWORD=password
+   DB_NAME=football-datacenter
 
-## Запуск
+   # Redis (optional, defaults to localhost:6379)
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
 
-Режим розробки
+   # Authentication
+   JWT_SECRET=your_jwt_secret_key
 
-Запуск Backend:
+   # CORS
+   CORS_ORIGIN=http://localhost:3001
 
-```plaintext
+   # Football Data API
+   FOOTBALL_DATA_API_KEY=your_api_key
+   ```
+
+4. **Frontend Setup**
+
+   ```bash
+   cd ../Client
+   npm install
+   ```
+
+   Create a `.env` file in the Client directory:
+
+   ```env
+   REACT_APP_API_URL=http://localhost:3000/fdc-api
+   ```
+
+### Running the Application
+
+**Development Mode**
+
+```bash
+# Terminal 1 - Backend
 cd Server
 npm run start:dev
-```
 
-Запуск Frontend:
-
-```plaintext
+# Terminal 2 - Frontend
 cd Client
 npm start
 ```
 
-Режим продакшн
-Backend:
+The backend will run on `http://localhost:3000` and the frontend on `http://localhost:3001`.
 
-```plaintext
+**Accessing pgAdmin**
+
+Navigate to `http://localhost:5050` and login with:
+
+- Email: `admin@admin.com`
+- Password: `admin`
+
+**Production Build**
+
+```bash
+# Backend
 cd Server
 npm run build
 npm run start:prod
-```
 
-Frontend:
-Зібрати додаток для продакшн:
-
-```plaintext
+# Frontend
 cd Client
 npm run build
 ```
 
-Сервер розгортання зібраних файлів з frontend/build (наприклад, використовуючи сервіс на зразок Nginx або сервера статичних файлів).
+### Running Tests
 
-## API
+```bash
+# Backend tests
+cd Server
+npm test
 
-Проєкт реалізує REST API для роботи з даними про змагання, команди, гравців та тренерів.
-
-```plaintext
-GET /competitions/search/:name: Search competitions by name.
-GET /competitions/:id: Retrieve competition by ID.
-
-GET /matches: Get matches, optionally by date and limit.
-GET /matches/my/:userId: Get matches for a specific user.
-GET /matches/live: Retrieve live matches.
-GET /matches/forteam/:teamid: Get matches for a specific team, optionally by date, status, and limit.
-GET /matches/forcomp/:compid: Get matches for a competition, with optional previous matches and limit.
-
-GET /standings/:id: Retrieve league table by league ID.
-
-GET /teams/search/:name: Search teams by name.
-GET /teams/:id: Retrieve team by ID.
-
-GET /user: Retrieve users, optionally by email.
-GET /user/auth/bytoken: Get user by token in request header.
-GET /user/auth/whoami: Get current authenticated user.
-POST /user/auth/signout: Sign out and clear authentication cookie.
-POST /user/auth/signup: Register a new user.
-POST /user/auth/signin: Log in an existing user.
-GET /user/favteam: Get favorite teams for current user.
-GET /user/favcomp: Get favorite competitions for current user.
-POST /user/favteam/:teamid: Add team to user's favorites.
-POST /user/favcomp/:compid: Add competition to user's favorites.
-DELETE /user/favcomp/:compid: Remove competition from user's favorites.
-DELETE /user/favteam/:teamid: Remove team from user's favorites.
-GET /user/:id: Retrieve user by ID.
-PATCH /user/:id: Update user information by ID.
+# Frontend tests
+cd Client
+npm test
 ```
 
-## Авторизація
+## API Reference
 
-Проєкт використовує JWT для аутентифікації користувачів. Користувачі можуть реєструватися, входити в систему, а також отримувати доступ до захищених маршрутів після входу.
+All endpoints are prefixed with `/fdc-api`.
 
-POST /api/auth/signup - Реєстрація нового користувача.
-POST /api/auth/signin - Вхід користувача.
-Приклад даних авторизації всередині body:
+### Competitions
 
-```plaintext
+| Method | Endpoint                    | Description             |
+| ------ | --------------------------- | ----------------------- |
+| GET    | `/competitions`             | Get all competitions    |
+| GET    | `/competitions/:id`         | Get competition details |
+| GET    | `/competitions/:id/matches` | Get competition matches |
+
+### Matches
+
+| Method | Endpoint   | Description                                    |
+| ------ | ---------- | ---------------------------------------------- |
+| GET    | `/matches` | Get matches (query: `date`, `limit`, `offset`) |
+
+### Standings
+
+| Method | Endpoint                    | Description                     |
+| ------ | --------------------------- | ------------------------------- |
+| GET    | `/standings/:competitionId` | Get standings for a competition |
+
+### Teams
+
+| Method | Endpoint             | Description      |
+| ------ | -------------------- | ---------------- |
+| GET    | `/teams/:id`         | Get team details |
+| GET    | `/teams/:id/matches` | Get team matches |
+
+### Users & Authentication
+
+| Method | Endpoint                | Description                                   |
+| ------ | ----------------------- | --------------------------------------------- |
+| POST   | `/user/auth/signup`     | Register new user                             |
+| POST   | `/user/auth/signin`     | User login                                    |
+| POST   | `/user/auth/signout`    | User logout                                   |
+| GET    | `/user/auth/whoami`     | Get current user (protected)                  |
+| GET    | `/user/auth/bytoken`    | Get user by token                             |
+| GET    | `/user/favteam`         | Get favorite teams (protected)                |
+| GET    | `/user/favcomp`         | Get favorite competitions (protected)         |
+| POST   | `/user/favteam/:teamid` | Add team to favorites (protected)             |
+| POST   | `/user/favcomp/:compid` | Add competition to favorites (protected)      |
+| DELETE | `/user/favteam/:teamid` | Remove team from favorites (protected)        |
+| DELETE | `/user/favcomp/:compid` | Remove competition from favorites (protected) |
+| GET    | `/user/:id`             | Get user by ID                                |
+| PATCH  | `/user/:id`             | Update user                                   |
+
+## Authentication
+
+The application uses JWT (JSON Web Tokens) for secure authentication. Protected routes require a valid token in the Authorization header.
+
+**Registration Request:**
+
+```json
+POST /user/auth/signup
 {
-  "name": "User name",
-  "email": "user email",
-  "password": "user password"
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securepassword"
 }
 ```
 
-## Особливості
+**Login Request:**
 
-Автоматичне оновлення даних: автоматичний збір та оновлення даних про змагання, команди, гравців і тренерів кожного тижня.
-Інтерактивний інтерфейс: користувачі можуть переглядати дані про змагання та команди, додавати улюблені змагання та команди.
+```json
+POST /user/auth/signin
+{
+  "email": "john@example.com",
+  "password": "securepassword"
+}
+```
