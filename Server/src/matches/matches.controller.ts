@@ -1,14 +1,15 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { GetMatchesQueryDto } from './dto/getMatchesQuery.dto';
-import { Match } from './dto/match';
+import { ProcessingInterceptor } from '../interceptors/processing.interceptor';
 
 @Controller('matches')
+@UseInterceptors(ProcessingInterceptor)
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @Get()
-  async getMatches(@Query() query: GetMatchesQueryDto): Promise<Match[]> {
-    return await this.matchesService.getMatches(query);
+  async getMatches(@Query() query: GetMatchesQueryDto) {
+    return this.matchesService.getMatches(query);
   }
 }

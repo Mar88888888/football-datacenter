@@ -7,6 +7,4 @@ export interface IUsersService {
   findAll(): Promise<User[]>;
   update(id: number, attrs: Partial<User>): Promise<User>;
   remove(id: number): Promise<User>;
-  saveVerificationToken(userId: number, token: string): Promise<void>;
-  findByVerificationToken(token: string): Promise<User>;
 }

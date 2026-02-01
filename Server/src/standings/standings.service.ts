@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { FootballDataClient } from '../football-data/football-data.client';
+import { FootballDataService, DataResult } from '../football-data/football-data.service';
 import { Standings } from './standings';
 
 @Injectable()
 export class StandingsService {
-  constructor(private readonly dataClient: FootballDataClient) {}
+  constructor(private readonly dataService: FootballDataService) {}
 
-  async getCompetitionStandings(competitionId: number): Promise<Standings> {
-    return await this.dataClient.getCompetitionStandings(competitionId);
+  async getCompetitionStandings(competitionId: number): Promise<DataResult<Standings>> {
+    return await this.dataService.getCompetitionStandings(competitionId);
   }
 }

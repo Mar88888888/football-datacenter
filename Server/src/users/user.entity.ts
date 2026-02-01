@@ -20,12 +20,6 @@ export class User {
   @IsString()
   password: string;
 
-  @Column({ default: false })
-  isEmailVerified: boolean;
-
-  @Column({ nullable: true })
-  verificationToken: string;
-
   @OneToMany(() => UserFavComp, favCompetition => favCompetition.user)
   favCompetitions: UserFavComp[];
 

@@ -8,14 +8,12 @@ import {
   Param,
   Query,
   NotFoundException,
-  Session,
   UseGuards,
   Req,
-  Res,
   UnauthorizedException,
-  BadRequestException,
-  Inject,
+  HttpCode,
 } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
@@ -24,7 +22,6 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard';
 import { SignInUserDto } from './dto/signin-user.dto';
-import { Response } from 'express';
 import { FavouriteService } from './favourite/favourite.service';
 import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
@@ -45,7 +42,7 @@ export class UsersController {
 
   @Serialize(UserDto)
   @Get('/auth/bytoken')
-  async getUser(@Req() req: Request, @Res() res: Response) {
+  async getUser(@Req() req: Request) {
     const authHeader = req.headers['authorization'];
     if (!authHeader || typeof authHeader !== 'string') {
       throw new UnauthorizedException('Authorization header is missing');
@@ -57,16 +54,9 @@ export class UsersController {
       throw new UnauthorizedException('Token is missing');
     }
 
-    res.cookie('authToken', token, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
-
     try {
       const user = await this.authService.getUserFromToken(token);
-      return res.json(user);
+      return user;
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
@@ -79,27 +69,16 @@ export class UsersController {
     return user;
   }
 
-  @Serialize(UserDto)
-  @Get('/auth/verify-email')
-  async verifyEmail(@Query('token') token: string, @Session() session: any) {
-    let res = await this.authService.verifyEmail(token);
-    return res;
-  }
-
-  @Serialize(UserDto)
   @Post('/auth/signout')
-  signOut(@Res() res: Response) {
-    res.clearCookie('authToken', {
-      httpOnly: false,
-      secure: true,
-      sameSite: 'none',
-    });
-    return res.send('Signed out!');
+  signOut() {
+    return { message: 'Signed out successfully' };
   }
 
   @Serialize(UserDto)
   @Post('/auth/signup')
-  async createUser(@Body() body: CreateUserDto, @Res() res: Response) {
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
+  async createUser(@Body() body: CreateUserDto) {
     const result = await this.authService.signup(
       body.email,
       body.password,
@@ -107,49 +86,29 @@ export class UsersController {
     );
 
     const payload = { sub: result.user.id, email: result.user.email };
-    const jwtToken = this.authService.generateJwtToken(payload);
+    const accessToken = this.authService.generateJwtToken(payload);
 
-    res.cookie('authToken', jwtToken, {
-      httpOnly: false,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
-
-    return res.status(200).json(result);
+    return { ...result, accessToken };
   }
 
   @Serialize(UserDto)
   @Post('/auth/signin')
-  async signin(@Body() signinDto: SignInUserDto, @Res() res: Response) {
-    try {
-      const { accessToken, user } = await this.authService.signin(
-        signinDto.email,
-        signinDto.password,
-      );
-      res.cookie('authToken', accessToken, {
-        httpOnly: false,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-      });
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ auth: { ttl: 60000, limit: 5 } })
+  async signin(@Body() signinDto: SignInUserDto) {
+    const { accessToken, user } = await this.authService.signin(
+      signinDto.email,
+      signinDto.password,
+    );
 
-      return res.status(200).json({
-        user: {
-          id: user.id,
-          isEmailVerified: user.isEmailVerified,
-          email: user.email,
-          name: user.name,
-        },
-      });
-    } catch (e) {
-      console.error(e.message);
-      if (e instanceof BadRequestException) {
-        return res.status(400).json({ message: e.message });
-      } else {
-        return res.status(500).json({ message: 'Internal server error' });
-      }
-    }
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    };
   }
 
   @UseGuards(AuthGuard)
@@ -168,11 +127,13 @@ export class UsersController {
   @Post('/favteam/:teamid')
   async addFavTeam(@CurrentUser() user: User, @Param('teamid') teamId: string) {
     try {
-      return await this.favService.addFavTeam(user.id, parseInt(teamId));
+      await this.favService.addFavTeam(user.id, parseInt(teamId));
+      return { success: true };
     } catch (err) {
       if (err instanceof NotFoundException) {
         throw new NotFoundException('Not found team with id ' + teamId);
       }
+      throw err;
     }
   }
 
@@ -183,16 +144,19 @@ export class UsersController {
     @Param('compid') compId: string,
   ) {
     try {
-      return await this.favService.addFavComp(user.id, parseInt(compId));
+      await this.favService.addFavComp(user.id, parseInt(compId));
+      return { success: true };
     } catch (err) {
       if (err instanceof NotFoundException) {
         throw new NotFoundException('Not found comp with id ' + compId);
       }
+      throw err;
     }
   }
 
   @UseGuards(AuthGuard)
   @Delete('/favcomp/:compid')
+  @HttpCode(204)
   async removeFavCompetition(
     @CurrentUser() user: User,
     @Param('compid') compId: string,
@@ -202,6 +166,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Delete('/favteam/:teamid')
+  @HttpCode(204)
   async removeFavTeam(
     @CurrentUser() user: User,
     @Param('teamid') teamId: string,
