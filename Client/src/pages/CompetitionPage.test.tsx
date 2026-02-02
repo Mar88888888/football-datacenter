@@ -5,30 +5,30 @@ import { createCompetition, createMatches } from '../test-utils';
 import type { Competition, Match, Standings, CompetitionFormat } from '../types';
 
 // Mock the hooks
-jest.mock('../hooks/useApi');
-jest.mock('../hooks/useCompetitionFormat');
-jest.mock('../hooks/useFavourite');
+vi.mock('../hooks/useApi');
+vi.mock('../hooks/useCompetitionFormat');
+vi.mock('../hooks/useFavourite');
 
 // Mock child components to simplify testing
-jest.mock('../components/LeagueTable', () => {
+vi.mock('../components/LeagueTable', () => {
   return function MockLeagueTable({ competitionId }: { competitionId: string }) {
     return <div data-testid="league-table">LeagueTable: {competitionId}</div>;
   };
 });
 
-jest.mock('../components/GroupStage', () => {
+vi.mock('../components/GroupStage', () => {
   return function MockGroupStage() {
     return <div data-testid="group-stage">GroupStage</div>;
   };
 });
 
-jest.mock('../components/KnockoutBracket', () => {
+vi.mock('../components/KnockoutBracket', () => {
   return function MockKnockoutBracket() {
     return <div data-testid="knockout-bracket">KnockoutBracket</div>;
   };
 });
 
-jest.mock('../components/MatchList', () => {
+vi.mock('../components/MatchList', () => {
   return function MockMatchList({ matches }: { matches: Match[] }) {
     return <div data-testid="match-list">MatchList: {matches.length} matches</div>;
   };
@@ -38,9 +38,9 @@ import { useApi } from '../hooks/useApi';
 import useCompetitionFormat from '../hooks/useCompetitionFormat';
 import useFavourite from '../hooks/useFavourite';
 
-const mockUseApi = useApi as jest.MockedFunction<typeof useApi>;
-const mockUseCompetitionFormat = useCompetitionFormat as jest.MockedFunction<typeof useCompetitionFormat>;
-const mockUseFavourite = useFavourite as jest.MockedFunction<typeof useFavourite>;
+const mockUseApi = useApi as ReturnType<typeof vi.fn><typeof useApi>;
+const mockUseCompetitionFormat = useCompetitionFormat as ReturnType<typeof vi.fn><typeof useCompetitionFormat>;
+const mockUseFavourite = useFavourite as ReturnType<typeof vi.fn><typeof useFavourite>;
 
 interface MockUseApiResult<T> {
   data: T | null;
@@ -57,7 +57,7 @@ function createUseApiResult<T,>(data: T | null, options: Partial<MockUseApiResul
     loading: false,
     error: null,
     isProcessing: false,
-    refetch: jest.fn(),
+    refetch: vi.fn(),
     ...options,
   };
 }
@@ -92,7 +92,7 @@ const renderCompetitionPage = (competitionId = '2021') => {
 
 describe('CompetitionPage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Default mock implementations
     mockUseApi.mockImplementation((url: string | null) => {
@@ -115,9 +115,9 @@ describe('CompetitionPage', () => {
     mockUseFavourite.mockReturnValue({
       isFavourite: false,
       loading: false,
-      addToFavourite: jest.fn(),
-      removeFromFavourite: jest.fn(),
-      toggleFavourite: jest.fn(),
+      addToFavourite: vi.fn(),
+      removeFromFavourite: vi.fn(),
+      toggleFavourite: vi.fn(),
     });
   });
 
@@ -431,12 +431,12 @@ describe('CompetitionPage', () => {
 
   describe('favourite functionality', () => {
     it('should call toggleFavourite when favourite button clicked', () => {
-      const toggleFavourite = jest.fn();
+      const toggleFavourite = vi.fn();
       mockUseFavourite.mockReturnValue({
         isFavourite: false,
         loading: false,
-        addToFavourite: jest.fn(),
-        removeFromFavourite: jest.fn(),
+        addToFavourite: vi.fn(),
+        removeFromFavourite: vi.fn(),
         toggleFavourite,
       });
 
@@ -452,9 +452,9 @@ describe('CompetitionPage', () => {
       mockUseFavourite.mockReturnValue({
         isFavourite: false,
         loading: true,
-        addToFavourite: jest.fn(),
-        removeFromFavourite: jest.fn(),
-        toggleFavourite: jest.fn(),
+        addToFavourite: vi.fn(),
+        removeFromFavourite: vi.fn(),
+        toggleFavourite: vi.fn(),
       });
 
       renderCompetitionPage();

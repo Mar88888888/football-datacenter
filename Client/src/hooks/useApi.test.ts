@@ -1,31 +1,29 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
+import { vi, describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { useApi, useAuthApi, useApiMutation, useAuthMutation } from './useApi';
 import authService from '../services/authService';
 
 // Mock authService
-jest.mock('../services/authService', () => ({
-  getToken: jest.fn(),
-  clearToken: jest.fn(),
+vi.mock('../services/authService', () => ({
+  default: {
+    getToken: vi.fn(),
+    clearToken: vi.fn(),
+  },
 }));
 
-const mockAuthService = authService as jest.Mocked<typeof authService>;
+const mockAuthService = authService as { getToken: ReturnType<typeof vi.fn>; clearToken: ReturnType<typeof vi.fn> };
 
 // Store original window.location
 const originalLocation = window.location;
 
 // Mock fetch globally
-const mockFetch = jest.fn();
+const mockFetch = vi.fn();
 global.fetch = mockFetch;
-
-// Mock process.env
-const originalEnv = process.env;
 
 const API_BASE = 'http://localhost:3000/fdc-api';
 
 describe('useApi', () => {
   beforeAll(() => {
-    process.env = { ...originalEnv, REACT_APP_API_URL: API_BASE };
-
     // Mock window.location
     Object.defineProperty(window, 'location', {
       writable: true,
@@ -34,7 +32,6 @@ describe('useApi', () => {
   });
 
   afterAll(() => {
-    process.env = originalEnv;
     Object.defineProperty(window, 'location', {
       writable: true,
       value: originalLocation,
@@ -42,7 +39,7 @@ describe('useApi', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFetch.mockReset();
     window.location.href = '';
   });
@@ -188,7 +185,7 @@ describe('useApi', () => {
 
   describe('202 polling', () => {
     it('should poll on 202 and eventually complete', async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       let callCount = 0;
       mockFetch.mockImplementation(() => {
@@ -214,7 +211,7 @@ describe('useApi', () => {
 
       // Advance timer to trigger retry
       await act(async () => {
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
       });
 
       // Wait for completion
@@ -223,11 +220,11 @@ describe('useApi', () => {
       expect(result.current.isProcessing).toBe(false);
       expect(callCount).toBe(2);
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('should use Retry-After header for delay', async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       let callCount = 0;
       mockFetch.mockImplementation(() => {
@@ -253,13 +250,13 @@ describe('useApi', () => {
 
       // Advance timers by 2 seconds (Retry-After value)
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => expect(result.current.loading).toBe(false));
       expect(callCount).toBe(2);
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
@@ -290,7 +287,7 @@ describe('useApi', () => {
 
   describe('abort handling', () => {
     it('should abort previous fetch when endpoint changes', async () => {
-      const abortSpy = jest.spyOn(AbortController.prototype, 'abort');
+      const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
 
       mockFetch.mockImplementation(
         () =>
@@ -319,7 +316,7 @@ describe('useApi', () => {
     });
 
     it('should abort on unmount', async () => {
-      const abortSpy = jest.spyOn(AbortController.prototype, 'abort');
+      const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
 
       mockFetch.mockImplementation(
         () =>
@@ -347,16 +344,8 @@ describe('useApi', () => {
 });
 
 describe('useAuthApi', () => {
-  beforeAll(() => {
-    process.env = { ...originalEnv, REACT_APP_API_URL: API_BASE };
-  });
-
-  afterAll(() => {
-    process.env = originalEnv;
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFetch.mockReset();
   });
 
@@ -402,16 +391,8 @@ describe('useAuthApi', () => {
 });
 
 describe('useApiMutation', () => {
-  beforeAll(() => {
-    process.env = { ...originalEnv, REACT_APP_API_URL: API_BASE };
-  });
-
-  afterAll(() => {
-    process.env = originalEnv;
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFetch.mockReset();
   });
 
@@ -567,16 +548,8 @@ describe('useApiMutation', () => {
 });
 
 describe('useAuthMutation', () => {
-  beforeAll(() => {
-    process.env = { ...originalEnv, REACT_APP_API_URL: API_BASE };
-  });
-
-  afterAll(() => {
-    process.env = originalEnv;
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFetch.mockReset();
   });
 

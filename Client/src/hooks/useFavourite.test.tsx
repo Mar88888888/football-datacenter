@@ -6,23 +6,23 @@ import { FavouritesContext } from '../context/FavouritesContext';
 import type { FavoriteTeam, FavoriteCompetition } from '../types';
 
 // Mock react-router-dom
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', () => ({
+  ...await vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock console.error to avoid noise in tests
 const originalConsoleError = console.error;
 beforeAll(() => {
-  console.error = jest.fn();
+  console.error = vi.fn();
 });
 afterAll(() => {
   console.error = originalConsoleError;
 });
 
 // Mock alert
-const mockAlert = jest.fn();
+const mockAlert = vi.fn();
 global.alert = mockAlert;
 
 // Helper to create wrapper with contexts
@@ -34,17 +34,17 @@ interface ContextValues {
   user: { id: number; email: string; name: string } | null;
   authToken: string | null;
   loading: boolean;
-  saveToken: jest.Mock;
-  logout: jest.Mock;
-  setUser: jest.Mock;
+  saveToken: ReturnType<typeof vi.fn>;
+  logout: ReturnType<typeof vi.fn>;
+  setUser: ReturnType<typeof vi.fn>;
   favTeams: FavoriteTeam[];
   favComps: FavoriteCompetition[];
-  isFavTeam: jest.Mock;
-  isFavComp: jest.Mock;
-  addFavTeam: jest.Mock;
-  removeFavTeam: jest.Mock;
-  addFavComp: jest.Mock;
-  removeFavComp: jest.Mock;
+  isFavTeam: ReturnType<typeof vi.fn>;
+  isFavComp: ReturnType<typeof vi.fn>;
+  addFavTeam: ReturnType<typeof vi.fn>;
+  removeFavTeam: ReturnType<typeof vi.fn>;
+  addFavComp: ReturnType<typeof vi.fn>;
+  removeFavComp: ReturnType<typeof vi.fn>;
   favLoading: boolean;
 }
 
@@ -53,21 +53,21 @@ const createWrapper = (contextValues: Partial<ContextValues> = {}) => {
     user: contextValues.user ?? null,
     authToken: contextValues.authToken ?? null,
     loading: contextValues.loading ?? false,
-    saveToken: contextValues.saveToken ?? jest.fn(),
-    logout: contextValues.logout ?? jest.fn(),
-    setUser: contextValues.setUser ?? jest.fn(),
+    saveToken: contextValues.saveToken ?? vi.fn(),
+    logout: contextValues.logout ?? vi.fn(),
+    setUser: contextValues.setUser ?? vi.fn(),
   };
 
   const favValue = {
     favTeams: contextValues.favTeams ?? [],
     favComps: contextValues.favComps ?? [],
     loading: contextValues.favLoading ?? false,
-    isFavTeam: contextValues.isFavTeam ?? jest.fn().mockReturnValue(false),
-    isFavComp: contextValues.isFavComp ?? jest.fn().mockReturnValue(false),
-    addFavTeam: contextValues.addFavTeam ?? jest.fn().mockResolvedValue(undefined),
-    removeFavTeam: contextValues.removeFavTeam ?? jest.fn().mockResolvedValue(undefined),
-    addFavComp: contextValues.addFavComp ?? jest.fn().mockResolvedValue(undefined),
-    removeFavComp: contextValues.removeFavComp ?? jest.fn().mockResolvedValue(undefined),
+    isFavTeam: contextValues.isFavTeam ?? vi.fn().mockReturnValue(false),
+    isFavComp: contextValues.isFavComp ?? vi.fn().mockReturnValue(false),
+    addFavTeam: contextValues.addFavTeam ?? vi.fn().mockResolvedValue(undefined),
+    removeFavTeam: contextValues.removeFavTeam ?? vi.fn().mockResolvedValue(undefined),
+    addFavComp: contextValues.addFavComp ?? vi.fn().mockResolvedValue(undefined),
+    removeFavComp: contextValues.removeFavComp ?? vi.fn().mockResolvedValue(undefined),
   };
 
   return ({ children }: WrapperProps) => (
@@ -83,12 +83,12 @@ const testComp: FavoriteCompetition = { id: 2021, name: 'Premier League', emblem
 
 describe('useFavourite', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('isFavourite detection', () => {
     it('should return false when team is not a favourite', () => {
-      const isFavTeam = jest.fn().mockReturnValue(false);
+      const isFavTeam = vi.fn().mockReturnValue(false);
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, isFavTeam }),
       });
@@ -98,7 +98,7 @@ describe('useFavourite', () => {
     });
 
     it('should return true when team is a favourite', () => {
-      const isFavTeam = jest.fn().mockReturnValue(true);
+      const isFavTeam = vi.fn().mockReturnValue(true);
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, isFavTeam }),
       });
@@ -107,7 +107,7 @@ describe('useFavourite', () => {
     });
 
     it('should return false when competition is not a favourite', () => {
-      const isFavComp = jest.fn().mockReturnValue(false);
+      const isFavComp = vi.fn().mockReturnValue(false);
       const { result } = renderHook(() => useFavourite('competition', 2021, testComp), {
         wrapper: createWrapper({ user: testUser, isFavComp }),
       });
@@ -117,7 +117,7 @@ describe('useFavourite', () => {
     });
 
     it('should return true when competition is a favourite', () => {
-      const isFavComp = jest.fn().mockReturnValue(true);
+      const isFavComp = vi.fn().mockReturnValue(true);
       const { result } = renderHook(() => useFavourite('competition', 2021, testComp), {
         wrapper: createWrapper({ user: testUser, isFavComp }),
       });
@@ -126,7 +126,7 @@ describe('useFavourite', () => {
     });
 
     it('should handle string ID', () => {
-      const isFavTeam = jest.fn().mockReturnValue(true);
+      const isFavTeam = vi.fn().mockReturnValue(true);
       const { result } = renderHook(() => useFavourite('team', '64', testTeam), {
         wrapper: createWrapper({ user: testUser, isFavTeam }),
       });
@@ -146,7 +146,7 @@ describe('useFavourite', () => {
     });
 
     it('should combine context loading with mutation loading', async () => {
-      const addFavTeam = jest.fn().mockImplementation(
+      const addFavTeam = vi.fn().mockImplementation(
         () => new Promise((resolve) => setTimeout(resolve, 100))
       );
 
@@ -180,7 +180,7 @@ describe('useFavourite', () => {
     });
 
     it('should not add when item is null', async () => {
-      const addFavTeam = jest.fn();
+      const addFavTeam = vi.fn();
       const { result } = renderHook(() => useFavourite('team', 64, null), {
         wrapper: createWrapper({ user: testUser, addFavTeam }),
       });
@@ -194,7 +194,7 @@ describe('useFavourite', () => {
     });
 
     it('should call addFavTeam for team type', async () => {
-      const addFavTeam = jest.fn().mockResolvedValue(undefined);
+      const addFavTeam = vi.fn().mockResolvedValue(undefined);
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, addFavTeam }),
       });
@@ -207,7 +207,7 @@ describe('useFavourite', () => {
     });
 
     it('should call addFavComp for competition type', async () => {
-      const addFavComp = jest.fn().mockResolvedValue(undefined);
+      const addFavComp = vi.fn().mockResolvedValue(undefined);
       const { result } = renderHook(() => useFavourite('competition', 2021, testComp), {
         wrapper: createWrapper({ user: testUser, addFavComp }),
       });
@@ -221,7 +221,7 @@ describe('useFavourite', () => {
 
     it('should handle add error and show alert', async () => {
       const error = new Error('Add failed');
-      const addFavTeam = jest.fn().mockRejectedValue(error);
+      const addFavTeam = vi.fn().mockRejectedValue(error);
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, addFavTeam }),
       });
@@ -235,7 +235,7 @@ describe('useFavourite', () => {
     });
 
     it('should show default error message when error has no message', async () => {
-      const addFavTeam = jest.fn().mockRejectedValue({});
+      const addFavTeam = vi.fn().mockRejectedValue({});
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, addFavTeam }),
       });
@@ -250,7 +250,7 @@ describe('useFavourite', () => {
 
   describe('removeFromFavourite', () => {
     it('should call removeFavTeam for team type', async () => {
-      const removeFavTeam = jest.fn().mockResolvedValue(undefined);
+      const removeFavTeam = vi.fn().mockResolvedValue(undefined);
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, removeFavTeam }),
       });
@@ -263,7 +263,7 @@ describe('useFavourite', () => {
     });
 
     it('should call removeFavComp for competition type', async () => {
-      const removeFavComp = jest.fn().mockResolvedValue(undefined);
+      const removeFavComp = vi.fn().mockResolvedValue(undefined);
       const { result } = renderHook(() => useFavourite('competition', 2021, testComp), {
         wrapper: createWrapper({ user: testUser, removeFavComp }),
       });
@@ -276,7 +276,7 @@ describe('useFavourite', () => {
     });
 
     it('should convert string ID to number', async () => {
-      const removeFavTeam = jest.fn().mockResolvedValue(undefined);
+      const removeFavTeam = vi.fn().mockResolvedValue(undefined);
       const { result } = renderHook(() => useFavourite('team', '64', testTeam), {
         wrapper: createWrapper({ user: testUser, removeFavTeam }),
       });
@@ -290,7 +290,7 @@ describe('useFavourite', () => {
 
     it('should handle remove error and show alert', async () => {
       const error = new Error('Remove failed');
-      const removeFavTeam = jest.fn().mockRejectedValue(error);
+      const removeFavTeam = vi.fn().mockRejectedValue(error);
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, removeFavTeam }),
       });
@@ -306,8 +306,8 @@ describe('useFavourite', () => {
 
   describe('toggleFavourite', () => {
     it('should call removeFromFavourite when already a favourite', async () => {
-      const isFavTeam = jest.fn().mockReturnValue(true);
-      const removeFavTeam = jest.fn().mockResolvedValue(undefined);
+      const isFavTeam = vi.fn().mockReturnValue(true);
+      const removeFavTeam = vi.fn().mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, isFavTeam, removeFavTeam }),
@@ -321,8 +321,8 @@ describe('useFavourite', () => {
     });
 
     it('should call addToFavourite when not a favourite', async () => {
-      const isFavTeam = jest.fn().mockReturnValue(false);
-      const addFavTeam = jest.fn().mockResolvedValue(undefined);
+      const isFavTeam = vi.fn().mockReturnValue(false);
+      const addFavTeam = vi.fn().mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useFavourite('team', 64, testTeam), {
         wrapper: createWrapper({ user: testUser, isFavTeam, addFavTeam }),
@@ -336,8 +336,8 @@ describe('useFavourite', () => {
     });
 
     it('should toggle competition favourite', async () => {
-      const isFavComp = jest.fn().mockReturnValue(false);
-      const addFavComp = jest.fn().mockResolvedValue(undefined);
+      const isFavComp = vi.fn().mockReturnValue(false);
+      const addFavComp = vi.fn().mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useFavourite('competition', 2021, testComp), {
         wrapper: createWrapper({ user: testUser, isFavComp, addFavComp }),

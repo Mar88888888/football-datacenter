@@ -38,7 +38,7 @@ describe('authService', () => {
     });
 
     it('notifies listeners when token is set', () => {
-      const listener = jest.fn();
+      const listener = vi.fn();
       authService.onTokenChange(listener);
 
       authService.setToken('new-token');
@@ -61,7 +61,7 @@ describe('authService', () => {
     });
 
     it('notifies listeners with null', () => {
-      const listener = jest.fn();
+      const listener = vi.fn();
       authService.setToken('test-token');
       authService.onTokenChange(listener);
 
@@ -90,14 +90,14 @@ describe('authService', () => {
 
   describe('onTokenChange', () => {
     it('returns an unsubscribe function', () => {
-      const listener = jest.fn();
+      const listener = vi.fn();
       const unsubscribe = authService.onTokenChange(listener);
 
       expect(typeof unsubscribe).toBe('function');
     });
 
     it('listener is called on token changes', () => {
-      const listener = jest.fn();
+      const listener = vi.fn();
       authService.onTokenChange(listener);
 
       authService.setToken('token-1');
@@ -111,7 +111,7 @@ describe('authService', () => {
     });
 
     it('unsubscribed listener is not called', () => {
-      const listener = jest.fn();
+      const listener = vi.fn();
       const unsubscribe = authService.onTokenChange(listener);
 
       authService.setToken('token-1');
@@ -124,8 +124,8 @@ describe('authService', () => {
     });
 
     it('multiple listeners are all notified', () => {
-      const listener1 = jest.fn();
-      const listener2 = jest.fn();
+      const listener1 = vi.fn();
+      const listener2 = vi.fn();
 
       authService.onTokenChange(listener1);
       authService.onTokenChange(listener2);

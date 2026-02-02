@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const rootElement = document.getElementById('root');
@@ -18,5 +17,3 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 );
-
-reportWebVitals();
