@@ -31,54 +31,93 @@ import { redisStore } from 'cache-manager-redis-yet';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USER'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [User, UserFavComp, UserFavTeam],
-        synchronize: true,
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+
+        if (databaseUrl) {
+          return {
+            type: 'postgres',
+            url: databaseUrl,
+            entities: [User, UserFavComp, UserFavTeam],
+            synchronize: true,
+            ssl: { rejectUnauthorized: false },
+          };
+        }
+
+        return {
+          type: 'postgres',
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<number>('DB_PORT'),
+          username: configService.get<string>('DB_USER'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_NAME'),
+          entities: [User, UserFavComp, UserFavTeam],
+          synchronize: true,
+        };
+      },
     }),
 
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        store: await redisStore({
-          socket: {
-            host: configService.get<string>('REDIS_HOST') || 'localhost',
-            port: configService.get<number>('REDIS_PORT') || 6379,
-          },
-        }),
-        ttl: 60 * 1000, // cache-manager v5 uses milliseconds
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const redisUrl = configService.get<string>('REDIS_URL');
+
+        if (redisUrl) {
+          return {
+            store: await redisStore({
+              url: redisUrl,
+            }),
+            ttl: 60 * 1000,
+          };
+        }
+
+        return {
+          store: await redisStore({
+            socket: {
+              host: configService.get<string>('REDIS_HOST') || 'localhost',
+              port: configService.get<number>('REDIS_PORT') || 6379,
+            },
+          }),
+          ttl: 60 * 1000,
+        };
+      },
     }),
 
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('REDIS_HOST') || 'localhost',
-          port: configService.get<number>('REDIS_PORT') || 6379,
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const redisUrl = configService.get<string>('REDIS_URL');
+
+        if (redisUrl) {
+          return {
+            connection: {
+              url: redisUrl,
+            },
+          };
+        }
+
+        return {
+          connection: {
+            host: configService.get<string>('REDIS_HOST') || 'localhost',
+            port: configService.get<number>('REDIS_PORT') || 6379,
+          },
+        };
+      },
     }),
 
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 60000,   // 1 minute
-        limit: 10,    // 10 requests per minute (general)
+        ttl: 60000, // 1 minute
+        limit: 10, // 10 requests per minute (general)
       },
       {
         name: 'auth',
-        ttl: 60000,   // 1 minute
-        limit: 5,     // 5 auth attempts per minute
+        ttl: 60000, // 1 minute
+        limit: 5, // 5 auth attempts per minute
       },
     ]),
 
