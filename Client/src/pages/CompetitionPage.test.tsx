@@ -38,16 +38,16 @@ import { useApi } from '../hooks/useApi';
 import useCompetitionFormat from '../hooks/useCompetitionFormat';
 import useFavourite from '../hooks/useFavourite';
 
-const mockUseApi = useApi as ReturnType<typeof vi.fn><typeof useApi>;
-const mockUseCompetitionFormat = useCompetitionFormat as ReturnType<typeof vi.fn><typeof useCompetitionFormat>;
-const mockUseFavourite = useFavourite as ReturnType<typeof vi.fn><typeof useFavourite>;
+const mockUseApi = vi.mocked(useApi);
+const mockUseCompetitionFormat = vi.mocked(useCompetitionFormat);
+const mockUseFavourite = vi.mocked(useFavourite);
 
 interface MockUseApiResult<T> {
   data: T | null;
   loading: boolean;
   error: Error | null;
   isProcessing: boolean;
-  refetch: jest.Mock;
+  refetch: ReturnType<typeof vi.fn>;
 }
 
 // Use trailing comma to disambiguate generic from JSX
