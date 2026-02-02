@@ -11,10 +11,10 @@ import {
   createFavoriteCompetition,
 } from '../test-utils';
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', () => ({
+  ...await vi.importActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
@@ -40,7 +40,7 @@ const renderDashboard = (options: RenderOptions = {}) => {
 
 describe('Dashboard', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('loading state', () => {

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import authService from '../services/authService';
 import type { UseApiOptions, UseApiResult, UseMutationResult, FetchCallbacks } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 const DEFAULT_RETRY_DELAY = 3000;
 const MAX_RETRIES = 20;
 
