@@ -1,5 +1,8 @@
+import { vi } from 'vitest';
 import type { User } from '../types/auth.types';
 import type { FavoriteTeam, FavoriteCompetition } from '../types/favorites.types';
+
+type MockFn = ReturnType<typeof vi.fn>;
 
 // ==================== AUTH CONTEXT MOCK ====================
 
@@ -7,18 +10,18 @@ export interface MockAuthContextValue {
   user: User | null;
   authToken: string | null;
   loading: boolean;
-  saveToken: jest.Mock;
-  logout: jest.Mock;
-  setUser: jest.Mock;
+  saveToken: MockFn;
+  logout: MockFn;
+  setUser: MockFn;
 }
 
 export const createMockAuthContext = (overrides?: Partial<MockAuthContextValue>): MockAuthContextValue => ({
   user: null,
   authToken: null,
   loading: false,
-  saveToken: jest.fn(),
-  logout: jest.fn(),
-  setUser: jest.fn(),
+  saveToken: vi.fn(),
+  logout: vi.fn(),
+  setUser: vi.fn(),
   ...overrides,
 });
 
@@ -39,24 +42,24 @@ export interface MockFavouritesContextValue {
   favTeams: FavoriteTeam[];
   favComps: FavoriteCompetition[];
   loading: boolean;
-  addFavTeam: jest.Mock;
-  removeFavTeam: jest.Mock;
-  isFavTeam: jest.Mock;
-  addFavComp: jest.Mock;
-  removeFavComp: jest.Mock;
-  isFavComp: jest.Mock;
+  addFavTeam: MockFn;
+  removeFavTeam: MockFn;
+  isFavTeam: MockFn;
+  addFavComp: MockFn;
+  removeFavComp: MockFn;
+  isFavComp: MockFn;
 }
 
 export const createMockFavouritesContext = (overrides?: Partial<MockFavouritesContextValue>): MockFavouritesContextValue => ({
   favTeams: [],
   favComps: [],
   loading: false,
-  addFavTeam: jest.fn(),
-  removeFavTeam: jest.fn(),
-  isFavTeam: jest.fn().mockReturnValue(false),
-  addFavComp: jest.fn(),
-  removeFavComp: jest.fn(),
-  isFavComp: jest.fn().mockReturnValue(false),
+  addFavTeam: vi.fn(),
+  removeFavTeam: vi.fn(),
+  isFavTeam: vi.fn().mockReturnValue(false),
+  addFavComp: vi.fn(),
+  removeFavComp: vi.fn(),
+  isFavComp: vi.fn().mockReturnValue(false),
   ...overrides,
 });
 
@@ -67,7 +70,7 @@ export interface MockUseApiResult<T> {
   loading: boolean;
   error: Error | null;
   isProcessing: boolean;
-  refetch: jest.Mock;
+  refetch: MockFn;
 }
 
 export const createMockUseApiResult = <T>(data: T | null, overrides?: Partial<MockUseApiResult<T>>): MockUseApiResult<T> => ({
@@ -75,7 +78,7 @@ export const createMockUseApiResult = <T>(data: T | null, overrides?: Partial<Mo
   loading: false,
   error: null,
   isProcessing: false,
-  refetch: jest.fn(),
+  refetch: vi.fn(),
   ...overrides,
 });
 
@@ -90,7 +93,7 @@ export const createProcessingUseApiResult = <T>(): MockUseApiResult<T> =>
 
 // ==================== ROUTER MOCKS ====================
 
-export const createMockNavigate = (): jest.Mock => jest.fn();
+export const createMockNavigate = (): MockFn => vi.fn();
 
 export const createMockUseParams = (params: Record<string, string>): (() => Record<string, string>) =>
   () => params;
@@ -100,24 +103,24 @@ export const createMockUseParams = (params: Record<string, string>): (() => Reco
 export const createMockFetchResponse = <T>(data: T, status = 200): Response => ({
   ok: status >= 200 && status < 300,
   status,
-  json: jest.fn().mockResolvedValue(data),
+  json: vi.fn().mockResolvedValue(data),
   headers: new Headers(),
   redirected: false,
   statusText: 'OK',
   type: 'basic',
   url: '',
-  clone: jest.fn(),
+  clone: vi.fn(),
   body: null,
   bodyUsed: false,
-  arrayBuffer: jest.fn(),
-  blob: jest.fn(),
-  formData: jest.fn(),
-  text: jest.fn(),
-  bytes: jest.fn(),
+  arrayBuffer: vi.fn(),
+  blob: vi.fn(),
+  formData: vi.fn(),
+  text: vi.fn(),
+  bytes: vi.fn(),
 });
 
-export const mockFetch = (response: Response): jest.SpyInstance =>
-  jest.spyOn(global, 'fetch').mockResolvedValue(response);
+export const mockFetch = (response: Response) =>
+  vi.spyOn(global, 'fetch').mockResolvedValue(response);
 
-export const mockFetchError = (error: Error): jest.SpyInstance =>
-  jest.spyOn(global, 'fetch').mockRejectedValue(error);
+export const mockFetchError = (error: Error) =>
+  vi.spyOn(global, 'fetch').mockRejectedValue(error);
