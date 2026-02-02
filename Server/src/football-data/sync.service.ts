@@ -26,7 +26,7 @@ export class SyncService {
     @InjectQueue(FOOTBALL_DATA_QUEUE) private readonly queue: Queue,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron('*/15 * * * *')
   async syncTodayMatches(): Promise<void> {
     this.logger.log('Queueing sync: today matches');
 
@@ -41,7 +41,7 @@ export class SyncService {
     this.logger.log('Queued sync: today matches');
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_HOUR)
   async syncStandings(): Promise<void> {
     this.logger.log('Queueing sync: standings for popular competitions');
 
