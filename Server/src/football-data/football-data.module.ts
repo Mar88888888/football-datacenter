@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq';
-import { FootballDataProcessor } from './football-data.processor';
 import { FootballDataService } from './football-data.service';
+import { FetcherService } from './fetcher.service';
 import { SyncService } from './sync.service';
-import { FOOTBALL_DATA_QUEUE } from './football-data.types';
 
 @Module({
   imports: [
@@ -19,20 +17,8 @@ import { FOOTBALL_DATA_QUEUE } from './football-data.types';
         },
       }),
     }),
-    BullModule.registerQueue({
-      name: FOOTBALL_DATA_QUEUE,
-      defaultJobOptions: {
-        removeOnComplete: true,
-        removeOnFail: 100,
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 5000,
-        },
-      },
-    }),
   ],
-  providers: [FootballDataProcessor, FootballDataService, SyncService],
+  providers: [FetcherService, FootballDataService, SyncService],
   exports: [FootballDataService],
 })
 export class FootballDataModule {}

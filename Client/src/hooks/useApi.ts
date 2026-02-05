@@ -45,8 +45,9 @@ const fetchWithPolling = async <T>(
       onProcessing?.(true);
 
       const retryAfter = response.headers.get('Retry-After');
-      const delay = retryAfter
-        ? parseInt(retryAfter, 10) * 1000
+      const parsedRetryAfter = retryAfter ? parseInt(retryAfter, 10) : NaN;
+      const delay = !isNaN(parsedRetryAfter) && parsedRetryAfter > 0
+        ? parsedRetryAfter * 1000
         : DEFAULT_RETRY_DELAY;
 
       await new Promise<void>((resolve, reject) => {

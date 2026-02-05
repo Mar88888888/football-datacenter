@@ -24,6 +24,9 @@ export class AuthGuard implements CanActivate {
     }
 
     const authToken = authHeader.split(' ')[1];
+    if (!authToken) {
+      throw new UnauthorizedException('Malformed authorization header');
+    }
 
     try {
       const decodedToken = this.jwtService.verify(authToken);

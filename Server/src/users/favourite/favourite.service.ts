@@ -60,43 +60,34 @@ export class FavouriteService {
   }
 
   async addFavTeam(userId: number, teamId: number) {
-    const existingFav = await this.favTeamRepo.findOne({
-      where: { user: { id: userId }, teamId },
-    });
-
-    if (existingFav) {
-      throw new Error('Team is already a favorite');
-    }
-
-    // Fetch team data to store name and crest
+    // Fetch team data first to store name and crest
     const result = await this.teamService.getById(teamId);
     if (result.status === DataStatus.PROCESSING || !result.data) {
       throw new ServiceUnavailableException('Team data is loading. Please try again shortly.');
     }
     const team = result.data;
 
-    await this.favTeamRepo.insert({
-      user: { id: userId },
-      teamId,
-      name: team.name,
-      crest: team.crest,
-    });
+    try {
+      await this.favTeamRepo.insert({
+        user: { id: userId },
+        teamId,
+        name: team.name,
+        crest: team.crest,
+      });
+    } catch (error) {
+      // Handle duplicate key error (race condition or already exists)
+      if ((error as any)?.code === '23505') {
+        throw new Error('Team is already a favorite');
+      }
+      throw error;
+    }
   }
 
   async addFavComp(userId: number, compId: number) {
-    const [existingFav, availableIds] = await Promise.all([
-      this.favCompRepo.findOne({
-        where: { user: { id: userId }, competitionId: compId },
-      }),
-      this.getAvailableCompetitionIds(),
-    ]);
+    const availableIds = await this.getAvailableCompetitionIds();
 
     if (!availableIds.has(compId)) {
       throw new Error('Competition is not available');
-    }
-
-    if (existingFav) {
-      throw new Error('Competition is already a favorite');
     }
 
     // Fetch competition data to store name and emblem
@@ -106,12 +97,20 @@ export class FavouriteService {
     }
     const competition = result.data;
 
-    await this.favCompRepo.insert({
-      user: { id: userId },
-      competitionId: compId,
-      name: competition.name,
-      emblem: competition.emblem,
-    });
+    try {
+      await this.favCompRepo.insert({
+        user: { id: userId },
+        competitionId: compId,
+        name: competition.name,
+        emblem: competition.emblem,
+      });
+    } catch (error) {
+      // Handle duplicate key error (race condition or already exists)
+      if ((error as any)?.code === '23505') {
+        throw new Error('Competition is already a favorite');
+      }
+      throw error;
+    }
   }
 
   async removeFavTeam(userId: number, teamId: number) {
