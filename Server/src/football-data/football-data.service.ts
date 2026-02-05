@@ -28,6 +28,7 @@ export interface DataResult<T> {
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
+  notAvailable?: boolean;
 }
 
 @Injectable()
@@ -103,6 +104,11 @@ export class FootballDataService {
     const cached = await this.cacheManager.get<CacheEntry<T>>(cacheKey);
 
     if (cached) {
+      // If marked as not available (404), return that status
+      if (cached.notAvailable) {
+        return { data: null, status: DataStatus.NOT_AVAILABLE };
+      }
+
       const age = Date.now() - cached.timestamp;
       const isStale = age > staleThreshold;
 
@@ -119,6 +125,7 @@ export class FootballDataService {
 
   private async fetchInline<T>(jobData: FootballJobData): Promise<DataResult<T>> {
     const cacheKey = getCacheKey(jobData);
+    const { ttl } = getPathAndTtl(jobData);
 
     try {
       const result = await this.fetcher.fetch<T>(cacheKey, () =>
@@ -126,7 +133,21 @@ export class FootballDataService {
       );
       return { data: result, status: DataStatus.FRESH };
     } catch (error) {
-      if (error?.response?.status !== 429) {
+      const status = error?.response?.status;
+
+      // 404 = resource doesn't exist, cache it so we don't keep asking
+      if (status === 404) {
+        const notAvailableEntry: CacheEntry<null> = {
+          data: null,
+          timestamp: Date.now(),
+          notAvailable: true,
+        };
+        await this.cacheManager.set(cacheKey, notAvailableEntry, ttl);
+        return { data: null, status: DataStatus.NOT_AVAILABLE };
+      }
+
+      // Don't log 429 or 404 as errors
+      if (status !== 429) {
         this.logger.error(`Fetch failed for ${cacheKey}: ${error.message}`);
       }
       return { data: null, status: DataStatus.PROCESSING, retryAfter: 30 };
@@ -160,7 +181,11 @@ export class FootballDataService {
     this.fetcher
       .fetch(cacheKey, () => this.doFetchAndCache(jobData))
       .catch((error) => {
-        this.logger.error(`Background refresh failed for ${cacheKey}: ${error.message}`);
+        const status = error?.response?.status;
+        // Don't log 429 or 404 as errors
+        if (status !== 429 && status !== 404) {
+          this.logger.error(`Background refresh failed for ${cacheKey}: ${error.message}`);
+        }
       });
   }
 

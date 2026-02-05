@@ -8,17 +8,24 @@ interface TeamCardProps {
 }
 
 const TeamCard: React.FC<TeamCardProps> = ({ team, isNationalTeam }) => {
+  const teamName = team?.shortName || team?.name || 'TBD';
+  const initials = team?.tla || teamName.substring(0, 3).toUpperCase();
+
   const content = (
     <>
       <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center">
-        <img
-          src={team?.crest}
-          alt={team?.shortName || team?.name || 'Team'}
-          className="w-14 h-14 object-contain select-none"
-        />
+        {team?.crest ? (
+          <img
+            src={team.crest}
+            alt={teamName}
+            className="w-14 h-14 object-contain select-none"
+          />
+        ) : (
+          <span className="text-slate-500 font-bold text-sm text-center leading-tight px-1">{initials}</span>
+        )}
       </div>
       <div className="text-sm mt-2 text-slate-200 font-medium">
-        {team?.shortName || team?.name || 'TBD'}
+        {teamName}
       </div>
     </>
   );

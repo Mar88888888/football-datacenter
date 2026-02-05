@@ -52,7 +52,8 @@ export class FetcherService {
         const result = await this.executeWithRetry(key, task);
         resolve(result);
       } catch (error) {
-        if (error?.response?.status !== 429) {
+        const status = error?.response?.status;
+        if (status !== 429 && status !== 404) {
           this.logger.error(`Failed: ${key} - ${error.message}`);
         }
         reject(error);

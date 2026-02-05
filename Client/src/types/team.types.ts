@@ -26,5 +26,6 @@ export interface TeamMinimal {
   id: number;
   name: string;
   shortName?: string;
-  crest: string;
+  tla?: string;
+  crest: string | null;
 }

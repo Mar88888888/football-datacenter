@@ -38,6 +38,11 @@ export class ProcessingInterceptor implements NestInterceptor {
           return { status: DataStatus.PROCESSING };
         }
 
+        if (result.status === DataStatus.NOT_AVAILABLE) {
+          response.status(HttpStatus.NO_CONTENT);
+          return null;
+        }
+
         return result.data;
       }),
     );
