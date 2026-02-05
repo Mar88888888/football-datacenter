@@ -26,7 +26,7 @@ const TeamPage: React.FC = () => {
   const { data: team, loading, error: teamError } = useApi<Team>(API_ENDPOINTS.TEAM(id!));
 
   // Fetch team matches
-  const { data: matchesData } = useApi<Match[]>(API_ENDPOINTS.TEAM_MATCHES(id!));
+  const { data: matchesData, loading: matchesLoading } = useApi<Match[]>(API_ENDPOINTS.TEAM_MATCHES(id!));
   const matches = matchesData || [];
 
   // Favourite management
@@ -145,7 +145,13 @@ const TeamPage: React.FC = () => {
 
           {/* Scheduled Matches */}
           <h3 className="text-3xl font-bold text-center text-white mb-6">Scheduled Matches</h3>
-          <MatchList matches={matches} />
+          {matchesLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+          ) : (
+            <MatchList matches={matches} />
+          )}
         </div>
       </div>
     </div>

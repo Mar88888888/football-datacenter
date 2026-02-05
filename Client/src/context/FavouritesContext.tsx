@@ -43,13 +43,23 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
       setLoading(true);
 
       try {
-        const [teamsRes, compsRes] = await Promise.all([
+        // Use allSettled to handle partial failures
+        const [teamsResult, compsResult] = await Promise.allSettled([
           api.get<FavoriteTeam[]>(API_ENDPOINTS.USER_FAV_TEAMS, { signal: abortController.signal }),
           api.get<FavoriteCompetition[]>(API_ENDPOINTS.USER_FAV_COMPS, { signal: abortController.signal }),
         ]);
 
-        setFavTeams(teamsRes.data || []);
-        setFavComps(compsRes.data || []);
+        if (teamsResult.status === 'fulfilled') {
+          setFavTeams(teamsResult.value.data || []);
+        } else if (teamsResult.reason?.name !== 'AbortError' && teamsResult.reason?.name !== 'CanceledError') {
+          console.error('Failed to fetch favourite teams:', teamsResult.reason);
+        }
+
+        if (compsResult.status === 'fulfilled') {
+          setFavComps(compsResult.value.data || []);
+        } else if (compsResult.reason?.name !== 'AbortError' && compsResult.reason?.name !== 'CanceledError') {
+          console.error('Failed to fetch favourite competitions:', compsResult.reason);
+        }
       } catch (error) {
         if ((error as Error).name === 'AbortError' || (error as Error).name === 'CanceledError') {
           return;
@@ -84,22 +94,23 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
   }, []);
 
   const removeFavTeam = useCallback(async (teamId: number): Promise<void> => {
-    // Store for rollback
-    const removedTeam = favTeams.find((t) => t.id === teamId);
-
-    // Optimistic update
-    setFavTeams((prev) => prev.filter((t) => t.id !== teamId));
+    // Capture removed item inside functional update to avoid stale closure
+    let removedTeam: FavoriteTeam | undefined;
+    setFavTeams((prev) => {
+      removedTeam = prev.find((t) => t.id === teamId);
+      return prev.filter((t) => t.id !== teamId);
+    });
 
     try {
       await api.delete(API_ENDPOINTS.USER_FAV_TEAM(teamId));
     } catch (error) {
       // Rollback on error
       if (removedTeam) {
-        setFavTeams((prev) => [...prev, removedTeam]);
+        setFavTeams((prev) => [...prev, removedTeam!]);
       }
       throw error;
     }
-  }, [favTeams]);
+  }, []);
 
   const isFavTeam = useCallback(
     (teamId: number | string): boolean => favTeams.some((t) => t.id === +teamId),
@@ -121,22 +132,23 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
   }, []);
 
   const removeFavComp = useCallback(async (compId: number): Promise<void> => {
-    // Store for rollback
-    const removedComp = favComps.find((c) => c.id === compId);
-
-    // Optimistic update
-    setFavComps((prev) => prev.filter((c) => c.id !== compId));
+    // Capture removed item inside functional update to avoid stale closure
+    let removedComp: FavoriteCompetition | undefined;
+    setFavComps((prev) => {
+      removedComp = prev.find((c) => c.id === compId);
+      return prev.filter((c) => c.id !== compId);
+    });
 
     try {
       await api.delete(API_ENDPOINTS.USER_FAV_COMP(compId));
     } catch (error) {
       // Rollback on error
       if (removedComp) {
-        setFavComps((prev) => [...prev, removedComp]);
+        setFavComps((prev) => [...prev, removedComp!]);
       }
       throw error;
     }
-  }, [favComps]);
+  }, []);
 
   const isFavComp = useCallback(
     (compId: number | string): boolean => favComps.some((c) => c.id === +compId),

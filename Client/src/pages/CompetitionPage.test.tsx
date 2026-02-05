@@ -10,29 +10,29 @@ vi.mock('../hooks/useCompetitionFormat');
 vi.mock('../hooks/useFavourite');
 
 // Mock child components to simplify testing
-vi.mock('../components/LeagueTable', () => {
-  return function MockLeagueTable({ competitionId }: { competitionId: string }) {
+vi.mock('../components/LeagueTable', () => ({
+  default: function MockLeagueTable({ competitionId }: { competitionId: string }) {
     return <div data-testid="league-table">LeagueTable: {competitionId}</div>;
-  };
-});
+  },
+}));
 
-vi.mock('../components/GroupStage', () => {
-  return function MockGroupStage() {
+vi.mock('../components/GroupStage', () => ({
+  default: function MockGroupStage() {
     return <div data-testid="group-stage">GroupStage</div>;
-  };
-});
+  },
+}));
 
-vi.mock('../components/KnockoutBracket', () => {
-  return function MockKnockoutBracket() {
+vi.mock('../components/KnockoutBracket', () => ({
+  default: function MockKnockoutBracket() {
     return <div data-testid="knockout-bracket">KnockoutBracket</div>;
-  };
-});
+  },
+}));
 
-vi.mock('../components/MatchList', () => {
-  return function MockMatchList({ matches }: { matches: Match[] }) {
+vi.mock('../components/MatchList', () => ({
+  default: function MockMatchList({ matches }: { matches: Match[] }) {
     return <div data-testid="match-list">MatchList: {matches.length} matches</div>;
-  };
-});
+  },
+}));
 
 import { useApi } from '../hooks/useApi';
 import useCompetitionFormat from '../hooks/useCompetitionFormat';

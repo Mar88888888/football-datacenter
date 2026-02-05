@@ -214,7 +214,14 @@ describe('FavouriteService', () => {
     });
 
     it('should throw error if team is already favorite', async () => {
-      (favTeamRepo.findOne as jest.Mock).mockResolvedValue({ id: 1, teamId: 64 });
+      (teamService.getById as jest.Mock).mockResolvedValue({
+        data: mockTeam,
+        status: DataStatus.FRESH,
+      });
+      // Simulate PostgreSQL duplicate key error
+      const duplicateKeyError = new Error('duplicate key value violates unique constraint');
+      (duplicateKeyError as any).code = '23505';
+      (favTeamRepo.insert as jest.Mock).mockRejectedValue(duplicateKeyError);
 
       await expect(service.addFavTeam(1, 64)).rejects.toThrow('Team is already a favorite');
     });
@@ -286,11 +293,18 @@ describe('FavouriteService', () => {
     });
 
     it('should throw error if competition is already favorite', async () => {
-      (favCompRepo.findOne as jest.Mock).mockResolvedValue({ id: 1, competitionId: 2021 });
       (compService.findAll as jest.Mock).mockResolvedValue({
         data: mockCompetitions,
         status: DataStatus.FRESH,
       });
+      (compService.findById as jest.Mock).mockResolvedValue({
+        data: mockCompetition,
+        status: DataStatus.FRESH,
+      });
+      // Simulate PostgreSQL duplicate key error
+      const duplicateKeyError = new Error('duplicate key value violates unique constraint');
+      (duplicateKeyError as any).code = '23505';
+      (favCompRepo.insert as jest.Mock).mockRejectedValue(duplicateKeyError);
 
       await expect(service.addFavComp(1, 2021)).rejects.toThrow('Competition is already a favorite');
     });
