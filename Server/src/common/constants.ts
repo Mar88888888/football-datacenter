@@ -5,6 +5,7 @@ export const DataStatus = {
   FRESH: 'fresh',
   STALE: 'stale',
   PROCESSING: 'processing',
+  NOT_AVAILABLE: 'not_available',
 } as const;
 
 export type DataStatusType = (typeof DataStatus)[keyof typeof DataStatus];

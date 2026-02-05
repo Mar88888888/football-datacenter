@@ -114,7 +114,7 @@ const TeamPage: React.FC = () => {
             </div>
 
             {/* Address Bar */}
-            {team.address && (
+            {team.address && !team.address.includes('null') && (
               <div className="px-8 py-4 bg-slate-900/30 border-t border-slate-700/50">
                 <p className="text-sm text-slate-400 text-center">
                   <span className="text-slate-500">Location:</span> {team.address}
