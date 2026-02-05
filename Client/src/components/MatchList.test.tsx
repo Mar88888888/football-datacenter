@@ -72,11 +72,12 @@ describe('MatchList', () => {
 
     it('should handle TBD team gracefully', () => {
       const match = createMatch({
-        homeTeam: { id: 0, name: '', crest: '' },
+        homeTeam: { id: 0, name: '', crest: null },
       });
       renderWithRouter(<MatchList matches={[match]} />);
 
-      expect(screen.getByText('TBD')).toBeInTheDocument();
+      // TBD appears twice: once as initials placeholder, once as team name
+      expect(screen.getAllByText('TBD')).toHaveLength(2);
     });
   });
 
