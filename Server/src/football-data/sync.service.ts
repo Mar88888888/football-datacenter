@@ -32,7 +32,9 @@ export class SyncService {
       });
       this.logger.log('Synced: today matches');
     } catch (error) {
-      this.logger.error(`Failed to sync today matches: ${error.message}`);
+      if (error?.response?.status !== 429) {
+        this.logger.error(`Failed to sync today matches: ${error.message}`);
+      }
     }
   }
 
@@ -47,7 +49,9 @@ export class SyncService {
           competitionId,
         });
       } catch (error) {
-        this.logger.error(`Failed to sync standings for ${competitionId}: ${error.message}`);
+        if (error?.response?.status !== 429) {
+          this.logger.error(`Failed to sync standings for ${competitionId}: ${error.message}`);
+        }
       }
     }
 
@@ -65,7 +69,9 @@ export class SyncService {
           competitionId,
         });
       } catch (error) {
-        this.logger.error(`Failed to sync competition ${competitionId}: ${error.message}`);
+        if (error?.response?.status !== 429) {
+          this.logger.error(`Failed to sync competition ${competitionId}: ${error.message}`);
+        }
       }
     }
 
@@ -82,7 +88,9 @@ export class SyncService {
       });
       this.logger.log('Synced: available competitions');
     } catch (error) {
-      this.logger.error(`Failed to sync available competitions: ${error.message}`);
+      if (error?.response?.status !== 429) {
+        this.logger.error(`Failed to sync available competitions: ${error.message}`);
+      }
     }
   }
 

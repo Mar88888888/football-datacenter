@@ -14,6 +14,7 @@ export class FetcherService {
   private readonly inFlight = new Map<string, Promise<any>>();
   private readonly queue: QueueItem<any>[] = [];
   private isProcessing = false;
+  private readonly maxWaitSeconds = 25;
 
   async fetch<T>(key: string, task: () => Promise<T>): Promise<T> {
     const existing = this.inFlight.get(key);
@@ -51,7 +52,9 @@ export class FetcherService {
         const result = await this.executeWithRetry(key, task);
         resolve(result);
       } catch (error) {
-        this.logger.error(`Failed: ${key} - ${error.message}`);
+        if (error?.response?.status !== 429) {
+          this.logger.error(`Failed: ${key} - ${error.message}`);
+        }
         reject(error);
       }
     }
@@ -74,9 +77,11 @@ export class FetcherService {
       ) {
         const apiWaitTime = this.parseWaitTime(error) || attempt * 30;
         const waitSeconds = apiWaitTime + 5;
-        this.logger.warn(
-          `Rate limited on ${key}, waiting ${waitSeconds}s (attempt ${attempt}/3)`,
-        );
+
+        if (waitSeconds > this.maxWaitSeconds) {
+          throw error;
+        }
+
         await this.sleep(waitSeconds * 1000);
         return this.executeWithRetry(key, task, attempt + 1);
       }
