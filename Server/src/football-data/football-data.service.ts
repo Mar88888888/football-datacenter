@@ -126,7 +126,9 @@ export class FootballDataService {
       );
       return { data: result, status: DataStatus.FRESH };
     } catch (error) {
-      this.logger.error(`Fetch failed for ${cacheKey}: ${error.message}`);
+      if (error?.response?.status !== 429) {
+        this.logger.error(`Fetch failed for ${cacheKey}: ${error.message}`);
+      }
       return { data: null, status: DataStatus.PROCESSING, retryAfter: 30 };
     }
   }
