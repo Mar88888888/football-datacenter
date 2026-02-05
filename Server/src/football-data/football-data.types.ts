@@ -5,11 +5,11 @@ export const FOOTBALL_DATA_QUEUE = 'football-data';
 export const CACHE_CONFIG = {
   COMPETITION: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 }, // 12h / 24h
   COMPETITIONS_LIST: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 },
-  COMPETITION_MATCHES: { stale: 2.5 * 60 * 1000, ttl: 5 * 60 * 1000 }, // 2.5min / 5min
-  MATCHES: { stale: 60 * 1000, ttl: 2 * 60 * 1000 }, // 1min / 2min
-  STANDINGS: { stale: 15 * 60 * 1000, ttl: 30 * 60 * 1000 }, // 15min / 30min
+  COMPETITION_MATCHES: { stale: 15 * 60 * 1000, ttl: 30 * 60 * 1000 }, // 15min / 30min
+  MATCHES: { stale: 10 * 60 * 1000, ttl: 20 * 60 * 1000 }, // 10min / 20min
+  STANDINGS: { stale: 30 * 60 * 1000, ttl: 60 * 60 * 1000 }, // 30min / 1h
   TEAM: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 },
-  TEAM_MATCHES: { stale: 5 * 60 * 1000, ttl: 10 * 60 * 1000 }, // 5min / 10min
+  TEAM_MATCHES: { stale: 15 * 60 * 1000, ttl: 30 * 60 * 1000 }, // 15min / 30min
 } as const;
 
 export enum FootballJobType {
