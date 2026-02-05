@@ -1,7 +1,3 @@
-export const FOOTBALL_DATA_QUEUE = 'football-data';
-
-// Cache configuration: stale triggers background refresh, ttl evicts from cache
-// TTL should be > stale so we can serve stale data while refreshing
 export const CACHE_CONFIG = {
   COMPETITION: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 }, // 12h / 24h
   COMPETITIONS_LIST: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 },
@@ -52,7 +48,10 @@ export function getCacheKey(data: FootballJobData): string {
   return getJobId(data);
 }
 
-export function getPathAndTtl(data: FootballJobData): { path: string; ttl: number } {
+export function getPathAndTtl(data: FootballJobData): {
+  path: string;
+  ttl: number;
+} {
   switch (data.type) {
     case FootballJobType.COMPETITION:
       return {
@@ -98,7 +97,10 @@ export function getPathAndTtl(data: FootballJobData): { path: string; ttl: numbe
   }
 }
 
-export function extractResponseData(type: FootballJobType, responseData: any): any {
+export function extractResponseData(
+  type: FootballJobType,
+  responseData: any,
+): any {
   switch (type) {
     case FootballJobType.COMPETITION_MATCHES:
     case FootballJobType.TEAM_MATCHES:
