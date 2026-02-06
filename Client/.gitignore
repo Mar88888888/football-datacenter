@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/refs
 /.pnp
 .pnp.js
 .env

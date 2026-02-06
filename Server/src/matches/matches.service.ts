@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FootballDataService, DataResult } from '../football-data/football-data.service';
 import { Match } from './dto/match';
+import { Head2Head } from './dto/head2head';
 import { GetMatchesQueryDto } from './dto/getMatchesQuery.dto';
 import { DataStatus } from '../common/constants';
 
@@ -48,5 +49,13 @@ export class MatchesService {
       : DataStatus.FRESH;
 
     return { data: filteredMatches, status };
+  }
+
+  async getMatch(matchId: number): Promise<DataResult<Match>> {
+    return await this.dataService.getMatch(matchId);
+  }
+
+  async getHead2Head(matchId: number): Promise<DataResult<Head2Head>> {
+    return await this.dataService.getHead2Head(matchId);
   }
 }
