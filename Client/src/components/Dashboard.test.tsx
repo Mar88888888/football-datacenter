@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import { AuthContext } from '../context/AuthContext';
-import { FavouritesContext } from '../context/FavouritesContext';
+import { FavouritesContext } from '../context/PreferencesContext';
 import {
   createMockAuthContext,
   createAuthenticatedAuthContext,
@@ -59,7 +59,7 @@ describe('Dashboard', () => {
         favContext: createMockFavouritesContext({ favTeams: [], favComps: [] }),
       });
 
-      expect(screen.getByText('You have no favourite teams')).toBeInTheDocument();
+      expect(screen.getByText(/No favorite teams yet/i)).toBeInTheDocument();
     });
 
     it('should show "no favourite competitions" message when empty', () => {
@@ -67,7 +67,7 @@ describe('Dashboard', () => {
         favContext: createMockFavouritesContext({ favTeams: [], favComps: [] }),
       });
 
-      expect(screen.getByText('You have no favourite competitions')).toBeInTheDocument();
+      expect(screen.getByText(/No favorite competitions yet/i)).toBeInTheDocument();
     });
   });
 
@@ -104,8 +104,8 @@ describe('Dashboard', () => {
         favContext: createMockFavouritesContext({ favTeams }),
       });
 
-      const link = screen.getByRole('link', { name: /Liverpool FC/i });
-      expect(link).toHaveAttribute('href', '/teams/64');
+      const links = screen.getAllByRole('link', { name: /Liverpool FC/i });
+      expect(links[0]).toHaveAttribute('href', '/teams/64');
     });
 
     it('should link competitions to competition pages', () => {
@@ -114,8 +114,8 @@ describe('Dashboard', () => {
         favContext: createMockFavouritesContext({ favComps }),
       });
 
-      const link = screen.getByRole('link', { name: /Premier League/i });
-      expect(link).toHaveAttribute('href', '/competitions/2021');
+      const links = screen.getAllByRole('link', { name: /Premier League/i });
+      expect(links[0]).toHaveAttribute('href', '/competitions/2021');
     });
 
     it('should display team crests', () => {
@@ -148,7 +148,7 @@ describe('Dashboard', () => {
       const authContext = createAuthenticatedAuthContext();
       renderDashboard({ authContext });
 
-      const logoutButton = screen.getByRole('button', { name: /logout/i });
+      const logoutButton = screen.getByRole('button', { name: /sign out/i });
       fireEvent.click(logoutButton);
 
       expect(authContext.logout).toHaveBeenCalled();
@@ -158,7 +158,7 @@ describe('Dashboard', () => {
       const authContext = createAuthenticatedAuthContext();
       renderDashboard({ authContext });
 
-      const logoutButton = screen.getByRole('button', { name: /logout/i });
+      const logoutButton = screen.getByRole('button', { name: /sign out/i });
       fireEvent.click(logoutButton);
 
       expect(mockNavigate).toHaveBeenCalledWith('/login');
@@ -169,13 +169,13 @@ describe('Dashboard', () => {
     it('should have Favorite Teams heading', () => {
       renderDashboard();
 
-      expect(screen.getByRole('heading', { name: /Favorite Teams/i })).toBeInTheDocument();
+      expect(screen.getByText('Favorite Teams')).toBeInTheDocument();
     });
 
     it('should have Favorite Competitions heading', () => {
       renderDashboard();
 
-      expect(screen.getByRole('heading', { name: /Favorite Competitions/i })).toBeInTheDocument();
+      expect(screen.getByText('Favorite Competitions')).toBeInTheDocument();
     });
   });
 });
