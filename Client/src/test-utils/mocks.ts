@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import type { User } from '../types/auth.types';
-import type { FavoriteTeam, FavoriteCompetition } from '../types/favorites.types';
+import type { FavoriteTeam, FavoriteCompetition, HiddenCompetition } from '../types/favorites.types';
 
 type MockFn = ReturnType<typeof vi.fn>;
 
@@ -36,9 +36,10 @@ export const createAuthenticatedAuthContext = (user?: Partial<User>): MockAuthCo
     authToken: 'mock-jwt-token',
   });
 
-// ==================== FAVOURITES CONTEXT MOCK ====================
+// ==================== PREFERENCES CONTEXT MOCK ====================
 
-export interface MockFavouritesContextValue {
+export interface MockPreferencesContextValue {
+  // Favorites
   favTeams: FavoriteTeam[];
   favComps: FavoriteCompetition[];
   loading: boolean;
@@ -48,9 +49,17 @@ export interface MockFavouritesContextValue {
   addFavComp: MockFn;
   removeFavComp: MockFn;
   isFavComp: MockFn;
+  // Hidden competitions
+  hiddenComps: HiddenCompetition[];
+  hideComp: MockFn;
+  showComp: MockFn;
+  isHiddenComp: MockFn;
 }
 
-export const createMockFavouritesContext = (overrides?: Partial<MockFavouritesContextValue>): MockFavouritesContextValue => ({
+// Legacy alias
+export type MockFavouritesContextValue = MockPreferencesContextValue;
+
+export const createMockPreferencesContext = (overrides?: Partial<MockPreferencesContextValue>): MockPreferencesContextValue => ({
   favTeams: [],
   favComps: [],
   loading: false,
@@ -60,8 +69,15 @@ export const createMockFavouritesContext = (overrides?: Partial<MockFavouritesCo
   addFavComp: vi.fn(),
   removeFavComp: vi.fn(),
   isFavComp: vi.fn().mockReturnValue(false),
+  hiddenComps: [],
+  hideComp: vi.fn(),
+  showComp: vi.fn(),
+  isHiddenComp: vi.fn().mockReturnValue(false),
   ...overrides,
 });
+
+// Legacy alias
+export const createMockFavouritesContext = createMockPreferencesContext;
 
 // ==================== USE API HOOK MOCK ====================
 

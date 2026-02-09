@@ -23,6 +23,7 @@ import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard';
 import { SignInUserDto } from './dto/signin-user.dto';
 import { FavouriteService } from './favourite/favourite.service';
+import { HiddenService } from './hidden/hidden.service';
 import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
 
@@ -31,6 +32,7 @@ export class UsersController {
   constructor(
     private usersService: UsersService,
     private favService: FavouriteService,
+    private hiddenService: HiddenService,
     private authService: AuthService,
   ) {}
 
@@ -172,6 +174,40 @@ export class UsersController {
     @Param('teamid') teamId: string,
   ) {
     return await this.favService.removeFavTeam(user.id, parseInt(teamId));
+  }
+
+  // Hidden competitions endpoints
+  @UseGuards(AuthGuard)
+  @Get('/hiddencomp')
+  async getHiddenComps(@CurrentUser() user: User) {
+    return await this.hiddenService.getHiddenComps(user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/hiddencomp/:compid')
+  async hideCompetition(
+    @CurrentUser() user: User,
+    @Param('compid') compId: string,
+  ) {
+    try {
+      await this.hiddenService.hideComp(user.id, parseInt(compId));
+      return { success: true };
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw new NotFoundException('Not found competition with id ' + compId);
+      }
+      throw err;
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('/hiddencomp/:compid')
+  @HttpCode(204)
+  async showCompetition(
+    @CurrentUser() user: User,
+    @Param('compid') compId: string,
+  ) {
+    return await this.hiddenService.showComp(user.id, parseInt(compId));
   }
 
   @Get('/:id')

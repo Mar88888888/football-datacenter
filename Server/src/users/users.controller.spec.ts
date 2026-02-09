@@ -5,6 +5,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { FavouriteService } from './favourite/favourite.service';
+import { HiddenService } from './hidden/hidden.service';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from './user.entity';
@@ -13,6 +14,7 @@ describe('UsersController', () => {
   let controller: UsersController;
   let usersService: Partial<UsersService>;
   let favouriteService: Partial<FavouriteService>;
+  let hiddenService: Partial<HiddenService>;
   let authService: Partial<AuthService>;
 
   const mockUser: User = {
@@ -22,6 +24,7 @@ describe('UsersController', () => {
     password: 'hashedpassword',
     favCompetitions: [],
     favTeams: [],
+    hiddenCompetitions: [],
   };
 
   const mockFavTeams = [
@@ -54,6 +57,12 @@ describe('UsersController', () => {
       removeFavComp: jest.fn(),
     };
 
+    hiddenService = {
+      getHiddenComps: jest.fn(),
+      hideComp: jest.fn(),
+      showComp: jest.fn(),
+    };
+
     authService = {
       signup: jest.fn(),
       signin: jest.fn(),
@@ -66,6 +75,7 @@ describe('UsersController', () => {
       providers: [
         { provide: UsersService, useValue: usersService },
         { provide: FavouriteService, useValue: favouriteService },
+        { provide: HiddenService, useValue: hiddenService },
         { provide: AuthService, useValue: authService },
         { provide: JwtService, useValue: { verify: jest.fn(), sign: jest.fn() } },
       ],

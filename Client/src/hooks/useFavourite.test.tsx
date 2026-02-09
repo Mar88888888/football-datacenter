@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import React from 'react';
 import useFavourite from './useFavourite';
 import { AuthContext } from '../context/AuthContext';
-import { FavouritesContext } from '../context/FavouritesContext';
+import { FavouritesContext } from '../context/PreferencesContext';
 import type { FavoriteTeam, FavoriteCompetition } from '../types';
 
 // Mock react-router-dom

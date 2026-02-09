@@ -174,17 +174,6 @@ const GroupStage: React.FC<GroupStageProps> = ({ standings, isNationalTeam = fal
   if (leaguePhase) {
     return (
       <div className="w-full max-w-6xl mx-auto my-8">
-        <Link
-          to={`/competitions/${competitionId}/groups/${encodeURIComponent(leaguePhase.group || '')}`}
-          className="flex items-center justify-center gap-2 mb-6 group"
-        >
-          <h3 className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">
-            League Phase
-          </h3>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </Link>
         <LeaguePhaseTable
           table={leaguePhase.table}
           isNationalTeam={isNationalTeam}

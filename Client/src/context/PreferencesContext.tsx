@@ -2,9 +2,10 @@ import React, { createContext, useState, useEffect, useMemo, useCallback, useCon
 import { AuthContext } from './AuthContext';
 import api from '../utils/api';
 import { API_ENDPOINTS } from '../constants';
-import type { FavoriteTeam, FavoriteCompetition, FavouritesContextValue } from '../types';
+import type { FavoriteTeam, FavoriteCompetition, HiddenCompetition, PreferencesContextValue } from '../types';
 
-const defaultContextValue: FavouritesContextValue = {
+const defaultContextValue: PreferencesContextValue = {
+  // Favorites
   favTeams: [],
   favComps: [],
   loading: false,
@@ -14,39 +15,49 @@ const defaultContextValue: FavouritesContextValue = {
   addFavComp: async () => {},
   removeFavComp: async () => {},
   isFavComp: () => false,
+  // Hidden
+  hiddenComps: [],
+  hideComp: async () => {},
+  showComp: async () => {},
+  isHiddenComp: () => false,
 };
 
-export const FavouritesContext = createContext<FavouritesContextValue>(defaultContextValue);
+export const PreferencesContext = createContext<PreferencesContextValue>(defaultContextValue);
 
-interface FavouritesProviderProps {
+// Legacy alias for backwards compatibility
+export const FavouritesContext = PreferencesContext;
+
+interface PreferencesProviderProps {
   children: ReactNode;
 }
 
-export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children }) => {
+export const PreferencesProvider: React.FC<PreferencesProviderProps> = ({ children }) => {
   const { user, authToken } = useContext(AuthContext);
 
   const [favTeams, setFavTeams] = useState<FavoriteTeam[]>([]);
   const [favComps, setFavComps] = useState<FavoriteCompetition[]>([]);
+  const [hiddenComps, setHiddenComps] = useState<HiddenCompetition[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch favorites when user is authenticated
+  // Fetch all preferences when user is authenticated
   useEffect(() => {
     const abortController = new AbortController();
 
-    const fetchFavourites = async (): Promise<void> => {
+    const fetchPreferences = async (): Promise<void> => {
       if (!user || !authToken) {
         setFavTeams([]);
         setFavComps([]);
+        setHiddenComps([]);
         return;
       }
 
       setLoading(true);
 
       try {
-        // Use allSettled to handle partial failures
-        const [teamsResult, compsResult] = await Promise.allSettled([
+        const [teamsResult, compsResult, hiddenResult] = await Promise.allSettled([
           api.get<FavoriteTeam[]>(API_ENDPOINTS.USER_FAV_TEAMS, { signal: abortController.signal }),
           api.get<FavoriteCompetition[]>(API_ENDPOINTS.USER_FAV_COMPS, { signal: abortController.signal }),
+          api.get<HiddenCompetition[]>(API_ENDPOINTS.USER_HIDDEN_COMPS, { signal: abortController.signal }),
         ]);
 
         if (teamsResult.status === 'fulfilled') {
@@ -60,11 +71,17 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
         } else if (compsResult.reason?.name !== 'AbortError' && compsResult.reason?.name !== 'CanceledError') {
           console.error('Failed to fetch favourite competitions:', compsResult.reason);
         }
+
+        if (hiddenResult.status === 'fulfilled') {
+          setHiddenComps(hiddenResult.value.data || []);
+        } else if (hiddenResult.reason?.name !== 'AbortError' && hiddenResult.reason?.name !== 'CanceledError') {
+          console.error('Failed to fetch hidden competitions:', hiddenResult.reason);
+        }
       } catch (error) {
         if ((error as Error).name === 'AbortError' || (error as Error).name === 'CanceledError') {
           return;
         }
-        console.error('Failed to fetch favourites:', error);
+        console.error('Failed to fetch preferences:', error);
       } finally {
         if (!abortController.signal.aborted) {
           setLoading(false);
@@ -72,7 +89,7 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
       }
     };
 
-    fetchFavourites();
+    fetchPreferences();
 
     return () => {
       abortController.abort();
@@ -81,20 +98,17 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
 
   // Team favorites
   const addFavTeam = useCallback(async (team: FavoriteTeam): Promise<void> => {
-    // Optimistic update
     setFavTeams((prev) => [...prev, team]);
 
     try {
       await api.post(API_ENDPOINTS.USER_FAV_TEAM(team.id), {});
     } catch (error) {
-      // Rollback on error
       setFavTeams((prev) => prev.filter((t) => t.id !== team.id));
       throw error;
     }
   }, []);
 
   const removeFavTeam = useCallback(async (teamId: number): Promise<void> => {
-    // Capture removed item inside functional update to avoid stale closure
     let removedTeam: FavoriteTeam | undefined;
     setFavTeams((prev) => {
       removedTeam = prev.find((t) => t.id === teamId);
@@ -104,7 +118,6 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
     try {
       await api.delete(API_ENDPOINTS.USER_FAV_TEAM(teamId));
     } catch (error) {
-      // Rollback on error
       if (removedTeam) {
         setFavTeams((prev) => [...prev, removedTeam!]);
       }
@@ -119,20 +132,17 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
 
   // Competition favorites
   const addFavComp = useCallback(async (comp: FavoriteCompetition): Promise<void> => {
-    // Optimistic update
     setFavComps((prev) => [...prev, comp]);
 
     try {
       await api.post(API_ENDPOINTS.USER_FAV_COMP(comp.id), {});
     } catch (error) {
-      // Rollback on error
       setFavComps((prev) => prev.filter((c) => c.id !== comp.id));
       throw error;
     }
   }, []);
 
   const removeFavComp = useCallback(async (compId: number): Promise<void> => {
-    // Capture removed item inside functional update to avoid stale closure
     let removedComp: FavoriteCompetition | undefined;
     setFavComps((prev) => {
       removedComp = prev.find((c) => c.id === compId);
@@ -142,7 +152,6 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
     try {
       await api.delete(API_ENDPOINTS.USER_FAV_COMP(compId));
     } catch (error) {
-      // Rollback on error
       if (removedComp) {
         setFavComps((prev) => [...prev, removedComp!]);
       }
@@ -155,7 +164,41 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
     [favComps]
   );
 
-  const contextValue = useMemo<FavouritesContextValue>(
+  // Hidden competitions
+  const hideComp = useCallback(async (comp: HiddenCompetition): Promise<void> => {
+    setHiddenComps((prev) => [...prev, comp]);
+
+    try {
+      await api.post(API_ENDPOINTS.USER_HIDDEN_COMP(comp.id), {});
+    } catch (error) {
+      setHiddenComps((prev) => prev.filter((c) => c.id !== comp.id));
+      throw error;
+    }
+  }, []);
+
+  const showComp = useCallback(async (compId: number): Promise<void> => {
+    let removedComp: HiddenCompetition | undefined;
+    setHiddenComps((prev) => {
+      removedComp = prev.find((c) => c.id === compId);
+      return prev.filter((c) => c.id !== compId);
+    });
+
+    try {
+      await api.delete(API_ENDPOINTS.USER_HIDDEN_COMP(compId));
+    } catch (error) {
+      if (removedComp) {
+        setHiddenComps((prev) => [...prev, removedComp!]);
+      }
+      throw error;
+    }
+  }, []);
+
+  const isHiddenComp = useCallback(
+    (compId: number | string): boolean => hiddenComps.some((c) => c.id === +compId),
+    [hiddenComps]
+  );
+
+  const contextValue = useMemo<PreferencesContextValue>(
     () => ({
       favTeams,
       favComps,
@@ -166,13 +209,45 @@ export const FavouritesProvider: React.FC<FavouritesProviderProps> = ({ children
       addFavComp,
       removeFavComp,
       isFavComp,
+      hiddenComps,
+      hideComp,
+      showComp,
+      isHiddenComp,
     }),
-    [favTeams, favComps, loading, addFavTeam, removeFavTeam, isFavTeam, addFavComp, removeFavComp, isFavComp]
+    [
+      favTeams,
+      favComps,
+      loading,
+      addFavTeam,
+      removeFavTeam,
+      isFavTeam,
+      addFavComp,
+      removeFavComp,
+      isFavComp,
+      hiddenComps,
+      hideComp,
+      showComp,
+      isHiddenComp,
+    ]
   );
 
   return (
-    <FavouritesContext.Provider value={contextValue}>
+    <PreferencesContext.Provider value={contextValue}>
       {children}
-    </FavouritesContext.Provider>
+    </PreferencesContext.Provider>
   );
 };
+
+// Legacy alias
+export const FavouritesProvider = PreferencesProvider;
+
+export const usePreferences = (): PreferencesContextValue => {
+  const context = useContext(PreferencesContext);
+  if (!context) {
+    throw new Error('usePreferences must be used within a PreferencesProvider');
+  }
+  return context;
+};
+
+// Legacy alias for backwards compatibility
+export const useFavourites = usePreferences;

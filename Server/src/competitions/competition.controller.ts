@@ -17,6 +17,11 @@ export class CompetitionController {
     return this.competitionService.getMatches(id);
   }
 
+  @Get('/:id/scorers')
+  async getCompetitionScorers(@Param('id', ParseIntPipe) id: number) {
+    return this.competitionService.getScorers(id);
+  }
+
   @Get('/:id')
   async getCompetitionById(@Param('id', ParseIntPipe) id: number) {
     return this.competitionService.findById(id);

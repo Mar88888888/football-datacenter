@@ -1,5 +1,5 @@
 import type { TeamMinimal } from './team.types';
-import type { Competition } from './competition.types';
+import type { Competition, Area, Season } from './competition.types';
 
 export interface Score {
   winner?: 'HOME_TEAM' | 'AWAY_TEAM' | 'DRAW' | null;
@@ -19,9 +19,11 @@ export type MatchStatus =
   | 'TIMED'
   | 'IN_PLAY'
   | 'PAUSED'
+  | 'HALF_TIME'
   | 'FINISHED'
   | 'POSTPONED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'SUSPENDED';
 
 export type MatchStage =
   | 'REGULAR_SEASON'
@@ -30,6 +32,7 @@ export type MatchStage =
   | 'ROUND_1'
   | 'ROUND_2'
   | 'ROUND_3'
+  | 'PLAYOFFS'
   | 'LAST_64'
   | 'LAST_32'
   | 'LAST_16'
@@ -38,6 +41,13 @@ export type MatchStage =
   | 'SEMI_FINALS'
   | 'THIRD_PLACE'
   | 'FINAL';
+
+export interface Referee {
+  id: number;
+  name: string;
+  type: string;
+  nationality?: string;
+}
 
 export interface Match {
   id: number;
@@ -50,6 +60,39 @@ export interface Match {
   homeTeam: TeamMinimal;
   awayTeam: TeamMinimal;
   competition?: Competition;
+  area?: Area;
+  season?: Season;
+  venue?: string;
+  referees?: Referee[];
+  lastUpdated?: string;
+}
+
+export interface H2HTeamAggregates {
+  id: number;
+  name: string;
+  wins: number;
+  draws: number;
+  losses: number;
+}
+
+export interface H2HAggregates {
+  numberOfMatches: number;
+  totalGoals: number;
+  homeTeam: H2HTeamAggregates;
+  awayTeam: H2HTeamAggregates;
+}
+
+export interface H2HResultSet {
+  count: number;
+  competitions?: string;
+  first?: string;
+  last?: string;
+}
+
+export interface Head2Head {
+  aggregates: H2HAggregates;
+  matches: Match[];
+  resultSet?: H2HResultSet;
 }
 
 export interface MatchesResponse {

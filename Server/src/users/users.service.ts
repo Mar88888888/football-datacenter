@@ -15,6 +15,7 @@ export class UsersService implements IUsersService {
       name,
       favCompetitions: [],
       favTeams: [],
+      hiddenCompetitions: [],
     });
 
     return this.repo.save(user);
@@ -24,7 +25,10 @@ export class UsersService implements IUsersService {
     if (!id) {
       return null;
     }
-    let user = await this.repo.find({  where: {id}, relations: ['favCompetitions', 'favTeams'] });
+    let user = await this.repo.find({
+      where: { id },
+      relations: ['favCompetitions', 'favTeams', 'hiddenCompetitions'],
+    });
     return user[0];
   }
 
@@ -33,7 +37,9 @@ export class UsersService implements IUsersService {
   }
 
   findAll() {
-    return this.repo.find({ relations: ['favCompetitions', 'favTeams'] });
+    return this.repo.find({
+      relations: ['favCompetitions', 'favTeams', 'hiddenCompetitions'],
+    });
   }
 
   async update(id: number, attrs: Partial<User>) {

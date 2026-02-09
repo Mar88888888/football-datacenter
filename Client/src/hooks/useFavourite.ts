@@ -1,7 +1,7 @@
 import { useContext, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { FavouritesContext } from '../context/FavouritesContext';
+import { FavouritesContext } from '../context/PreferencesContext';
 import type { FavoriteTeam, FavoriteCompetition } from '../types';
 
 type FavoriteType = 'team' | 'competition';

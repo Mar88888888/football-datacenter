@@ -8,6 +8,9 @@ import type { Competition, Match, Standings, CompetitionFormat } from '../types'
 vi.mock('../hooks/useApi');
 vi.mock('../hooks/useCompetitionFormat');
 vi.mock('../hooks/useFavourite');
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 1, email: 'test@example.com', name: 'Test User' } }),
+}));
 
 // Mock child components to simplify testing
 vi.mock('../components/LeagueTable', () => ({
@@ -138,7 +141,7 @@ describe('CompetitionPage', () => {
       expect(screen.getByText('Loading competition data...')).toBeInTheDocument();
     });
 
-    it('should show LoadingSpinner when competition is null', () => {
+    it('should show Not Found page when competition is null', () => {
       mockUseApi.mockImplementation((url: string | null) => {
         if (url?.includes('/standings')) {
           return createUseApiResult<Standings>(null);
@@ -151,12 +154,12 @@ describe('CompetitionPage', () => {
 
       renderCompetitionPage();
 
-      expect(screen.getByText('Loading competition data...')).toBeInTheDocument();
+      expect(screen.getByText('Not Found')).toBeInTheDocument();
     });
   });
 
   describe('error state', () => {
-    it('should show ErrorPage when competition fetch fails', () => {
+    it('should show Not Found page when competition fetch fails', () => {
       mockUseApi.mockImplementation((url: string | null) => {
         if (url?.includes('/standings')) {
           return createUseApiResult<Standings>(null);
@@ -171,10 +174,10 @@ describe('CompetitionPage', () => {
 
       renderCompetitionPage();
 
-      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+      expect(screen.getByText('Not Found')).toBeInTheDocument();
     });
 
-    it('should show ErrorPage when matches fetch fails', () => {
+    it('should show Not Found page when matches fetch fails', () => {
       mockUseApi.mockImplementation((url: string | null) => {
         if (url?.includes('/standings')) {
           return createUseApiResult<Standings>(null);
@@ -189,7 +192,7 @@ describe('CompetitionPage', () => {
 
       renderCompetitionPage();
 
-      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+      expect(screen.getByText('Not Found')).toBeInTheDocument();
     });
   });
 
@@ -213,16 +216,16 @@ describe('CompetitionPage', () => {
       expect(screen.getByText('England')).toBeInTheDocument();
     });
 
-    it('should render season range', () => {
+    it('should render season info', () => {
       renderCompetitionPage();
 
-      expect(screen.getByText('2024/25')).toBeInTheDocument();
+      expect(screen.getByText(/2024\/25 Season/)).toBeInTheDocument();
     });
 
     it('should render current matchday', () => {
       renderCompetitionPage();
 
-      expect(screen.getByText('21')).toBeInTheDocument();
+      expect(screen.getByText(/Matchday 21/)).toBeInTheDocument();
     });
   });
 
@@ -242,23 +245,24 @@ describe('CompetitionPage', () => {
       expect(screen.getByTestId('league-table')).toBeInTheDocument();
     });
 
-    it('should render MatchList', () => {
+    it('should render Standings and Matches tabs', () => {
       renderCompetitionPage();
 
-      expect(screen.getByTestId('match-list')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Standings' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Matches' })).toBeInTheDocument();
     });
 
-    it('should show Matches heading', () => {
+    it('should show Matches tab', () => {
       renderCompetitionPage();
 
-      expect(screen.getByText('Matches')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Matches' })).toBeInTheDocument();
     });
 
-    it('should not render tabs for league format', () => {
+    it('should not render Groups or Knockout tabs for league format', () => {
       renderCompetitionPage();
 
-      expect(screen.queryByText('Group Stage')).not.toBeInTheDocument();
-      expect(screen.queryByText('Knockout')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Groups' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Knockout' })).not.toBeInTheDocument();
     });
   });
 
@@ -284,20 +288,19 @@ describe('CompetitionPage', () => {
       expect(screen.getByRole('button', { name: 'Knockout' })).toBeInTheDocument();
     });
 
-    it('should render All Matches tab', () => {
+    it('should render Matches tab', () => {
       renderCompetitionPage();
 
-      expect(screen.getByRole('button', { name: 'All Matches' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Matches' })).toBeInTheDocument();
     });
 
-    it('should switch to matches view when All Matches tab clicked', () => {
+    it('should switch to matches view when Matches tab clicked', () => {
       renderCompetitionPage();
 
-      const allMatchesTab = screen.getByRole('button', { name: 'All Matches' });
-      fireEvent.click(allMatchesTab);
+      const matchesTab = screen.getByRole('button', { name: 'Matches' });
+      fireEvent.click(matchesTab);
 
-      expect(screen.getByTestId('match-list')).toBeInTheDocument();
-      expect(screen.getByText('All Matches', { selector: 'h3' })).toBeInTheDocument();
+      expect(matchesTab).toHaveClass('active');
     });
   });
 
@@ -334,12 +337,13 @@ describe('CompetitionPage', () => {
       expect(screen.getByTestId('group-stage')).toBeInTheDocument();
     });
 
-    it('should render all three tabs', () => {
+    it('should render all four tabs', () => {
       renderCompetitionPage();
 
-      expect(screen.getByRole('button', { name: 'Group Stage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Groups' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Knockout' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'All Matches' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Scorers' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Matches' })).toBeInTheDocument();
     });
 
     it('should switch to knockout view when Knockout tab clicked', () => {
@@ -351,13 +355,13 @@ describe('CompetitionPage', () => {
       expect(screen.getByTestId('knockout-bracket')).toBeInTheDocument();
     });
 
-    it('should switch to matches view when All Matches tab clicked', () => {
+    it('should switch to matches view when Matches tab clicked', () => {
       renderCompetitionPage();
 
-      const matchesTab = screen.getByRole('button', { name: 'All Matches' });
+      const matchesTab = screen.getByRole('button', { name: 'Matches' });
       fireEvent.click(matchesTab);
 
-      expect(screen.getByTestId('match-list')).toBeInTheDocument();
+      expect(matchesTab).toHaveClass('active');
     });
   });
 
@@ -393,16 +397,16 @@ describe('CompetitionPage', () => {
       expect(screen.getByTestId('group-stage')).toBeInTheDocument();
     });
 
-    it('should render MatchList', () => {
+    it('should render Groups tab', () => {
       renderCompetitionPage();
 
-      expect(screen.getByTestId('match-list')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Groups' })).toBeInTheDocument();
     });
 
-    it('should not render tabs for group_stage format', () => {
+    it('should render Matches tab', () => {
       renderCompetitionPage();
 
-      expect(screen.queryByRole('button', { name: 'Group Stage' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Matches' })).toBeInTheDocument();
     });
   });
 
@@ -422,10 +426,11 @@ describe('CompetitionPage', () => {
       expect(screen.getByTestId('league-table')).toBeInTheDocument();
     });
 
-    it('should render MatchList', () => {
+    it('should render Standings and Matches tabs', () => {
       renderCompetitionPage();
 
-      expect(screen.getByTestId('match-list')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Standings' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Matches' })).toBeInTheDocument();
     });
   });
 
@@ -442,7 +447,7 @@ describe('CompetitionPage', () => {
 
       renderCompetitionPage();
 
-      const favButton = screen.getByRole('button', { name: /favourite/i });
+      const favButton = screen.getByRole('button', { name: /add to favorites/i });
       fireEvent.click(favButton);
 
       expect(toggleFavourite).toHaveBeenCalled();
@@ -459,7 +464,7 @@ describe('CompetitionPage', () => {
 
       renderCompetitionPage();
 
-      const favButton = screen.getByRole('button', { name: /favourite/i });
+      const favButton = screen.getByRole('button', { name: /add to favorites/i });
       expect(favButton).toBeDisabled();
     });
   });
