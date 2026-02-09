@@ -17,6 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-redis-yet';
+import { UserHiddenComp } from './users/hidden/user.hiddencomp.entity';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { redisStore } from 'cache-manager-redis-yet';
           return {
             type: 'postgres',
             url: databaseUrl,
-            entities: [User, UserFavComp, UserFavTeam],
+            entities: [User, UserFavComp, UserFavTeam, UserHiddenComp],
             synchronize: true,
             ssl: { rejectUnauthorized: false },
           };
@@ -50,7 +51,7 @@ import { redisStore } from 'cache-manager-redis-yet';
           username: configService.get<string>('DB_USER'),
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_NAME'),
-          entities: [User, UserFavComp, UserFavTeam],
+          entities: [User, UserFavComp, UserFavTeam, UserHiddenComp],
           synchronize: true,
         };
       },

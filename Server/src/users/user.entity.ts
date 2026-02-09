@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { IsEmail, IsString } from 'class-validator';
 import { UserFavComp } from './favourite/user.favcomp.entity';
 import { UserFavTeam } from './favourite/user.favteam.entity';
+import { UserHiddenComp } from './hidden/user.hiddencomp.entity';
 
 @Entity()
 export class User {
@@ -25,4 +26,7 @@ export class User {
 
   @OneToMany(() => UserFavTeam, favTeam => favTeam.user)
   favTeams: UserFavTeam[];
+
+  @OneToMany(() => UserHiddenComp, hiddenComp => hiddenComp.user)
+  hiddenCompetitions: UserHiddenComp[];
 }

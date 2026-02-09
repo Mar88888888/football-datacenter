@@ -12,11 +12,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { FavouriteService } from './favourite/favourite.service';
 import { UserFavComp } from './favourite/user.favcomp.entity';
 import { UserFavTeam } from './favourite/user.favteam.entity';
+import { HiddenService } from './hidden/hidden.service';
+import { UserHiddenComp } from './hidden/user.hiddencomp.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserFavComp, UserFavTeam]),
+    TypeOrmModule.forFeature([User, UserFavComp, UserFavTeam, UserHiddenComp]),
     TeamsModule,
     CompetitionModule,
     JwtModule.registerAsync({
@@ -33,11 +35,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UsersService,
     AuthService,
     FavouriteService,
+    HiddenService,
     {
       provide: APP_INTERCEPTOR,
       useClass: CurrentUserInterceptor,
     },
   ],
-  exports: [UsersService, FavouriteService],
+  exports: [UsersService, FavouriteService, HiddenService],
 })
 export class UsersModule {}
