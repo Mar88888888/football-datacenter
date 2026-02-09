@@ -155,6 +155,17 @@ describe('useCompetitionFormat', () => {
 
       expect(result.current.leagueMatches.map(m => m.id)).toEqual([1]);
     });
+
+    it('returns LEAGUE_STAGE matches (UCL new format)', () => {
+      const matches = createMatches([
+        { id: 1, stage: 'LEAGUE_STAGE' },
+        { id: 2, stage: 'ROUND_OF_16' },
+        { id: 3, stage: 'FINAL' },
+      ]);
+      const { result } = renderHook(() => useCompetitionFormat(null, matches, null));
+
+      expect(result.current.leagueMatches.map(m => m.id)).toEqual([1]);
+    });
   });
 
   describe('disableTeamLinks', () => {

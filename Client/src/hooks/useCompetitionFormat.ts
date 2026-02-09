@@ -5,6 +5,7 @@ const KNOCKOUT_STAGES: string[] = [
   'ROUND_1',
   'ROUND_2',
   'ROUND_3',
+  'PLAYOFFS',
   'LAST_64',
   'LAST_32',
   'LAST_16',
@@ -87,7 +88,7 @@ const useCompetitionFormat = (
 
   const leagueMatches = useMemo(() => {
     return matches.filter(
-      (m) => !m.stage || m.stage === 'REGULAR_SEASON' || m.stage === 'GROUP_STAGE'
+      (m) => !m.stage || m.stage === 'REGULAR_SEASON' || m.stage === 'GROUP_STAGE' || m.stage === 'LEAGUE_STAGE'
     );
   }, [matches]);
 
