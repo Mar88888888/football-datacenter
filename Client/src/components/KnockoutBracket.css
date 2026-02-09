@@ -1,0 +1,343 @@
+/* ========== KNOCKOUT BRACKET STYLES ========== */
+/* Clean bracket design without connector lines */
+/* Uses spacing and visual grouping to show bracket flow */
+
+.knockout-bracket-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 2rem auto;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.bracket-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+/* ========== BRACKET LAYOUT ========== */
+.bracket {
+  display: flex;
+  justify-content: center;
+  align-items: stretch; /* All rounds same height */
+  gap: 1rem;
+  min-width: fit-content;
+}
+
+.round {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.round-title {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #1e293b;
+  min-width: 185px;
+}
+
+.round-title.final {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.matches {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; /* Distribute matches evenly */
+  flex: 1;
+  gap: 0;
+}
+
+/* ========== MATCH CARD ========== */
+.bracket-match {
+  display: block;
+  width: 160px;
+  background: #111827;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #1e293b;
+  transition: border-color 0.2s;
+}
+
+.bracket-match.two-legs {
+  width: 185px;
+}
+
+.bracket-match:hover {
+  border-color: #3f4a5c;
+}
+
+.bracket-match.final-match {
+  border-color: #b45309;
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.1);
+}
+
+.bracket-match.final-match:hover {
+  border-color: #d97706;
+}
+
+.match-header {
+  background: #0d1117;
+  padding: 3px 8px;
+  font-size: 9px;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.match-date {
+  color: #64748b;
+}
+
+.match-date-link {
+  color: #64748b;
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.match-date-link:hover {
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.match-live {
+  color: #22c55e;
+  font-weight: 600;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.match-format {
+  color: #475569;
+  font-size: 8px;
+}
+
+.match-team {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+
+a.match-team:hover {
+  background: rgba(6, 182, 212, 0.08);
+}
+
+.match-team + .match-team {
+  border-top: 1px solid #1e293b;
+}
+
+.match-team.winner {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+a.match-team.winner:hover {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.team-indicator {
+  width: 2px;
+  height: 14px;
+  border-radius: 1px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.team-indicator.winner {
+  background: #22c55e;
+}
+
+.team-crest {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 600;
+  color: #000;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.team-crest img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
+.team-name {
+  flex: 1;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #94a3b8;
+}
+
+.team-name.winner {
+  color: #fff;
+  font-weight: 600;
+}
+
+.team-scores {
+  display: flex;
+  gap: 0;
+}
+
+.team-score {
+  font-size: 10px;
+  font-weight: 700;
+  width: 18px;
+  text-align: center;
+  color: #64748b;
+  padding: 2px 2px;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+a.team-score:hover {
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.15);
+}
+
+/* Add separator between leg scores */
+.team-scores .team-score:first-child {
+  border-right: 1px solid #1e293b;
+}
+
+.team-score.winner {
+  color: #22c55e;
+}
+
+a.team-score.winner:hover {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+/* ========== MATCH SLOT ========== */
+/* Using flex space-around for automatic vertical distribution */
+
+.match-slot {
+  position: relative;
+}
+
+/* Playoffs round - same as R16 */
+.round-playoffs .matches {
+  justify-content: space-around;
+}
+
+/* ========== SIMPLE BRACKET FALLBACK ========== */
+.knockout-bracket-container.simple {
+  max-width: 48rem;
+}
+
+.simple-bracket {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.simple-stage-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.simple-stage-header h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.stage-line {
+  flex: 1;
+  height: 1px;
+  background: #334155;
+}
+
+.simple-matches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.simple-stage:has(.simple-matches > :only-child) .simple-matches {
+  max-width: 180px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1100px) {
+  .bracket {
+    gap: 0.5rem;
+  }
+
+  .bracket-match {
+    width: 150px;
+  }
+
+  .bracket-match.two-legs {
+    width: 170px;
+  }
+
+  .round-title {
+    min-width: 170px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .bracket {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .bracket-match {
+    width: 200px;
+  }
+
+  .bracket-match.two-legs {
+    width: 200px;
+  }
+
+  .round-title {
+    min-width: 200px;
+  }
+
+  .matches {
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+}
