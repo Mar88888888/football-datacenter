@@ -6,3 +6,4 @@ export * from './match.types';
 export * from './standings.types';
 export * from './favorites.types';
 export * from './api.types';
+export * from './scorer.types';

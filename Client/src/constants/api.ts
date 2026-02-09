@@ -13,6 +13,10 @@ export const API_ENDPOINTS = {
   USER_FAV_TEAM: (teamId: number | string): string => `/user/favteam/${teamId}`,
   USER_FAV_COMP: (compId: number | string): string => `/user/favcomp/${compId}`,
 
+  // User hidden competitions
+  USER_HIDDEN_COMPS: '/user/hiddencomp',
+  USER_HIDDEN_COMP: (compId: number | string): string => `/user/hiddencomp/${compId}`,
+
   // Competitions
   COMPETITIONS: '/competitions',
   COMPETITION: (id: number | string): string => `/competitions/${id}`,
@@ -27,6 +31,11 @@ export const API_ENDPOINTS = {
 
   // Matches
   MATCHES: '/matches',
+  MATCH: (id: number | string): string => `/matches/${id}`,
+  MATCH_HEAD2HEAD: (id: number | string): string => `/matches/${id}/head2head`,
+
+  // Competition Scorers
+  COMPETITION_SCORERS: (id: number | string): string => `/competitions/${id}/scorers`,
 } as const;
 
 export type ApiEndpoints = typeof API_ENDPOINTS;

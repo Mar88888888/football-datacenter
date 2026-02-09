@@ -3,13 +3,48 @@ export const CACHE_CONFIG = {
   COMPETITIONS_LIST: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 },
   COMPETITION_MATCHES: { stale: 15 * 60 * 1000, ttl: 30 * 60 * 1000 }, // 15min / 30min
   COMPETITION_SCORERS: { stale: 6 * 60 * 60 * 1000, ttl: 12 * 60 * 60 * 1000 }, // 6h / 12h
-  MATCHES: { stale: 10 * 60 * 1000, ttl: 20 * 60 * 1000 }, // 10min / 20min
+  MATCHES_TODAY: { stale: 2 * 60 * 1000, ttl: 10 * 60 * 1000 }, // 2min / 10min (live updates)
+  MATCHES_PAST: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 }, // 12h / 24h (results finalized)
+  MATCHES_FUTURE: { stale: 6 * 60 * 60 * 1000, ttl: 12 * 60 * 60 * 1000 }, // 6h / 12h (fixtures rarely change)
   MATCH: { stale: 5 * 60 * 1000, ttl: 15 * 60 * 1000 }, // 5min / 15min (single match)
   HEAD2HEAD: { stale: 6 * 60 * 60 * 1000, ttl: 12 * 60 * 60 * 1000 }, // 6h / 12h
   STANDINGS: { stale: 30 * 60 * 1000, ttl: 60 * 60 * 1000 }, // 30min / 1h
   TEAM: { stale: 12 * 60 * 60 * 1000, ttl: 24 * 60 * 60 * 1000 },
   TEAM_MATCHES: { stale: 15 * 60 * 1000, ttl: 30 * 60 * 1000 }, // 15min / 30min
 } as const;
+
+export function getMatchesCacheConfig(date?: string): {
+  stale: number;
+  ttl: number;
+} {
+  if (!date) {
+    return CACHE_CONFIG.MATCHES_TODAY;
+  }
+
+  const now = new Date();
+  const currentHour = now.getUTCHours();
+
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split('T')[0];
+
+  const yesterday = new Date(today);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  // Before 3 AM, treat both today and yesterday as "live"
+  if (currentHour < 3 && date === yesterdayStr) {
+    return CACHE_CONFIG.MATCHES_TODAY;
+  }
+
+  if (date < todayStr) {
+    return CACHE_CONFIG.MATCHES_PAST;
+  } else if (date > todayStr) {
+    return CACHE_CONFIG.MATCHES_FUTURE;
+  } else {
+    return CACHE_CONFIG.MATCHES_TODAY;
+  }
+}
 
 export enum FootballJobType {
   COMPETITION = 'competition',
@@ -86,17 +121,19 @@ export function getPathAndTtl(data: FootballJobData): {
         path: `/competitions/${data.competitionId}/scorers`,
         ttl: CACHE_CONFIG.COMPETITION_SCORERS.ttl,
       };
-    case FootballJobType.MATCHES:
+    case FootballJobType.MATCHES: {
+      const matchesCacheConfig = getMatchesCacheConfig(data.date);
       if (data.date) {
         const nextDay = new Date(data.date + 'T00:00:00Z');
         nextDay.setUTCDate(nextDay.getUTCDate() + 1);
         const nextDayStr = nextDay.toISOString().split('T')[0];
         return {
           path: `/matches?dateFrom=${data.date}&dateTo=${nextDayStr}`,
-          ttl: CACHE_CONFIG.MATCHES.ttl,
+          ttl: matchesCacheConfig.ttl,
         };
       }
-      return { path: '/matches', ttl: CACHE_CONFIG.MATCHES.ttl };
+      return { path: '/matches', ttl: matchesCacheConfig.ttl };
+    }
     case FootballJobType.MATCH:
       return {
         path: `/matches/${data.matchId}`,
