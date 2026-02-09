@@ -10,6 +10,7 @@ import {
   getPathAndTtl,
   extractResponseData,
   CACHE_CONFIG,
+  getMatchesCacheConfig,
 } from './football-data.types';
 import { FetcherService } from './fetcher.service';
 import { Competition } from '../competitions/competition';
@@ -66,9 +67,10 @@ export class FootballDataService {
 
   async getMatches(date?: Date): Promise<DataResult<Match[]>> {
     const dateStr = date ? this.formatDate(date) : undefined;
+    const cacheConfig = getMatchesCacheConfig(dateStr);
     return this.getData<Match[]>(
       { type: FootballJobType.MATCHES, date: dateStr },
-      CACHE_CONFIG.MATCHES.stale,
+      cacheConfig.stale,
     );
   }
 
@@ -158,8 +160,8 @@ export class FootballDataService {
     } catch (error) {
       const status = error?.response?.status;
 
-      // 404 = resource doesn't exist, cache it so we don't keep asking
-      if (status === 404) {
+      // 400/404 = resource doesn't exist or invalid request, cache it so we don't keep asking
+      if (status === 400 || status === 404) {
         const notAvailableEntry: CacheEntry<null> = {
           data: null,
           timestamp: Date.now(),
@@ -169,10 +171,12 @@ export class FootballDataService {
         return { data: null, status: DataStatus.NOT_AVAILABLE };
       }
 
-      // Don't log 429 or 404 as errors
+      // Only log unexpected errors (not 429 rate limits)
       if (status !== 429) {
         this.logger.error(`Fetch failed for ${cacheKey}: ${error.message}`);
       }
+
+      // Only return PROCESSING (retry hint) for potentially recoverable errors (429, 5xx)
       return { data: null, status: DataStatus.PROCESSING, retryAfter: 30 };
     }
   }
