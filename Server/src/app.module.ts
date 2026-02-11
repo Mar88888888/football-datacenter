@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -88,13 +89,18 @@ import { UserHiddenComp } from './users/hidden/user.hiddencomp.entity';
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 60000, // 1 minute
-        limit: 10, // 10 requests per minute (general)
+        ttl: 10000,
+        limit: 20,
+      },
+      {
+        name: 'medium',
+        ttl: 60000,
+        limit: 100,
       },
       {
         name: 'auth',
-        ttl: 60000, // 1 minute
-        limit: 5, // 5 auth attempts per minute
+        ttl: 60000,
+        limit: 5,
       },
     ]),
 
@@ -107,6 +113,12 @@ import { UserHiddenComp } from './users/hidden/user.hiddencomp.entity';
     FootballDataModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -13,7 +13,7 @@ import {
   UnauthorizedException,
   HttpCode,
 } from '@nestjs/common';
-import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
@@ -78,7 +78,6 @@ export class UsersController {
 
   @Serialize(UserDto)
   @Post('/auth/signup')
-  @UseGuards(ThrottlerGuard)
   @Throttle({ auth: { ttl: 60000, limit: 5 } })
   async createUser(@Body() body: CreateUserDto) {
     const result = await this.authService.signup(
@@ -95,7 +94,6 @@ export class UsersController {
 
   @Serialize(UserDto)
   @Post('/auth/signin')
-  @UseGuards(ThrottlerGuard)
   @Throttle({ auth: { ttl: 60000, limit: 5 } })
   async signin(@Body() signinDto: SignInUserDto) {
     const { accessToken, user } = await this.authService.signin(
